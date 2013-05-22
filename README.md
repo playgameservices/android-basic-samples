@@ -53,3 +53,4 @@ IMPORTANT: if you are testing an unpublished game, make sure you're signing in w
 an account that's listed as a tester in the project on Developer Console,
 otherwise the server will act as though your project did not exist.
 
+Note: BaseGameUtils doesn't have any resources, so it doesn't have a res/ directory. If your build system seems unhappy about this, you can just create an empty res/ directory.
