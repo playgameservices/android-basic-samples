@@ -619,6 +619,7 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
         mSignedIn = true;
         mSignInError = false;
         mAutoSignIn = true;
+        mUserInitiatedSignIn = false;
         dismissDialog();
         if (mListener != null) {
             mListener.onSignInSucceeded();
