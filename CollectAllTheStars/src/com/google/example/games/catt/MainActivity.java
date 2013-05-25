@@ -194,7 +194,6 @@ public class MainActivity extends BaseGameActivity
         case R.id.button_sign_out:
             // sign out.
             signOut();
-            showSignInBar();
             break;
         case R.id.button_next_world:
             if (mWorld < WORLD_MAX) {
@@ -280,6 +279,11 @@ public class MainActivity extends BaseGameActivity
         if (!mAlreadyLoadedState) {
             loadFromCloud();
         }
+    }
+
+    @Override
+    public void onSignOutComplete() {
+        showSignInBar();
     }
 
     void loadFromCloud() {

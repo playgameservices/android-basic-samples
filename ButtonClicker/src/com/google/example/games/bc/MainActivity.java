@@ -150,6 +150,11 @@ public class MainActivity extends BaseGameActivity
     }
 
     @Override
+    public void onSignOutComplete() {
+        switchToScreen(R.id.screen_sign_in);
+    }
+
+    @Override
     public void onClick(View v) {
         Intent intent;
 
@@ -169,7 +174,6 @@ public class MainActivity extends BaseGameActivity
                 break;
             case R.id.button_sign_out:
                 signOut();
-                switchToScreen(R.id.screen_sign_in);
                 break;
             case R.id.button_invite_players:
                 // show list of invitable players

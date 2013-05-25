@@ -83,6 +83,11 @@ public class MainActivity extends BaseGameActivity implements View.OnClickListen
     }
 
     @Override
+    public void onSignOutComplete() {
+        showSignInBar();
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()) {
         case R.id.button_sign_in:
@@ -100,7 +105,6 @@ public class MainActivity extends BaseGameActivity implements View.OnClickListen
         case R.id.button_sign_out:
             // sign out.
             signOut();
-            showSignInBar();
             break;
         case R.id.button_win:
             // win!
