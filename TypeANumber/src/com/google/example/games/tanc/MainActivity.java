@@ -352,6 +352,10 @@ public class MainActivity extends BaseGameActivity
     @Override
     public void onSignOutButtonClicked() {
         signOut();
+    }
+
+    @Override
+    public void onSignOutComplete() {
         mMainMenuFragment.setGreeting(getString(R.string.signed_out_greeting));
         mMainMenuFragment.setShowSignInButton(true);
         mWinFragment.setShowSignInButton(true);
