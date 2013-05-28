@@ -516,8 +516,6 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
             return;
         }
 
-        showProgressDialog(true);
-
         // which client should be the next one to connect?
         if (mGamesClient != null && (0 != (pendingClients & CLIENT_GAMES))) {
             debugLog("Connecting GamesClient.");
