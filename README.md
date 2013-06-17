@@ -47,7 +47,7 @@ Now jump to the *Modify IDs, compile and run* section and continue to follow the
 *Note: If you already have some experience with Android Studio, please forgive the verbosity of these instructions... since Android Studio is relatively new at the time of this writing, these instructions assume you're a newbie and try to be as specific as possible.*
 
 1. Open Android Studio
-1. Make sure you're running the latest version of Android Studio. As of this writing, Android Studio is in beta and evolving rapidly, which means that updating it to the latest version might just fix that mysterious bug that's blocking you :-)
+1. Make sure you're running the latest version of Android Studio. As of this writing, Android Studio is in alpha and evolving rapidly, which means that updating it to the latest version might just fix that mysterious bug that's blocking you :-)
 1. Select **File | Import project**
 1. Select the Google Play Services library project. It's usually a directory called `google-play-services_lib` in your SDK's `extras/google` directory.
 1. Select the **Create project from existing sources** option, when asked.
