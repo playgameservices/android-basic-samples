@@ -26,24 +26,79 @@ Note: the samples that have corresponding counterparts for iOS and web (particul
  
    Note your package name and the APP ID of the project.
 
-2. Create leaderboards/achievements as appropriate for the sample
+1. Create leaderboards/achievements as appropriate for the sample
    (see the ones that the sample needs in its res/values/ids.xml)
 
-3. Start Eclipse
-4. Import the desired sample (Project | Import | Android | Existing Android Source)
-5. Import the Google Play Services library project (available for download through the SDK manager).
+Pick a set of instructions below depending on whether you're using Eclipse or Android Studio.
+
+<h3>If you're using Eclipse...</h3>
+
+1. Start Eclipse
+1. Import the desired sample (Project | Import | Android | Existing Android Source)
+1. Import the Google Play Services library project (available for download through the SDK manager).
    Make sure that the sample is REFERENCING the library project (Project Properties | Android | References)
-6. Import BaseGameUtils AS A LIBRARY
+1. Import BaseGameUtils AS A LIBRARY
    Make sure that the sample is REFERENCING the library project (Project Properties | Android | References)
-7. Change the package name from com.google.example.games.* to your own package name
+
+Now jump to the *Modify IDs, compile and run* section and continue to follow the instructions there.
+
+<h3>If you're using Android Studio...</h3>
+
+*Note: If you already have some experience with Android Studio, please forgive the verbosity of these instructions... since Android Studio is relatively new at the time of this writing, these instructions assume you're a newbie and try to be as specific as possible.*
+
+1. Open Android Studio
+1. Make sure you're running the latest version of Android Studio. As of this writing, Android Studio is in beta and evolving rapidly, which means that updating it to the latest version might just fix that mysterious bug that's blocking you :-)
+1. Select **File | Import project**
+1. Select the Google Play Services library project. It's usually a directory called `google-play-services_lib` in your SDK's `extras/google` directory.
+1. Select the **Create project from existing sources** option, when asked.
+1. When asked which source directories to use, leave all of them selected (`/`, `/gen` and `/src`).
+1. When asked which library to use, select *only* the ones in the `libs` directory.
+1. Finish the import process.
+1. Click on the newly created module and press `F4` to bring up the module properties.
+1. Select **google-play-services_lib** in the middle pane, expand it and go its **Android** sub-item
+1. Check the **Library Module** checkbox (very important!)
+1. Next, click **File | Import Module** (don't confuse with **Import Project**)
+1. Select the `BaseGameUtils` directory from the samples.
+1. Import it exactly the same way you imported the other project just now (steps 5 to 11). Did you remember to check the **Library Module** checkbox?
+1. Now you should have two modules: `google-play-services_lib` and `BaseGameUtils`
+1. Click **File | Import Module** one more time.
+1. Select the directory of the sample you wish to import. For example, `TrivialQuest`.
+1. Import it as in steps 5 to 11, but **don't** check the **Library Module** checkbox.
+1. Select the `BaseGameUtils` module, and press `F4`
+1. In the **Dependencies** tab, click the green plus icon to add a new dependency. Select **Module Dependency** in the popup menu.
+1. Select **google-play-services_lib** in the box that appears.
+1. Now you are back to the **Dependencies** tab. Now, check the **Export** checkbox to the left of the newly added **google-play-services_lib** item.
+1. Look at the leftmost list in this window, under **Project Settings**. Click on the **Libraries** item.
+1. Make sure you see **google-play-services** and **android-support-v4** in the middle pane. If not, something went wrong.
+1. Now, go back to the **Modules** pane (click on the **Modules** item in the leftmost list box).
+1. Select **BaseGameUtils** in the middle pane.
+1. Click the green plus icon to add a library. Select **Library** in the popup menu.
+1. Select the **google-play-services** library in the box that appears.
+1. Click the green plus icon to add a library. Select **Library** in the popup menu.
+1. Select the **android-support-v4** library in the box that appears.
+1. Check the **Export** checkbox next to **android-support-v4**
+1. Check the **Export** checkbox next to **google-play-services_lib**
+1. Check the **Export** checkbox next to **google-play-services**
+1. Select **TrivialQuest** in the middle pane.
+1. Click the green plus icon to add a dependency. Select **Module dependency** in the popup menu.
+1. Select the **BaseGameUtils** module.
+1. *Don't* check the **Export*** checkbox.
+1. Close this window.
+
+Continue below.
+
+<h3>Modify IDs, compile and run</h3>
+
+1. Change the package name from com.google.example.games.* to your own package name
    (the same one you registered in Developer Console!). To do that, open AndroidManifest.xml and put
    your package name in the "package" attribute of the <manifest> tag. You will need to
    fix some of the references (particularly to the generated R class) because of the package name
-   change. Ctrl+Shift+O in Eclipse should take care of most of the work.
-8. Modify res/values/ids.xml and place your IDs there, as given by the
+   change. Ctrl+Shift+O in Eclipse (and Alt+Enter in Android Studio) should take care of most of the work.
+1. Modify res/values/ids.xml and place your IDs there, as given by the
    Developer Console (create the leaderboards and achievements necessary for
-   the sample, if any).
-9. Compile and run.
+   the sample, if any). Remember that the App ID is only the *numerical* portion
+   of your client ID, so use `123456789012` and not `123456789012.apps.gooogleusercontent.com`.
+1. Compile and run.
 
 IMPORTANT: make sure to sign your apk with the same certificate
 as the one whose fingerprint you configured on Developer Console, otherwise
@@ -54,3 +109,11 @@ an account that's listed as a tester in the project on Developer Console,
 otherwise the server will act as though your project did not exist.
 
 Note: BaseGameUtils doesn't have any resources, so it doesn't have a res/ directory. If your build system seems unhappy about this, you can just create an empty res/ directory.
+
+<h2>Support</h2>
+
+First of all, take a look at our (hopefully) thorough [troubleshooting guide](https://developers.google.com/games/services/android/troubleshooting). In our experience, *most* setup issues can be solved by following this guide.
+
+If your question is not answered by the troubleshooting guide, we encourage you to post your question to [stackoverflow.com](stackoverflow.com). Our team answers questions there reguarly.
+
+*Samples written by [Bruno Oliveira](http://plus.google.com/+BrunoOliveira).* Feel free to add me to your circles on Google Plus and pester me to fix stuff that's broken or answer a question on stackoverflow :-)
