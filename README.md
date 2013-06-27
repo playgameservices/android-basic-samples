@@ -37,12 +37,25 @@ Pick a set of instructions below depending on whether you're using Eclipse or An
 1. Import the desired sample (Project | Import | Android | Existing Android Source)
 1. Import the Google Play Services library project (available for download through the SDK manager).
    Make sure that the sample is REFERENCING the library project (Project Properties | Android | References)
-1. Import BaseGameUtils AS A LIBRARY
+1. Import libraries/BaseGameUtils AS A LIBRARY
    Make sure that the sample is REFERENCING the library project (Project Properties | Android | References)
 
 Now jump to the *Modify IDs, compile and run* section and continue to follow the instructions there.
 
 <h3>If you're using Android Studio...</h3>
+
+1. Open Android Studio and launch the Android SDK manager from it (Tools | Android | SDK Manager)
+1. Check that these two components are installed. Install them if they are not installed yet.
+   1. *Google Play Services*
+   1. *Google Play Services Repository*
+1. Go to the `build_scripts` directory and run the `copy_gradle_to_prj.sh` to copy the Gradle build files to the appropriate places in the directory tree.
+1. Launch Android Studio
+1. Select *Open Project* (do not select "Import Project").
+1. Select the top-level directory (the one that contains `README.md`).
+
+If this process does not work, you can also try importing the sources manually as described below.
+
+<h3>Importing manually in Android Studio...</h3>
 
 *Note: If you already have some experience with Android Studio, please forgive the verbosity of these instructions... since Android Studio is relatively new at the time of this writing, these instructions assume you're a newbie and try to be as specific as possible.*
 
@@ -58,7 +71,7 @@ Now jump to the *Modify IDs, compile and run* section and continue to follow the
 1. Select **google-play-services_lib** in the middle pane, expand it and go its **Android** sub-item
 1. Check the **Library Module** checkbox (very important!)
 1. Next, click **File | Import Module** (don't confuse with **Import Project**)
-1. Select the `BaseGameUtils` directory from the samples.
+1. Select the `libraries/BaseGameUtils` directory from the samples.
 1. Import it exactly the same way you imported the other project just now (steps 5 to 11). Did you remember to check the **Library Module** checkbox?
 1. Now you should have two modules: `google-play-services_lib` and `BaseGameUtils`
 1. Click **File | Import Module** one more time.
