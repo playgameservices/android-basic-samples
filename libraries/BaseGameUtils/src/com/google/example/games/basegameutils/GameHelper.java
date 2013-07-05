@@ -16,6 +16,8 @@
 
 package com.google.example.games.basegameutils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import android.app.Activity;
@@ -195,19 +197,18 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
         mListener = listener;
         mRequestedClients = clientsToUse;
 
-        Vector<String> scopesVector = new Vector<String>();
+        List<String> scopesList = new ArrayList<String>();
         if (0 != (clientsToUse & CLIENT_GAMES)) {
-            scopesVector.add(Scopes.GAMES);
+            scopesList.add(Scopes.GAMES);
         }
         if (0 != (clientsToUse & CLIENT_PLUS)) {
-            scopesVector.add(Scopes.PLUS_LOGIN);
+            scopesList.add(Scopes.PLUS_LOGIN);
         }
         if (0 != (clientsToUse & CLIENT_APPSTATE)) {
-            scopesVector.add(Scopes.APP_STATE);
+            scopesList.add(Scopes.APP_STATE);
         }
 
-        mScopes = new String[scopesVector.size()];
-        scopesVector.copyInto(mScopes);
+        mScopes = scopesList.toArray(new String[scopesList.size()]);
 
         if (0 != (clientsToUse & CLIENT_GAMES)) {
             debugLog("onCreate: creating GamesClient");
