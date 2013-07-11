@@ -417,6 +417,12 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
                 // Ready to try to connect again.
                 debugLog("responseCode == RESULT_OK. So connecting.");
                 connectCurrentClient();
+            } else if (responseCode == Activity.RESULT_CANCELED) {
+                // User cancelled.
+                mAutoSignIn = false;
+                mConnectionResult = null;
+                mUserInitiatedSignIn = false;
+                dismissDialog();
             } else {
                 // Whatever the problem we were trying to solve, it was not
                 // solved.
