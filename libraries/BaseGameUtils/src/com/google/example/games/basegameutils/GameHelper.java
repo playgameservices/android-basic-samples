@@ -709,13 +709,14 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
 
         Dialog errorDialog = null;
         if (mConnectionResult != null) {
-            // get error dialog for that specific problem
-            errorDialog = getErrorDialog(mConnectionResult.getErrorCode());
-            errorDialog.show();
-            if (mListener != null) {
-                mListener.onSignInFailed();
-            }
-        } else {
+			if(mConnectionResult.getErrorCode() != 4){
+	            // get error dialog for that specific problem
+	            errorDialog = getErrorDialog(mConnectionResult.getErrorCode());
+	            errorDialog.show();
+	            if (mListener != null) {
+	                mListener.onSignInFailed();
+	            }
+            }        } else {
             // this is a bug
             Log.e("GameHelper", "giveUp() called with no mConnectionResult");
         }
