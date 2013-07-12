@@ -190,8 +190,13 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
      * @param clientsToUse The clients to use. Use a combination of
      *            CLIENT_GAMES, CLIENT_PLUS and CLIENT_APPSTATE, or CLIENT_ALL
      *            to request all clients.
+     * @param additionalScopes Any scopes to be used that are outside of the ones defined
+     *            in the Scopes class.
+     *            I.E. for YouTube uploads one would add 
+     *            "https://www.googleapis.com/auth/youtube.upload"
      */
-    public void setup(GameHelperListener listener, int clientsToUse) {
+    public void setup(GameHelperListener listener, int clientsToUse, String ... additionalScopes) {
+
         mListener = listener;
         mRequestedClients = clientsToUse;
 
@@ -204,6 +209,12 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
         }
         if (0 != (clientsToUse & CLIENT_APPSTATE)) {
             scopesVector.add(Scopes.APP_STATE);
+        }
+
+        if ( null != additionalScopes ) {
+            for( String scope : additionalScopes ) {
+                scopesVector.add(scope);
+            }
         }
 
         mScopes = new String[scopesVector.size()];
@@ -367,18 +378,22 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
      */
     public String getScopes() {
         StringBuilder scopeStringBuilder = new StringBuilder();
-        int clientsToUse = mRequestedClients;
-        // GAMES implies PLUS_LOGIN
-        if (0 != (clientsToUse & CLIENT_GAMES)) {
-            addToScope(scopeStringBuilder, Scopes.GAMES);
-        }
-        if (0 != (clientsToUse & CLIENT_PLUS)) {
-            addToScope(scopeStringBuilder, Scopes.PLUS_LOGIN);
-        }
-        if (0 != (clientsToUse & CLIENT_APPSTATE)) {
-            addToScope(scopeStringBuilder, Scopes.APP_STATE);
+        if (null != mScopes) {
+            for (String scope: mScopes) {
+                addToScope(scopeStringBuilder, scope);
+            }
         }
         return scopeStringBuilder.toString();
+    }
+
+    /**
+     * Returns an array of the current requested scopes. This is not valid until
+     * setup() has been called
+     * 
+     * @return the requested scopes, including the oauth2: prefix
+     */
+    public String[] getScopesArray() {
+        return mScopes;
     }
 
     /** Sign out and disconnect from the APIs. */

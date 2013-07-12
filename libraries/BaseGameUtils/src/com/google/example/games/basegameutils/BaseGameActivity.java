@@ -58,6 +58,9 @@ public abstract class BaseGameActivity extends FragmentActivity implements
     // Requested clients. By default, that's just the games client.
     protected int mRequestedClients = CLIENT_GAMES;
 
+    // stores any additional scopes.
+    private String[] mAdditionalScopes;
+
     /** Constructs a BaseGameActivity with default client (GamesClient). */
     protected BaseGameActivity() {
         super();
@@ -82,16 +85,19 @@ public abstract class BaseGameActivity extends FragmentActivity implements
      *
      * @param requestedClients A combination of the flags CLIENT_GAMES, CLIENT_PLUS
      *         and CLIENT_APPSTATE, or CLIENT_ALL to request all available clients.
+     * @param additionalScopes.  Scopes that should also be requested when the auth
+     *         request is made.
      */
-    protected void setRequestedClients(int requestedClients) {
+    protected void setRequestedClients(int requestedClients, String ... additionalScopes) {
         mRequestedClients = requestedClients;
+        mAdditionalScopes = additionalScopes;
     }
 
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         mHelper = new GameHelper(this);
-        mHelper.setup(this, mRequestedClients);
+        mHelper.setup(this, mRequestedClients, mAdditionalScopes);
     }
 
     @Override
@@ -158,6 +164,10 @@ public abstract class BaseGameActivity extends FragmentActivity implements
 
     protected String getScopes() {
         return mHelper.getScopes();
+    }
+    
+    protected String[] getScopesArray() {
+        return mHelper.getScopesArray();
     }
 
     protected boolean hasSignInError() {
