@@ -115,14 +115,16 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
     // The connection result we got from our last attempt to sign-in.
     ConnectionResult mConnectionResult = null;
 
-    // Whether our sign-in attempt resulted in an error. In this case,
-    // mConnectionResult
-    // indicates what was the error we failed to resolve.
+    /*
+     * Whether our sign-in attempt resulted in an error. In this case,
+     * mConnectionResult indicates what was the error we failed to resolve.
+     */
     boolean mSignInError = false;
 
-    // Whether we launched the sign-in dialog flow and therefore are expecting
-    // an
-    // onActivityResult with the result of that.
+    /*
+     * Whether we launched the sign-in dialog flow and therefore are expecting
+     * an onActivityResult with the result of that.
+     */
     boolean mExpectingActivityResult = false;
 
     // Are we signed in?
@@ -130,16 +132,17 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
 
     // Print debug logs?
     boolean mDebugLog = false;
-    String mDebugTag = "BaseGameActivity";
+    String mDebugTag = "GameHelper";
 
     // Messages (can be set by the developer).
     String mSigningInMessage = "";
     String mSigningOutMessage = "";
     String mUnknownErrorMessage = "Unknown error";
 
-    // If we got an invitation id when we connected to the games client, it's
-    // here.
-    // Otherwise, it's null.
+    /*
+     * If we got an invitation id when we connected to the games client, it's
+     * here. Otherwise, it's null.
+     */
     String mInvitationId;
 
     // Listener
@@ -192,7 +195,7 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
      *            to request all clients.
      * @param additionalScopes Any scopes to be used that are outside of the ones defined
      *            in the Scopes class.
-     *            I.E. for YouTube uploads one would add 
+     *            I.E. for YouTube uploads one would add
      *            "https://www.googleapis.com/auth/youtube.upload"
      */
     public void setup(GameHelperListener listener, int clientsToUse, String ... additionalScopes) {
@@ -221,7 +224,7 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
         scopesVector.copyInto(mScopes);
 
         if (0 != (clientsToUse & CLIENT_GAMES)) {
-            debugLog("onCreate: creating GamesClient");
+            debugLog("setup: creating GamesClient");
             mGamesClient = new GamesClient.Builder(getContext(), this, this)
                     .setGravityForPopups(Gravity.TOP | Gravity.CENTER_HORIZONTAL)
                     .setScopes(mScopes)
@@ -229,14 +232,14 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
         }
 
         if (0 != (clientsToUse & CLIENT_PLUS)) {
-            debugLog("onCreate: creating GamesPlusClient");
+            debugLog("setup: creating GamesPlusClient");
             mPlusClient = new PlusClient.Builder(getContext(), this, this)
                     .setScopes(mScopes)
                     .build();
         }
 
         if (0 != (clientsToUse & CLIENT_APPSTATE)) {
-            debugLog("onCreate: creating AppStateClient");
+            debugLog("setup: creating AppStateClient");
             mAppStateClient = new AppStateClient.Builder(getContext(), this, this)
                     .setScopes(mScopes)
                     .create();
@@ -389,7 +392,7 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
     /**
      * Returns an array of the current requested scopes. This is not valid until
      * setup() has been called
-     * 
+     *
      * @return the requested scopes, including the oauth2: prefix
      */
     public String[] getScopesArray() {
@@ -424,8 +427,7 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
     public void onActivityResult(int requestCode, int responseCode, Intent intent) {
         if (requestCode == RC_RESOLVE) {
             // We're coming back from an activity that was launched to resolve a
-            // connection
-            // problem. For example, the sign-in UI.
+            // connection problem. For example, the sign-in UI.
             mExpectingActivityResult = false;
             debugLog("onActivityResult, req " + requestCode + " response " + responseCode);
             if (responseCode == Activity.RESULT_OK) {
@@ -440,8 +442,7 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
                 dismissDialog();
             } else {
                 // Whatever the problem we were trying to solve, it was not
-                // solved.
-                // So give up and show an error message.
+                // solved. So give up and show an error message.
                 debugLog("responseCode != RESULT_OK, so not reconnecting.");
                 giveUp();
             }
@@ -757,8 +758,9 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
         Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(errorCode, mActivity,
                 RC_UNUSED, null);
 
-        if (errorDialog != null)
+        if (errorDialog != null) {
             return errorDialog;
+        }
 
         // as a last-resort, make a sad "unknown error" dialog.
         return (new AlertDialog.Builder(getContext())).setMessage(mUnknownErrorMessage)
@@ -766,14 +768,16 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
     }
 
     void debugLog(String message) {
-        if (mDebugLog)
+        if (mDebugLog) {
             Log.d(mDebugTag, message);
+        }
     }
 
     @Override
     public void onSignOutComplete() {
         dismissDialog();
-        if (mGamesClient.isConnected())
+        if (mGamesClient.isConnected()) {
             mGamesClient.disconnect();
+        }
     }
 }
