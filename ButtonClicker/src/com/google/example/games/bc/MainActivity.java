@@ -72,6 +72,7 @@ public class MainActivity extends BaseGameActivity
      */
 
     // Debug tag
+    final static boolean ENABLE_DEBUG = true;
     final static String TAG = "ButtonClicker2000";
 
     // Request codes for the UIs that we show with startActivityForResult:
@@ -105,6 +106,7 @@ public class MainActivity extends BaseGameActivity
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        enableDebugLog(ENABLE_DEBUG, TAG);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 

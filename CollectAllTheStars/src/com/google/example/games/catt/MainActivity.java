@@ -51,7 +51,8 @@ import com.google.example.games.cas.R;
  */
 public class MainActivity extends BaseGameActivity
             implements OnStateLoadedListener, View.OnClickListener, OnRatingBarChangeListener {
-    private static final String TAG = "CloudLevels";
+    private static final boolean ENABLE_DEBUG = true;
+    private static final String TAG = "CollectAllTheStars";
 
     // the state key under which we store our data. Since our data is small and
     // this is a simple example, we only use this one state key, but your app can
@@ -101,6 +102,7 @@ public class MainActivity extends BaseGameActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        enableDebugLog(ENABLE_DEBUG, TAG);
         log("onCreate.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);

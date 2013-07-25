@@ -20,7 +20,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.google.example.games.basegameutils.BaseGameActivity;
-import com.google.example.games.right.R;
+import com.google.example.games.tq.R;
 
 /**
  * Trivial quest. A sample game that sets up the Google Play game services

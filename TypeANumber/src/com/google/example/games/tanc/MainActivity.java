@@ -54,6 +54,7 @@ public class MainActivity extends BaseGameActivity
     final int RC_RESOLVE = 5000, RC_UNUSED = 5001;
 
     // tag for debug logging
+    final boolean ENABLE_DEBUG = true;
     final String TAG = "TanC";
 
     // playing on hard mode?
@@ -65,6 +66,7 @@ public class MainActivity extends BaseGameActivity
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        enableDebugLog(ENABLE_DEBUG, TAG);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
