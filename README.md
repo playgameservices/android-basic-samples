@@ -124,6 +124,7 @@ otherwise the server will act as though your project did not exist.
 <h3>If you're using another build system...</h3>
 
 If you are using your own build system, here is a summary of what you have to do:
+
 1. Configure it to treat **google-play-services_lib** and **BaseGameUtils** as library projects, which means that not only their code but also their resources will also get added to the final build.
 1. Make sure **TrivialQuest** depends on **BaseGameUtils**
 1. Make sure **BaseGameUtils** depends on **google-play-services_lib**.
