@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.games.Player;
 import com.google.example.games.basegameutils.BaseGameActivity;
+import com.google.example.games.tan.R;
 
 /**
  * Our main activity for the game.
@@ -89,8 +90,6 @@ public class MainActivity extends BaseGameActivity
 
         // load outbox from file
         mOutbox.loadLocal(this);
-
-        setSignInMessages(getString(R.string.signing_in), getString(R.string.signing_out));
     }
 
     // Switch UI to the given fragment

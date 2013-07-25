@@ -61,6 +61,9 @@ public abstract class BaseGameActivity extends FragmentActivity implements
     // stores any additional scopes.
     private String[] mAdditionalScopes;
 
+    protected String mDebugTag = "BaseGameActivity";
+    protected boolean mDebugLog = false;
+
     /** Constructs a BaseGameActivity with default client (GamesClient). */
     protected BaseGameActivity() {
         super();
@@ -97,6 +100,9 @@ public abstract class BaseGameActivity extends FragmentActivity implements
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         mHelper = new GameHelper(this);
+        if (mDebugLog) {
+            mHelper.enableDebugLog(mDebugLog, mDebugTag);
+        }
         mHelper.setup(this, mRequestedClients, mAdditionalScopes);
     }
 
@@ -151,7 +157,11 @@ public abstract class BaseGameActivity extends FragmentActivity implements
     }
 
     protected void enableDebugLog(boolean enabled, String tag) {
-        mHelper.enableDebugLog(enabled, tag);
+        mDebugLog = true;
+        mDebugTag = tag;
+        if (mHelper != null) {
+            mHelper.enableDebugLog(enabled, tag);
+        }
     }
 
     protected String getInvitationId() {
@@ -165,7 +175,7 @@ public abstract class BaseGameActivity extends FragmentActivity implements
     protected String getScopes() {
         return mHelper.getScopes();
     }
-    
+
     protected String[] getScopesArray() {
         return mHelper.getScopesArray();
     }
@@ -174,12 +184,7 @@ public abstract class BaseGameActivity extends FragmentActivity implements
         return mHelper.hasSignInError();
     }
 
-    protected ConnectionResult getSignInError() {
+    protected GameHelper.SignInFailureReason getSignInError() {
         return mHelper.getSignInError();
-    }
-
-    protected void setSignInMessages(String signingInMessage, String signingOutMessage) {
-        mHelper.setSigningInMessage(signingInMessage);
-        mHelper.setSigningOutMessage(signingOutMessage);
     }
 }

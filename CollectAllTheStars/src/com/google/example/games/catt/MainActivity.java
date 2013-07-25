@@ -32,6 +32,8 @@ import com.google.android.gms.appstate.AppStateClient;
 import com.google.android.gms.appstate.OnStateLoadedListener;
 import com.google.example.games.basegameutils.BaseGameActivity;
 
+import com.google.example.games.cas.R;
+
 /**
  * Collect All the Stars sample. This sample demonstrates how to use the cloud save features
  * of the Google Play game services API. It's a "game" where there are several worlds
@@ -112,7 +114,6 @@ public class MainActivity extends BaseGameActivity
         findViewById(R.id.button_sign_in).setOnClickListener(this);
         findViewById(R.id.button_sign_out).setOnClickListener(this);
         ((RatingBar) findViewById(R.id.gameplay_rating)).setOnRatingBarChangeListener(this);
-        setSignInMessages(getString(R.string.signing_in), getString(R.string.signing_out));
     }
 
     @Override

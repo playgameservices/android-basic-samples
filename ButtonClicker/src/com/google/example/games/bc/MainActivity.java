@@ -112,8 +112,6 @@ public class MainActivity extends BaseGameActivity
         for (int id : CLICKABLES) {
             findViewById(id).setOnClickListener(this);
         }
-
-        setSignInMessages(getString(R.string.signing_in), getString(R.string.signing_out));
     }
 
     /**

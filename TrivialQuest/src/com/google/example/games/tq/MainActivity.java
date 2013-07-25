@@ -16,9 +16,11 @@
 package com.google.example.games.tq;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.google.example.games.basegameutils.BaseGameActivity;
+import com.google.example.games.right.R;
 
 /**
  * Trivial quest. A sample game that sets up the Google Play game services
@@ -30,7 +32,7 @@ import com.google.example.games.basegameutils.BaseGameActivity;
  *
  */
 public class MainActivity extends BaseGameActivity implements View.OnClickListener {
-    private static boolean DEBUG_ENABLED = false;
+    private static boolean DEBUG_ENABLED = true;
     private static final String TAG = "TrivialQuest";
 
     @Override
@@ -42,8 +44,6 @@ public class MainActivity extends BaseGameActivity implements View.OnClickListen
         findViewById(R.id.button_sign_in).setOnClickListener(this);
         findViewById(R.id.button_sign_out).setOnClickListener(this);
         findViewById(R.id.button_win).setOnClickListener(this);
-
-        setSignInMessages(getString(R.string.signing_in), getString(R.string.signing_out));
     }
 
     // Shows the "sign in" bar (explanation and button).
