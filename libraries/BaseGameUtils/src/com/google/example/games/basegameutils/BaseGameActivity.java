@@ -23,6 +23,9 @@ import android.support.v4.app.FragmentActivity;
 import com.google.android.gms.appstate.AppStateClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.games.GamesClient;
+import com.google.android.gms.games.multiplayer.Invitation;
+import com.google.android.gms.games.multiplayer.Participant;
+import com.google.android.gms.games.multiplayer.realtime.RealTimeMessage;
 import com.google.android.gms.plus.PlusClient;
 
 /**
@@ -43,7 +46,7 @@ import com.google.android.gms.plus.PlusClient;
  * @author Bruno Oliveira (Google)
  */
 public abstract class BaseGameActivity extends FragmentActivity implements
-        GameHelper.GameHelperListener {
+        GameHelper.GameHelperListener, RtmpHelper.RtmpListener {
 
     // The game helper object. This class is mainly a wrapper around this object.
     protected GameHelper mHelper;
@@ -68,6 +71,7 @@ public abstract class BaseGameActivity extends FragmentActivity implements
     protected BaseGameActivity() {
         super();
         mHelper = new GameHelper(this);
+        mHelper.enableRealtimeMultiplayer(this);
     }
 
     /**
@@ -76,7 +80,7 @@ public abstract class BaseGameActivity extends FragmentActivity implements
      *         CLIENT_PLUS and CLIENT_APPSTATE).
      */
     protected BaseGameActivity(int requestedClients) {
-        super();
+        this();
         setRequestedClients(requestedClients);
     }
 
@@ -88,7 +92,7 @@ public abstract class BaseGameActivity extends FragmentActivity implements
      *
      * @param requestedClients A combination of the flags CLIENT_GAMES, CLIENT_PLUS
      *         and CLIENT_APPSTATE, or CLIENT_ALL to request all available clients.
-     * @param additionalScopes.  Scopes that should also be requested when the auth
+     * @param additionalScopes  Scopes that should also be requested when the auth
      *         request is made.
      */
     protected void setRequestedClients(int requestedClients, String ... additionalScopes) {
@@ -99,7 +103,6 @@ public abstract class BaseGameActivity extends FragmentActivity implements
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
-        mHelper = new GameHelper(this);
         if (mDebugLog) {
             mHelper.enableDebugLog(mDebugLog, mDebugTag);
         }
@@ -118,8 +121,13 @@ public abstract class BaseGameActivity extends FragmentActivity implements
         mHelper.onStop();
     }
 
+    // NOTE: we made this "final" to prevent you from making the (hard to debug) mistake
+    // of overriding onActivityResult and forgetting to call super.onActivityResult, which
+    // breaks the sign-in flow. If you really want to override onActivityResult, you can remove
+    // the "final" keyword below, as long as you promise to call
+    // super.onActivityResult(request,response,data) from your override!
     @Override
-    protected void onActivityResult(int request, int response, Intent data) {
+    protected final /* see note */ void onActivityResult(int request, int response, Intent data) {
         super.onActivityResult(request, response, data);
         mHelper.onActivityResult(request, response, data);
     }
@@ -186,5 +194,26 @@ public abstract class BaseGameActivity extends FragmentActivity implements
 
     protected GameHelper.SignInFailureReason getSignInError() {
         return mHelper.getSignInError();
+    }
+
+    @Override
+    public void onRtmpPreparing() {}
+    @Override
+    public void onRtmpStarted() {}
+    @Override
+    public void onRtmpEnding(int reason) {}
+    @Override
+    public void onRtmpEnded(int reason) {}
+    @Override
+    public void onRtmpAdded(Participant participant) {}
+    @Override
+    public void onRtmpDropped(Participant participant) {}
+    @Override
+    public void onRtmpMessage(RealTimeMessage msg) {}
+    @Override
+    public void onRtmpInvitation(Invitation inv) {}
+
+    protected RtmpHelper getRtmp() {
+        return mHelper.getRealtimeMultiplayer();
     }
 }

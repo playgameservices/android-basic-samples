@@ -98,6 +98,9 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
     // Request code when invoking Activities whose result we don't care about.
     final static int RC_UNUSED = 9002;
 
+    // Request code for multiplayer Activities
+    final static int RC_MULTIPLAYER = 9003;
+
     // Client objects we manage. If a given client is not enabled, it is null.
     GamesClient mGamesClient = null;
     PlusClient mPlusClient = null;
@@ -151,6 +154,9 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
 
     // Listener
     GameHelperListener mListener = null;
+
+    // Multiplayer helper
+    RtmpHelper mRtmpHelper = null;
 
     /**
      * Construct a GameHelper object, initially tied to the given Activity.
@@ -385,6 +391,11 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
                 throw new IllegalStateException(msg);
         }
 
+        // inform RtmpHelper so it can do cleanup too
+        if (mRtmpHelper != null) {
+            mRtmpHelper.onStop();
+        }
+
         // let go of the Activity reference
         mActivity = null;
     }
@@ -526,6 +537,12 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
         debugLog("onActivityResult: req=" + (requestCode == RC_RESOLVE ? "RC_RESOLVE" :
                 String.valueOf(requestCode)) + ", resp=" +
                 activityResponseCodeToString(responseCode));
+        if (requestCode == RC_MULTIPLAYER && mRtmpHelper != null) {
+            // meant for the multiplayer helper
+            debugLog("onActivityResult: delivering request code to multiplayer helper.");
+            mRtmpHelper.onActivityResult(responseCode, intent);
+            return;
+        }
         if (requestCode != RC_RESOLVE) {
             debugLog("onActivityResult: request code not meant for us. Ignoring.");
             return;
@@ -766,11 +783,15 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
             debugLog("onConnected: connection hint provided. Checking for invite.");
             Invitation inv = connectionHint.getParcelable(GamesClient.EXTRA_INVITATION);
             if (inv != null && inv.getInvitationId() != null) {
-                // accept invitation
                 debugLog("onConnected: connection hint has a room invite!");
                 mInvitationId = inv.getInvitationId();
                 debugLog("Invitation ID: " + mInvitationId);
             }
+        }
+
+        // is the multiplayer helper enabled? If so, let it handle the connection hint
+        if (mClientCurrentlyConnecting == CLIENT_GAMES && mRtmpHelper != null) {
+            mRtmpHelper.onGamesClientConnected(connectionHint);
         }
 
         // connect the next client in line, if any.
@@ -785,6 +806,15 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
         mAutoSignIn = true;
         mUserInitiatedSignIn = false;
         notifyListener(true);
+    }
+
+    public void enableRealtimeMultiplayer(RtmpHelper.RtmpListener listener) {
+        debugLog("Enabling real time multiplayer.");
+        if (listener == null) {
+            throw new IllegalArgumentException("To enable real time multiplayer, listener" +
+                    " cannot be null!");
+        }
+        mRtmpHelper = new RtmpHelper(this, listener);
     }
 
     /** Handles a connection failure reported by a client. */
@@ -953,6 +983,10 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
         }
     }
 
+    void logError(String message) {
+        Log.e(mDebugTag, "*** " + message);
+    }
+
     static String errorCodeToString(int errorCode) {
         switch (errorCode) {
             case ConnectionResult.DEVELOPER_ERROR:
@@ -1013,35 +1047,35 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
     }
 
     void printMisconfiguredDebugInfo() {
-        debugLog("****");
-        debugLog("****");
-        debugLog("**** APP NOT CORRECTLY CONFIGURED TO USE GOOGLE PLAY GAME SERVICES");
-        debugLog("**** This is usually caused by one of these reasons:");
-        debugLog("**** (1) Your package name and certificate fingerprint do not match");
-        debugLog("****     the client ID you registered in Developer Console.");
-        debugLog("**** (2) Your App ID was incorrectly entered.");
-        debugLog("**** (3) Your game settings have not been published and you are ");
-        debugLog("****     trying to log in with an account that is not listed as");
-        debugLog("****     a test account.");
-        debugLog("****");
+        logError("****");
+        logError("****");
+        logError("**** APP NOT CORRECTLY CONFIGURED TO USE GOOGLE PLAY GAME SERVICES");
+        logError("**** This is usually caused by one of these reasons:");
+        logError("**** (1) Your package name and certificate fingerprint do not match");
+        logError("****     the client ID you registered in Developer Console.");
+        logError("**** (2) Your App ID was incorrectly entered.");
+        logError("**** (3) Your game settings have not been published and you are ");
+        logError("****     trying to log in with an account that is not listed as");
+        logError("****     a test account.");
+        logError("****");
         Context ctx = getContext();
         if (ctx == null) {
-            debugLog("*** (no Context, so can't print more debug info)");
+            logError("*** (no Context, so can't print more debug info)");
             return;
         }
 
-        debugLog("**** To help you debug, here is the information about this app");
-        debugLog("**** Package name         : " + getContext().getPackageName());
-        debugLog("**** Cert SHA1 fingerprint: " + getSHA1CertFingerprint());
-        debugLog("**** App ID from          : " + getAppIdFromResource());
-        debugLog("****");
-        debugLog("**** Check that the above information matches your setup in ");
-        debugLog("**** Developer Console. Also, check that you're logging in with the");
-        debugLog("**** right account (it should be listed in the Testers section if");
-        debugLog("**** your project is not yet published).");
-        debugLog("****");
-        debugLog("**** For more information, refer to the troubleshooting guide:");
-        debugLog("****   http://developers.google.com/games/services/android/troubleshooting");
+        logError("**** To help you debug, here is the information about this app");
+        logError("**** Package name         : " + getContext().getPackageName());
+        logError("**** Cert SHA1 fingerprint: " + getSHA1CertFingerprint());
+        logError("**** App ID from          : " + getAppIdFromResource());
+        logError("****");
+        logError("**** Check that the above information matches your setup in ");
+        logError("**** Developer Console. Also, check that you're logging in with the");
+        logError("**** right account (it should be listed in the Testers section if");
+        logError("**** your project is not yet published).");
+        logError("****");
+        logError("**** For more information, refer to the troubleshooting guide:");
+        logError("****   http://developers.google.com/games/services/android/troubleshooting");
     }
 
     String getAppIdFromResource() {
@@ -1092,4 +1126,11 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
         sb.append("0123456789ABCDEF".substring(lo, lo + 1));
     }
 
+    public RtmpHelper getRealtimeMultiplayer() {
+        if (mRtmpHelper == null) {
+            throw new IllegalStateException("Can't call getRealtimeMultiplayer() because " +
+                    "multiplayer has not been enabled with enableRealtimeMultiplayer()");
+        }
+        return mRtmpHelper;
+    }
 }
