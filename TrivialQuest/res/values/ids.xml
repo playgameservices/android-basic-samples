@@ -17,8 +17,8 @@
 
 <resources>
     <!-- Replace by your app ID -->
-    <string name="app_id">ReplaceMe</string>
+    <string name="app_id">766785739904</string>
 
     <!-- Replace by your "Trivial Victory" achievement ID -->
-    <string name="trivial_victory_achievement_id">ReplaceMe</string>
+    <string name="trivial_victory_achievement_id">CgkIyqrx1MocEAIQBA</string>
 </resources>

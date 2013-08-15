@@ -122,7 +122,7 @@ public class MainActivity extends BaseGameActivity implements View.OnClickListen
      * did what they were supposed to in order for the sample to work.
      */
     boolean verifyPlaceholderIdsReplaced() {
-        final boolean CHECK_PKGNAME = true; // set to false to disable check (not recommended!)
+        final boolean CHECK_PKGNAME = false; // set to false to disable check (not recommended!)
 
         // Did the developer forget to change the package name?
         if (CHECK_PKGNAME && getPackageName().startsWith("com.google.example.")) return false;
