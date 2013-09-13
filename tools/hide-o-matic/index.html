@@ -1,0 +1,152 @@
+<!--
+   Copyright (C) 2013 Google Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<head>
+  <link rel="stylesheet"
+        type="text/css"
+        href="http://wolffexperiments.appspot.com/static/codelab/style.css">
+  <style type="text/css">
+    table.gridtable {
+      font-family: verdana,arial,sans-serif;
+      font-size:11px;
+      color:#333333;
+      border-width: 1px;
+      border-color: #666666;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    table.gridtable th {
+      border-width: 1px;
+      padding: 8px;
+      border-style: solid;
+      border-color: #666666;
+      background-color: #dedede;
+      text-align: left;
+    }
+    table.gridtable td {
+      border-width: 1px;
+      padding: 8px;
+      border-style: solid;
+      border-color: #666666;
+      background-color: #ffffff;
+      text-align: left;
+    }
+  </style>
+
+  <script src="hider.js" type="text/javascript"></script>
+
+
+</head>
+<body>
+  <div id="supercontainer">
+    <h2>The Play Games Hide/Unhide-o-matic!</h2>
+
+    <p>Please sign in with an account that has developer permissions
+      for your app.</p>
+
+    <div>
+      <span id="signinButton" style="display: none;">
+        <span
+          class="g-signin"
+          data-callback="signinCallback"
+          data-clientid="CLIENT_ID"
+          data-cookiepolicy="single_host_origin"
+          data-scope="https://www.googleapis.com/auth/games">
+        </span>
+      </span>
+    </div>
+    <div id="loggedInUI" style="display: none;">
+    <div>
+      <p>
+        <button
+           type="submit"
+           onClick="showHighScoreList()">Refresh high scores
+        </button>
+      </p>
+      <div id="tableDiv"></div>
+    </div>
+    <br/>
+    <br/>
+    <div>
+      <span><b>Hide</b> this player Id:</span>
+      <input id="playerIdHideInput" style="width:300px;"></input>
+      <button type="submit" onClick="hidePlayer()">Hide</button>
+    </div>
+
+    <div>
+      <span><b>Unhide</b> this player Id:</span>
+      <input id="playerIdUnhideInput" style="width:300px;"></input>
+      <button type="submit" onClick="unhidePlayer()">Unhide</button>
+    </div>
+
+    <p>Remove access to this app by going to:
+      <a href="http://plus.google.com/apps">your app controls page.</a>
+    </p>
+  </div>
+  <hr>
+  <h2>Docs</h2>
+  <p>Hello, Play Games developers!</p>
+
+    <p>Sometimes, you have a player who has a public leaderboard score
+      that you don't want to share---a tester, a cheater, whatever.
+      You can do hide that player with the <b>Play Games Management API</b>.</p>
+
+    <p>We've built this tool to make it easy. They will still be able to
+      submit high scores, get achievements, and appear on social leaderboards,
+      but hidden players will not appear on public leaderboards.</p>
+
+    <h3>Setup</h3>
+
+    <p>To use this tool, you'll need to:</p>
+
+    <ol>
+      <li>Host this page somewhere.  Anywhere will do, including localhost.</li>
+      <li>Make a web app entry for your game (read about it
+        <a href="https://developers.google.com/games/services/console/enabling#a_create_a_linked_application">here</a>
+        (<i>click on the "Web" tab</i>)), even if you aren't
+        releasing a web app.</li>
+      <li>Enter your <b>application ID</b> and
+        <b>any leaderboard ID</b> in <tt>hider.js</tt>,
+        and your <b>web client ID</b> in
+        (the one you created in the previous step) into the scripts
+        within the code on this page!</li>
+      <li>Reload this page, and then sign in with an account
+        that has developer permissions.  This is either the account
+        that owns the game in Developer Console, or a team member
+        with owner permission)</li>
+    </ol>
+    <h3>Warnings</h3>
+
+    <ul>
+      <li>Hiding takes around ~100ms to propagate, but you may see
+        results slower, especially if you are on mobile and caching.
+        Mobile caches may take several hours to refresh.</li>
+      <li>Unhiding is very slow, and can take as long as 12 hours.
+        Please unhide with caution.</li>
+      <li>If you hide someone, you will have no way of retrieving their
+        ID again---once hidden, forever lost.  <code><b>Keep a log of people
+            you hide</b> in case you change your mind.</code></li>
+    </ul>
+</div>
+
+<!-- Place this asynchronous JavaScript just before your </body> tag -->
+<script type="text/javascript">
+    (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+  po.src = 'https://apis.google.com/js/client:plusone.js?onload=onLoadCallback';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+</body>
