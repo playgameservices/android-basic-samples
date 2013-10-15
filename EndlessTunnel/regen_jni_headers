@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# Copyright (C) 2013 Google Inc.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# TODO: set the SDK location and the paths to your android.jar and 
+# google-play-services.jar below:
+SDK_PATH=/usr/local/google/home/btco/opt/android-studio/sdk
+ANDROID_RT=$SDK_PATH/platforms/android-18/android.jar
+GMSCORE_RT=$SDK_PATH/extras/google/google_play_services/libproject/google-play-services_lib/libs/google-play-services.jar
+
+set -ve
+cd Tunnel/build/classes/debug
+
+if [ ! -f $ANDROID_RT ]; then
+    echo "android.jar not found at $ANDROID_RT"
+    exit 1
+fi
+if [ ! -f $GMSCORE_RT ]; then
+    echo "google-play-services.jar not found at $GMSCORE_RT"
+    exit 1
+fi
+
+for i in BaseGameNativeActivity OurActivity; do
+    javah -classpath $ANDROID_RT:$GMSCORE_RT:. com.google.example.games.tunnel.$i
+done
+
+mv *OurActivity*.h ../../../jni/java_headers
+mv *BaseGame*.h ../../../jni/engine/java_headers
+

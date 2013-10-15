@@ -1,0 +1,388 @@
+ENDLESS TUNNEL
+
+    Copyright (C) 2013 Google Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+WHAT IS THIS?
+
+    EndlessTunnel is a sample game that shows how to:
+
+        * call the Play Games API from a game that uses NativeActivity
+        * implement joystick support, including robust DPAD navigation for
+          no-touch screens
+        * implement Cloud Save from a native game
+        * reconcile anonymous offline progress with cloud save on sign-in, as
+          recommended by our best practices.
+        * include the Google Play Services library project as a dependency
+          using Gradle set up the build using Gradle
+
+    It is NOT the goal of this sample to show the best way to write the game
+    logic, load resources, etc. The game itself was intentionally kept
+    rudimentary in order to keep the focus on the integration with Play
+    Games. For example, this game contains textures and geometry hard-coded in
+    code, which works for small demo games like this one, but doesn't scale
+    well to real games.
+
+    To learn more about the Play Games API, visit:
+
+        https://developers.google.com/games/services
+
+
+WHERE IS THIS CODE AVAILABLE?
+    
+    This code is available at the Play Games samples git repository:
+
+        https://github.com/playgameservices/android-samples
+
+    Most of this code was written by Bruno Oliveira
+    (https://plus.google.com/+BrunoOliveira). Feel free to add him on
+    Google+ and nag him about bugs, etc.
+
+
+GLM LIBRARY
+
+    This project uses the OpenGL Mathematics (GLM) library, available at:
+
+        http://glm.g-truc.net/
+
+    For more information about this library and its license, please see
+    Tunnel/jni/glm/readme.txt and Tunnel/jni/glm/copying.txt.
+
+
+HOW TO BUILD
+
+    First of all, you have to create an application entry in Developer
+    Console. For more information on how to do that, refer to:
+
+        https://developers.google.com/games/services/console/enabling
+
+    Part of the process is selecting a package name for your application.
+    Remember that package name, as you'll have to use it next.
+
+    Don't forget to add your account as a tester in the project, otherwise
+    you won't be able to log in! This must be the account that you are
+    using on the Android device that you're gonig to test the game on.
+
+    After you have created your application entry in Developer Console,
+    it's time to set up the achievements and leaderboards needed for
+    this sample.
+
+    Create these achievements. The text in parethesis can be used as
+    the achievement description. Also, "[inc, N]" denotes an incremental 
+    achievement with N steps to unlock:
+
+        * Reach Level 2
+        * Reach Level 5
+        * Reach Level 10
+        * Reach Level 15
+        * Reach Level 20
+        * Ten in a Row (collect 10 bonuses without missing)
+        * Double crash (crash twice against the same obstacle)
+        * Close Call (miss an obstacle by a narrow margin)
+        * Through a Narrow Hole (pass through a 1-cube narrow hole)
+        * Perfect 5000 (reach 5000 points without crashing)
+        * Perfect 7500 (reach 7500 points without crashing)
+        * Perfect 10000 (reach 10000 points without crashing)
+        * Cares About the Story (read the game's backstory)
+        * Dedicated Player [inc,50] (play the game 50 times)
+        * Lord of the Cubes [inc,500] (collect 500 bonus cubes)
+        * Crash Test Dummy [inc,100] (crash 100 times)
+
+    Also, create a leaderboard called "Top Scores".
+
+    Each achievement and leaderboard will have a unique alphanumeric
+    ID that looks something like "CgkdkjEIJfdkjeiAQ". Take note of all
+    your achievement and leaderboard IDs, as we'll need them next.
+
+    Now open Tunnel/jni/game_ids.hpp and replace the achievement
+    and leaderboard ID's there by the ones that Developer Console
+    gives you.
+
+    Also, update the leaderboard ID in the OurActivity Java class:
+
+        src/com/google/example/games/tunnel/OurActivity.java
+
+    Now, we need to enter the APP ID into the appropriate file. Look up
+    your application's APP ID in the Developer Console. It will be
+    a string of digits like 123456789012. Open Tunnel/res/values/game_ids.xml
+    and replace the app ID there by your app ID.
+
+    Next, we must change the application's package name to your own.
+    To do this, open Tunnel/AndroidManifest.xml and edit the package name
+    at the top of the file (the "package" attribute of the <manifest> tag)
+    to your own package name. This must be the same one you used when
+    setting up your game in Developer Console.
+
+    Next, you need to add an import statement to OurActivity.java so that
+    it can find the resources in that package name. Open this file:
+
+        src/com/google/example/games/tunnel/OurActivity.java
+
+    And include this import statement (replace "your.package.name.here" by
+    your actual package name, naturally):
+
+        import your.package.name.here.R;
+
+    Now, add the same import statement to BaseGameNativeActivity.java.
+
+    Lastly, open the local.properties file and adjust the path to your
+    Android SDK, and adjust the target platform version in the 
+    build.gradle files in BaseGameUtils/ and Tunnel/
+
+    We're done! To go ahead and build the project, run this from the command
+    line, from the sample's root directory (the one that contains this
+    README file):
+
+    $ cd Tunnel
+    $ ndk-build
+    $ cd ..
+    $ ./gradlew build
+
+    After the build, the APK will be available at Tunnel/build/apk/.
+    Install it to a test device and run the game. Remember to make sure
+    that the Google account associated to that test device is listed as a
+    tester account in Developer Console!
+
+
+A QUICK WALKTHROUGH
+    
+    This sample has two main directories: BaseGameUtils and Tunnel.
+    BaseGameUtils is a set of useful boilerplate routines distributed with 
+    the Play Games samples. Its upstream source can be found at:
+
+        https://github.com/playgameservices/android-samples/tree/master/libraries/BaseGameUtils
+
+    Tunnel/ contains the actual game. Like most NDK games, it contains some
+    Java code and some C++ code. The majority of the code is C++.
+    The Java code is located at src/com/google/example/games/tunnel,
+    while the C++ code is in the jni/ directory.
+
+    The game starts at the android_main function in 
+    jni/engine/native-activity.app, like any standard NDK game.
+
+
+    SCENES AND THE SCENE MANAGER
+
+    We have a singleton class called SceneManager. As the same says, it's
+    the class that manages scenes. There's always an active Scene, and
+    the scene determines what's visible onscreen and how the game reacts
+    to input. The main menu is a scene, the gameplay is another scene.
+
+    As the game runs, the display might be initialized and terminated
+    multiple times, corresponding, for example, to the app losing focus
+    and being brought back into focus. This is why the SceneManager
+    (and the Scene's) have the notion of StartGraphics() and KillGraphics().
+    These two methods may be called multiple times along the lifetime of
+    a scene. So everything that has to do with graphics context (like
+    shaders, textures, etc) has to be initialized in StartGraphics(), 
+    and has to be torn down in KillGraphics().
+
+    The engine_init_display function is where we set up OpenGL
+    for our game, and call StartGraphics() on the active scene.
+    The engine_term_display is where we call KillGraphics() on the active
+    scene.
+
+    Input arrives by way of the engine_handle_input function, which
+    does some basic input classification and delivers the input to
+    the scene manager. Incidentally, here we also synthethise DPAD events based
+    on the joystick hat axes (many game controllers generate hat events
+    when you press the directional pad), because that way we can use that
+    directional pad to drive UI navigation in the main screen.
+
+    While we're in jni/engine, take a look at scene_manager.cpp,
+    scene.cpp, etc to familiarize yourself with them.
+
+
+    GEOMETRY AND RENDERING
+
+    The game's geometry is represented by VBOs and IBOs. A VBO is represented
+    by the VertexBuf class, and an IBO is represented by an IndexBuf.
+    A shader is represented by the Shader class, of which TrivialShader is
+    a concrete example.
+
+    Now, onto rendering. Everything in the game is rendered by a Shader.
+
+    Normally, to use a Shader, you call BeginRender() and give it a
+    VertexBuf. This means you will be rendering one or more subsets of that
+    geometry. After that, call Render(ibuf, mat) where ibuf is the IndexBuffer
+    that represents the part of the geometry you want to render, and
+    mat is the transformation matrix. You can call Render() multiple times to
+    render different subsets of the geometry with different matrices.
+    When you're done, you call the shader's EndRender() method.
+
+    As a simpler alternative when you only want to render a single copy
+    of an object that's defined by a VertexBuffer and IndexBuffer pair,
+    just call RenderSimpleGeom(), which takes a matrix and a SimpleGeom
+    object (which, in turn, is just a pair of VertexBuffer and IndexBuffer).
+
+    The shader subclass is responsible for knowing what to do to render
+    a geometry. For example, if the shader needs texture coordinates, it will
+    query the geometry for texture coordinates as necessary -- if it doesn't
+    have them, it will throw an error (that being just an euphemism for
+    an ugly native crash). So, yes, you have to be careful that the geometry
+    you're feeding to a shader has the data that's needed by that shader.
+
+    Particularly, TrivialShader only needs position and color info for 
+    each vertex. The more complex OurShader class (in jni/our_shader.cpp)
+    needs texture coordinates.
+
+
+    THE NORMALIZED 2D COORD SYSTEM
+
+    For all 2D rendering, we use a normalized coordinate system where
+    the bottom-left of the screen is (0,0), the X coordinate increases
+    to the right and the Y coordinate increases upwards. The Y coordinate
+    of the top of the screen is defined to be 1.0. The X coordinate of
+    the right side of the screen is the screen's aspect ratio. So,
+    on a 4:3 screen, these are the coordinates of the four corners
+    of the screen:
+
+    (0.000,1.000)       (1.333,1.000)
+           +--------------+
+           |              |
+           |              |
+           |              |
+           |              |
+           +--------------+
+    (0.000,0.000)       (1.333,0.000)
+
+    What this means is that Y=0.5 is always the vertical center of the
+    screen regardless of the screen size, and that X=aspect/2 is always
+    the horizontal center of the screen, regardless of physical screen size.
+
+    This coordinate system is set up like this:
+    
+        glm::mat4 modelMat, mat;
+
+        // set up projection matrix
+        float aspect = SceneManager::GetInstance()->GetScreenAspect();
+        glm::mat4 orthoMat = glm::ortho(0.0f, aspect, 0.0f, 1.0f);
+
+        // ... (set up modelMat as needed)
+
+        // determine final matrix for rendering
+        mat = orthoMat * modelMat;
+    
+        // render something
+        mShader->RenderSimpleGeom(&mat, mGeom);
+
+
+    THE MAIN MENU
+
+    The game's main menu scene is in jni/welcome_scene.cpp. It renders
+    all the buttons on the interface and manages the navigation. It can
+    also show popups ("About", "Story", "Why sign in?").
+
+    Here is where the integration with Play Games starts: when we want to start
+    the sign-in process (e.g. in response to the user clicking the "Sign In"
+    button), we call BGNActivity_StartSignIn, which calls (via JNI) the
+    Activity's postStartSignIn() method, which in turn starts the sign in
+    process in the main thread through runOnUiThread(). This is VERY IMPORTANT:
+    the game code runs in the game thread, which is not the main thread. Most
+    of the Play Games API methods must be called from the MAIN THREAD, which is
+    why we call runOnUiThread() here.
+
+    When the sign-in process finishes, the Java code will call the native
+    method native_ReportSignInState, which in turn flips the _signedIn flag
+    in java_bgnactivity.cpp.
+
+    This flag is accessible via the BGNActivity_IsSignedIn() function, which
+    is called by WelcomeScene to determine whether or not the player is
+    signed in and update the UI accordingly (e.g. enable the Achievements
+    and Leaderboards buttons, etc).
+    
+    Clicking the Achievements or Leaderboard button triggers a very similar
+    flow: the native code invokes Java method via JNI, and the Java method
+    calls runOnUiThread() to invoke the appropriate built-in UI in the UI 
+    thread.
+
+    
+    GAME LOGIC, LEADERBOARDS AND ACHIEVEMENTS
+
+    The whole game logic is contained in the PlayScene class. We won't dive
+    into a full discussion of it, but start reading from the DoFrame() method
+    and it should become clear. It's a standard game loop that handles
+    input, updates the world, checks for collisions and renders.
+
+    Diving into what's relevant for Play Games, notice how we post scores
+    to the leaderboard: we call BGNActivity_SubmitScore, passing it the
+    leaderboard ID and the score we want to upload. This trigger that
+    familiar pattern we talked about earlier: it calls the Java method
+    via JNI, which in turn calls runOnUiThread() to do the actual posting.
+
+    Same thing with achievements, except we're careful not to try to unlock
+    an achievement we *know* to be unlocked (just to cut down on the number
+    of JNI calls). We set up that filter in PlayScene::UnlockAchievement.
+    We only call up to BGNActivity_UnlockAchievement when we haven't unlocked
+    (or don't know we have) the achievement. It's important to do that because
+    unlocking achievements is something that we might attempt to do *at every
+    frame*. So if we don't set up a smart filter, we'd end up making JNI calls
+    every frame, which would, in turn, call runOnUiThread, etc, and that would
+    hurt performance quite a bit.
+
+    Also notice that we only send the incremental achievements (see
+    PlayScene::SendIncrementalAchievements) at large time intervals
+    (particularly, INC_ACH_SEND_INTERVAL), and at the end of the game.
+    This prevents us from hitting our quota too easily. It would be a mistake
+    to try to increment the "Lord of the Cubes" achievement (collect 500
+    cubes) every single time the player picks up a cube. Instead, we
+    batch up the cube count and only upload them once in a while or at
+    the end of the game.
+
+    
+    CLOUD SAVE
+
+    We implement cloud save in this game, which means that, if you sign
+    in, you can share your progress across devices.
+    
+    When the user signs in (see the Java code in OurActivity.java), we request
+    that the cloud data be loaded by calling AppStateClient.loadState().
+    At the end of the process, we report our results to the native code 
+    through a call to native_ReportCloudLoadResult().
+
+    This reports indicates: (a) whether or not the load operation succeeded;
+    (b) the data we loaded from the cloud.
+
+    Notice that the WelcomeScene class puts up a "Please Wait" screen
+    until the Java code reports the cloud data result. Therefore, when 
+    PlayScene starts, we already have the cloud data. Take a look at 
+    PlayScene::LoadProgress().
+
+    We load the local anonymous data from file (tunnel.dat) and
+    check to see if that's better than what we have on the cloud, and, if
+    so, use that. If so, we save that data to the cloud and delete the local file.
+
+    Also, notice that the Java code has cloud save conflict resolution logic:
+    the onStateConflict method resolves conflicts between cloud save
+    data sets. The logic is simple, since our cloud save data only has
+    a level number: the highest level wins.
+
+
+    RESPONDING TO CONNECTIONS AND DISCONNECTIONS
+
+    One of the characteristics of the Google Play Games API is that you have to
+    disconnect from it when your application goes into the background and have to
+    reconnect when it comes back to the foreground. Reconnection is not instantaneous,
+    and you must be careful not to make any Play Games API calls during that
+    reconnection interval. We implement this in this game by cutting short our
+    game loop (see PlayScene::DoFrame) and showing a "Please Wait" screen whenever we 
+    detect that the Play Games API is in the process of connecting. This will typically
+    only happen for less than a second when the game has just been brought back from
+    the background into the foreground.
+
+    The Java code informs the native code that the connection is done via
+    the native_ReportSignInStatus() method of OurActivity.
+
+
