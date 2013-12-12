@@ -1,27 +1,8 @@
 #!/bin/bash
-pn=`grep 'package=' TrivialQuest/AndroidManifest.xml | cut -d\" -f2`
-if ! [ "$pn" = "com.google.example.games.tq" ]; then
-  echo "*** TrivialQuest has wrong package name."
-fi
-
-pn=`grep 'package=' ButtonClicker/AndroidManifest.xml | cut -d\" -f2`
-if ! [ "$pn" = "com.google.example.games.bc" ]; then
-  echo "*** ButtonClicker has wrong package name."
-fi
-
-pn=`grep 'package=' CollectAllTheStars/AndroidManifest.xml | cut -d\" -f2`
-if ! [ "$pn" = "com.google.example.games.cas" ]; then
-  echo "*** CollectAllTheStars has wrong package name."
-fi
-
-pn=`grep 'package=' TypeANumber/AndroidManifest.xml | cut -d\" -f2`
-if ! [ "$pn" = "com.google.example.games.tan" ]; then
-  echo "*** TypeANumber has wrong package name."
-fi
-
 for i in `find . -name MainActivity.java`; do
   if ! grep -q -e '^ *final boolean CHECK_PKGNAME = true;' $i; then
     echo "*** Missing CHECK_PKGNAME = true in $i"
+    exit 1
   fi
 done
 
@@ -31,6 +12,9 @@ for i in `find . -name ids.xml`; do
   if [ "$wrong_count" -gt 0 ]; then
     echo "*** Some IDs on $i are not set to 'ReplaceMe'. Change them to 'ReplaceMe'!"
     echo "$wrong"
+    exit 1
   fi
 done
+
+echo "Presubmit checks passed."
 

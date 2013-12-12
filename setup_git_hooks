@@ -1,0 +1,2 @@
+#!/bin/sh
+ln -sf ../../presubmit_checks .git/hooks/pre-commit

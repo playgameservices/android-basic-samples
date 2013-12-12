@@ -22,7 +22,7 @@
 
     <uses-sdk
         android:minSdkVersion="8"
-        android:targetSdkVersion="18" />
+        android:targetSdkVersion="19" />
 
     <application android:allowBackup="true" android:label="BaseGameUtils" >
     </application>
