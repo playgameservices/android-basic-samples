@@ -37,11 +37,37 @@ Pick a set of instructions below depending on whether you're using Eclipse or An
 
 <h3>If you're using Eclipse...</h3>
 
+First, run the **make_eclipse_compat** script on the root of the repository to create
+the Eclipse-compatible project structure.
+
+    $ cd /my/working/copy
+    $ chmod +x make_eclipse_compat
+    $ ./make_eclipse_compat
+
+This will generate an `eclipse_compat` directory with all projects in an Eclipse-friendly
+format.
+
+If for some reason you are unable to run this script, you can replicate its functionality
+manually by following these steps:
+
+1. Create a directory called `eclipse_compat`
+1. Copy the desired sample or library (e.g. `BaseGameUtils`) into `eclipse_compat`.
+1. Go to `eclipse_compat`
+1. Move `XYZ/src/main/AndroidManifest.xml` to `XYZ/AndroidManifest.xml` (where `XYZ` stands
+for the name of the project, e.g. `BaseGameUtils`)
+1. Move `XYZ/src/main/res to `XYZ/res`
+1. Move `XYZ/src/main/java/com` to `XYZ/src/com`
+1. Create directory `XYZ/libs`
+1. Copy `../aux/android-support-v4.lib` to `XYZ/libs`
+
+After setting up your project (either manually or using the script), you will be ready
+to open it in Eclipse.
+
 1. Start Eclipse
-1. Import the desired sample (Project | Import | Android | Existing Android Source)
+1. Import the desired sample from the `eclipse_compat` directory (Project | Import | Android | Existing Android Source)
 1. Import the Google Play Services library project (available for download through the SDK manager).
    Make sure that the sample is REFERENCING the library project (Project Properties | Android | References)
-1. Import libraries/BaseGameUtils AS A LIBRARY
+1. Import `eclipse_compat/libraries/BaseGameUtils` AS A LIBRARY
    Make sure that the sample is REFERENCING the library project (Project Properties | Android | References)
 
 Now jump to the *Modify IDs, compile and run* section and continue to follow the instructions there.
