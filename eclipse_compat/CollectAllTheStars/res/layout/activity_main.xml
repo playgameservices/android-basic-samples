@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Copyright (C) 2013 Google Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" style="@style/MainLayout"
+    tools:context=".MainActivity">
+
+    <!-- MAIN DISPLAY -->
+
+    <ScrollView
+        android:id="@+id/screen_main"
+        style="@style/MainDisplayScrollView">
+
+        <LinearLayout style="@style/MainDisplay">
+
+            <!-- WORLD SELECTION BAR -->
+            <LinearLayout style="@style/WorldSelectorBar">
+                <Button style="@style/WorldButton"
+                    android:id="@+id/button_prev_world"
+                    android:text="@string/prev_world" />
+
+                <TextView android:id="@+id/world_display"
+                    style="@style/WorldDisplay" />
+
+                <Button style="@style/WorldButton"
+                    android:id="@+id/button_next_world"
+                    android:text="@string/next_world" />
+            </LinearLayout>
+
+            <!-- LEVEL GRID -->
+            <LinearLayout style="@style/LevelRow">
+                <Button style="@style/LevelButton" android:id="@+id/button_level_1" />
+                <Button style="@style/LevelButton" android:id="@+id/button_level_2" />
+                <Button style="@style/LevelButton" android:id="@+id/button_level_3" />
+            </LinearLayout>
+            <LinearLayout style="@style/LevelRow">
+                <Button style="@style/LevelButton" android:id="@+id/button_level_4" />
+                <Button style="@style/LevelButton" android:id="@+id/button_level_5" />
+                <Button style="@style/LevelButton" android:id="@+id/button_level_6" />
+            </LinearLayout>
+            <LinearLayout style="@style/LevelRow">
+                <Button style="@style/LevelButton" android:id="@+id/button_level_7" />
+                <Button style="@style/LevelButton" android:id="@+id/button_level_8" />
+                <Button style="@style/LevelButton" android:id="@+id/button_level_9" />
+            </LinearLayout>
+            <LinearLayout style="@style/LevelRow">
+                <Button style="@style/LevelButton" android:id="@+id/button_level_10" />
+                <Button style="@style/LevelButton" android:id="@+id/button_level_11" />
+                <Button style="@style/LevelButton" android:id="@+id/button_level_12" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- LEVEL "GAMEPLAY" SCREEN -->
+    <LinearLayout android:id="@+id/screen_gameplay" style="@style/GameplayDisplay"
+            android:visibility="gone">
+        <TextView android:id="@+id/gameplay_level_display" style="@style/GameplayLevelText" />
+        <TextView style="@style/GameplayQuestionText" android:text="@string/how_many_stars" />
+        <RatingBar android:id="@+id/gameplay_rating" style="@style/GameplayRatingBar" />
+    </LinearLayout>
+
+    <!-- ALERT BAR -->
+    <TextView android:id="@+id/alert_bar" android:visibility="gone" style="@style/AlertBar" />
+
+    <!-- SIGN-IN BAR -->
+    <LinearLayout android:id="@+id/sign_in_bar" style="@style/SignInOutBar">
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/button_sign_in" style="@style/SignInButton" />
+
+        <TextView style="@style/SignInOutBarBlurb" android:text="@string/sign_in_explanation" />
+    </LinearLayout>
+
+    <!-- SIGN-OUT BAR -->
+    <LinearLayout android:id="@+id/sign_out_bar" style="@style/SignInOutBar"
+        android:visibility="gone">
+
+        <TextView style="@style/SignInOutBarBlurb"
+            android:text="@string/you_are_signed_in" />
+
+         <Button style="@style/SignOutButton" android:id="@+id/button_sign_out"
+             android:text="@string/sign_out" />
+
+    </LinearLayout>
+</LinearLayout>
