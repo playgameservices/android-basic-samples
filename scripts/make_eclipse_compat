@@ -6,29 +6,27 @@ if [ ! -f README.md -o ! -d BasicSamples ]; then
     exit 1
 fi
 
-if [ -d eclipse_compat ]; then
-    echo "The eclipse_compat/ directory already exists."
-    echo "Overwrite it? [y/N] "
-    read answer
-    if [ "$answer" != "y" -a "$answer" != "Y" ]; then
-        echo "*** Aborted."
-        exit 1
-    fi
-    rm -rf eclipse_compat
-fi
-
 echo "Making eclipse-compatible projects..."
-mkdir eclipse_compat
+mkdir -p eclipse_compat
 
 for i in ButtonClicker TypeANumber CollectAllTheStars TrivialQuest libraries/BaseGameUtils; do
     echo "Preparing $i..."
     mkdir -p eclipse_compat/$i
     cp BasicSamples/$i/src/main/AndroidManifest.xml eclipse_compat/$i
+
+    # copy resources
+    rm -rf eclipse_compat/$i/res
     cp -a BasicSamples/$i/src/main/res eclipse_compat/$i
-    mkdir eclipse_compat/$i/src
+
+    # copy source files
+    rm -rf eclipse_compat/$i/src
+    mkdir -p eclipse_compat/$i/src
     cp -a BasicSamples/$i/src/main/java/* eclipse_compat/$i/src
-    mkdir eclipse_compat/$i/libs
-    cp -a eclipse_aux/*.jar eclipse_compat/$i/libs
+
+    # copy libs
+    rm -rf eclipse_compat/$i/libs
+    mkdir -p eclipse_compat/$i/libs
+    cp -a scripts/eclipse_aux/*.jar eclipse_compat/$i/libs
 done
 
 echo "Eclipse-compatible folders generated in eclipse_compat/"
