@@ -28,7 +28,7 @@ for i in ButtonClicker TypeANumber CollectAllTheStars TrivialQuest libraries/Bas
     mkdir eclipse_compat/$i/src
     cp -a BasicSamples/$i/src/main/java/* eclipse_compat/$i/src
     mkdir eclipse_compat/$i/libs
-    cp -a aux/*.jar eclipse_compat/$i/libs
+    cp -a eclipse_aux/*.jar eclipse_compat/$i/libs
 done
 
 echo "Eclipse-compatible folders generated in eclipse_compat/"
