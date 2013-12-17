@@ -38,11 +38,23 @@ Pick a set of instructions below depending on whether you're using Eclipse or An
 <h3>If you're using Eclipse...</h3>
 
 1. Start Eclipse
+1. Import the Google Play Services library project (available for download through the SDK manager):
+    1. Click **File | Import | Android | Existing Android Code into Workspace**
+    1. Select `SDK/extras/google/google_play_services/google_play_services_lib` (where `SDK` stands for the path where you installed your Android SDK)
+    1. Click **Finish**
+1. Import `eclipse_compat/libraries/BaseGameUtils` **as a library**
+    1. Click **File | Import | Android | Existing Android Code into Workspace**
+    1. Select the `eclipse_compat/libraries/BaseGameUtils` project
+    1. Click **Finish**
+    1. Right-click on `BaseGameUtils`, then click **Properties**
+    1. In the project properties window, click the **Android** section
+    1. Check the **Is Library** checkbox
+    1. Add a reference to the `google_play_services_lib` project (click **Remove** to remove any broken references, then click **Add** to add the correct one)
 1. Import the desired sample from the `eclipse_compat` directory (Project | Import | Android | Existing Android Source)
-1. Import the Google Play Services library project (available for download through the SDK manager).
-   Make sure that the sample is REFERENCING the library project (Project Properties | Android | References)
-1. Import `eclipse_compat/libraries/BaseGameUtils` AS A LIBRARY
-   Make sure that the sample is REFERENCING the library project (Project Properties | Android | References)
+1. Go into the project properties window for that project (right-click, **Properties**) and check that this project has a reference to the `BaseGameUtils` project.
+
+Your project should now compile. However, don't run it yet, since you still need to adjust your game's IDs
+in order for the sample(s) to work.
 
 Now jump to the *Modify IDs, compile and run* section and continue to follow the instructions there.
 
@@ -105,3 +117,7 @@ If your question is not answered by the troubleshooting guide, we encourage you 
 
 *Samples written by [Bruno Oliveira](http://plus.google.com/+BrunoOliveira).* Feel free to add me to your circles on Google Plus and pester me to fix anything that's broken or answer a question on stackoverflow!
 
+<h2>Special Thanks</h2>
+
+* To [ligi](http://github.com/ligi) for contributing the initial Gradle build files
+* To [grantkemp](https://github.com/grantkemp) for fixing the Eclipse compat build when we migrated to Gradle
