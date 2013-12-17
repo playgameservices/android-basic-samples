@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Copyright (C) 2013 Google Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <color name="AccentColor">#cc0000</color>
+    <color name="PopupColor">@color/AccentColor</color>
+    <color name="PopupTextColor">#ffffff</color>
+    <color name="ButtonTextColor">#ffffff</color>
+    <color name="BlurbColor">#a0a0a0</color>
+    <color name="SignOutButtonBackground">#e0e0e0</color>
+    <color name="SignOutButtonTextColor">#404040</color>
+
+    <dimen name="TitleSize">30sp</dimen>
+
+    <style name="AppTheme" parent="android:Theme.Light.NoTitleBar.Fullscreen" />
+
+    <style name="GameScreen">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="LLScreen" parent="@style/GameScreen">
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">30dp</item>
+    </style>
+
+    <style name="GameplayScreen" parent="@style/LLScreen">
+        <item name="android:gravity">center</item>
+    </style>
+
+
+    <style name="InvPopup" parent="@style/LLScreen">
+        <item name="android:background">@color/PopupColor</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:layout_gravity">top|right</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="GameTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:text">@string/game_title</item>
+        <item name="android:textColor">@color/AccentColor</item>
+        <item name="android:textSize">@dimen/TitleSize</item>
+        <item name="android:layout_marginBottom">40dp</item>
+    </style>
+
+    <style name="Blurb">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/BlurbColor</item>
+    </style>
+
+    <style name="GameBlurb" parent="@style/Blurb">
+        <item name="android:text">@string/game_blurb</item>
+        <item name="android:layout_marginBottom">40dp</item>
+    </style>
+
+    <style name="SignInButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">40dp</item>
+    </style>
+
+    <style name="GameButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/AccentColor</item>
+        <item name="android:textColor">@color/ButtonTextColor</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+    </style>
+
+    <style name="MainScreenButton" parent="@style/GameButton">
+        <item name="android:layout_marginBottom">10dp</item>
+    </style>
+
+    <style name="MainScreenButtonBlurb" parent="@style/GameBlurb">
+        <item name="android:layout_marginBottom">20dp</item>
+    </style>
+
+    <style name="InvPopupText">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textColor">@color/PopupTextColor</item>
+        <item name="android:text">@string/inv_popup_text</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="InvPopupButton" parent="@style/GameButton">
+        <item name="android:background">@color/ButtonTextColor</item>
+        <item name="android:textColor">@color/AccentColor</item>
+    </style>
+
+    <style name="SignOutButton" parent="@style/GameButton">
+        <item name="android:background">@color/SignOutButtonBackground</item>
+        <item name="android:textColor">@color/SignOutButtonTextColor</item>
+    </style>
+
+    <style name="FigureView">
+        <item name="android:layout_width">150dp</item>
+        <item name="android:layout_height">150dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginBottom">20dp</item>
+    </style>
+
+    <style name="FigureLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="ScoreToast">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:layout_marginBottom">20dp</item>
+    </style>
+
+    <style name="ScoresBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">#f0f0f0</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_marginTop">30dp</item>
+        <item name="android:padding">20dp</item>
+    </style>
+
+    <style name="ButtonsBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:padding">20dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="ScoreText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:gravity">left</item>
+    </style>
+
+    <style name="Instructions" parent="@style/Blurb">
+        <item name="android:layout_marginBottom">20dp</item>
+    </style>
+
+    <style name="ScoreLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="ScoreDisplay">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/AccentColor</item>
+        <item name="android:layout_marginBottom">10dp</item>
+    </style>
+
+    <style name="PlacementDisplay">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/BlurbColor</item>
+    </style>
+
+    <style name="SectionLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/AccentColor</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:layout_marginBottom">20dp</item>
+    </style>
+
+</resources>
