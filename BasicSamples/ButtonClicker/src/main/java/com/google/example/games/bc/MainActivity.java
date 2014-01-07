@@ -53,7 +53,9 @@ import java.util.Set;
  * code is organized in sections in order to make understanding as clear as
  * possible. We start with the integration section where we show how the game
  * is integrated with the Google Play game services API, then move on to
- * game-specific UI and logic. INSTRUCTIONS: To run this sample, please set up
+ * game-specific UI and logic.
+ *
+ * INSTRUCTIONS: To run this sample, please set up
  * a project in the Developer Console. Then, place your app ID on
  * res/values/ids.xml. Also, change the package name to the package name you
  * used to create the client ID in Developer Console. Make sure you sign the
@@ -100,10 +102,6 @@ public class MainActivity extends BaseGameActivity
     // Message buffer for sending messages
     byte[] mMsgBuf = new byte[2];
 
-    // flag indicating whether we're dismissing the waiting room because the
-    // game is starting
-    boolean mWaitRoomDismissedFromCode = false;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         enableDebugLog(ENABLE_DEBUG, TAG);
@@ -135,13 +133,11 @@ public class MainActivity extends BaseGameActivity
     public void onSignInSucceeded() {
         Log.d(TAG, "Sign-in succeeded.");
 
-        // install invitation listener so we get notified if we receive an
-        // invitation to play
-        // a game.
+        // register listener so we are notified if we receive an invitation to play
+        // while we are in the game
         getGamesClient().registerInvitationListener(this);
 
-        // if we received an invite via notification, accept it; otherwise, go
-        // to main screen
+        // if we received an invite via notification, accept it; otherwise, go to main screen
         if (getInvitationId() != null) {
             acceptInviteToRoom(getInvitationId());
             return;
@@ -156,6 +152,7 @@ public class MainActivity extends BaseGameActivity
         switch (v.getId()) {
             case R.id.button_single_player:
             case R.id.button_single_player_2:
+                // play a single-player game
                 resetGameVars();
                 startGame(false);
                 break;
@@ -168,6 +165,7 @@ public class MainActivity extends BaseGameActivity
                 beginUserInitiatedSignIn();
                 break;
             case R.id.button_sign_out:
+                // user wants to sign out
                 signOut();
                 switchToScreen(R.id.screen_sign_in);
                 break;
@@ -184,8 +182,7 @@ public class MainActivity extends BaseGameActivity
                 startActivityForResult(intent, RC_INVITATION_INBOX);
                 break;
             case R.id.button_accept_popup_invitation:
-                // user wants to accept the invitation shown on the invitation
-                // popup
+                // user wants to accept the invitation shown on the invitation popup
                 // (the one we got through the OnInvitationReceivedListener).
                 acceptInviteToRoom(mIncomingInvitationId);
                 mIncomingInvitationId = null;
@@ -232,30 +229,20 @@ public class MainActivity extends BaseGameActivity
                 handleInvitationInboxResult(responseCode, intent);
                 break;
             case RC_WAITING_ROOM:
-                // ignore result if we dismissed the waiting room from code:
-                if (mWaitRoomDismissedFromCode) break;
-
                 // we got the result from the "waiting room" UI.
                 if (responseCode == Activity.RESULT_OK) {
-                    // player wants to start playing
-                    Log.d(TAG, "Starting game because user requested via waiting room UI.");
-
-                    // let other players know we're starting.
-                    broadcastStart();
-
-                    // start the game!
+                    // ready to start playing
+                    Log.d(TAG, "Starting game (waiting room returned OK).");
                     startGame(true);
                 } else if (responseCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
-                    // player actively indicated that they want to leave the room
+                    // player indicated that they want to leave the room
                     leaveRoom();
                 } else if (responseCode == Activity.RESULT_CANCELED) {
-                    /* Dialog was cancelled (user pressed back key, for
-                     * instance). In our game, this means leaving the room too. In more
-                     * elaborate games,this could mean something else (like minimizing the
-                     * waiting room UI but continue in the handshake process). */
+                    // Dialog was cancelled (user pressed back key, for instance). In our game,
+                    // this means leaving the room too. In more elaborate games, this could mean
+                    // something else (like minimizing the waiting room UI).
                     leaveRoom();
                 }
-
                 break;
         }
     }
@@ -383,21 +370,14 @@ public class MainActivity extends BaseGameActivity
     // Show the waiting room UI to track the progress of other players as they enter the
     // room and get connected.
     void showWaitingRoom(Room room) {
-        mWaitRoomDismissedFromCode = false;
-
         // minimum number of players required for our game
-        final int MIN_PLAYERS = 2;
+        // For simplicity, we require everyone to join the game before we start it
+        // (this is signaled by Integer.MAX_VALUE).
+        final int MIN_PLAYERS = Integer.MAX_VALUE;
         Intent i = getGamesClient().getRealTimeWaitingRoomIntent(room, MIN_PLAYERS);
 
         // show waiting room UI
         startActivityForResult(i, RC_WAITING_ROOM);
-    }
-
-    // Forcibly dismiss the waiting room UI (this is useful, for example, if we realize the
-    // game needs to start because someone else is starting to play).
-    void dismissWaitingRoom() {
-        mWaitRoomDismissedFromCode = true;
-        finishActivity(RC_WAITING_ROOM);
     }
 
     // Called when we get an invitation to play a game. We react by showing that to the user.
@@ -513,7 +493,7 @@ public class MainActivity extends BaseGameActivity
     @Override
     public void onP2PDisconnected(String participant) {
     }
-    
+
     @Override
     public void onP2PConnected(String participant) {
     }
@@ -672,12 +652,6 @@ public class MainActivity extends BaseGameActivity
             if ((char) buf[0] == 'F') {
                 mFinishedParticipants.add(rtm.getSenderParticipantId());
             }
-        } else if (buf[0] == 'S') {
-            // someone else started to play -- so dismiss the waiting room and
-            // get right to it!
-            Log.d(TAG, "Starting game because we got a start message.");
-            dismissWaitingRoom();
-            startGame(true);
         }
     }
 
@@ -707,25 +681,6 @@ public class MainActivity extends BaseGameActivity
                 getGamesClient().sendUnreliableRealTimeMessage(mMsgBuf, mRoomId,
                         p.getParticipantId());
             }
-        }
-    }
-
-    // Broadcast a message indicating that we're starting to play. Everyone else
-    // will react
-    // by dismissing their waiting room UIs and starting to play too.
-    void broadcastStart() {
-        if (!mMultiplayer)
-            return; // playing single-player mode
-
-        mMsgBuf[0] = 'S';
-        mMsgBuf[1] = (byte) 0;
-        for (Participant p : mParticipants) {
-            if (p.getParticipantId().equals(mMyId))
-                continue;
-            if (p.getStatus() != Participant.STATUS_JOINED)
-                continue;
-            getGamesClient().sendReliableRealTimeMessage(null, mMsgBuf, mRoomId,
-                    p.getParticipantId());
         }
     }
 
@@ -831,7 +786,7 @@ public class MainActivity extends BaseGameActivity
 
         // Did the developer forget to change the package name?
         if (CHECK_PKGNAME && getPackageName().startsWith("com.google.example.")) {
-            Log.e(TAG, "*** Sample setup problem: " + 
+            Log.e(TAG, "*** Sample setup problem: " +
                 "package name cannot be com.google.example.*. Use your own " +
                 "package name.");
             return false;
