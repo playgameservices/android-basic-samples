@@ -1,2 +1,2 @@
-include ':libraries:BaseGameUtils', ':ButtonClicker', ':CollectAllTheStars', ':TrivialQuest', ':TypeANumber'
+include ':libraries:BaseGameUtils', ':ButtonClicker', ':CollectAllTheStars', ':TrivialQuest', ':TypeANumber', ':SkeletonTbmp'
 

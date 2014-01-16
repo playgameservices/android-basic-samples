@@ -393,6 +393,14 @@ public class MainActivity extends BaseGameActivity
         switchToScreen(mCurScreen); // This will show the invitation popup
     }
 
+    @Override
+    public void onInvitationRemoved(String invitationId) {
+        if (mIncomingInvitationId.equals(invitationId)) {
+            mIncomingInvitationId = null;
+            switchToScreen(mCurScreen); // This will hide the invitation popup
+        }
+    }
+
     /*
      * CALLBACKS SECTION. This section shows how we implement the several games
      * API callbacks.

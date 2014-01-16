@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.google.android.gms:play-services:4.0.30+'
+    compile 'com.google.android.gms:play-services:4.1.32+'
     compile project(':libraries:BaseGameUtils')
 }
 

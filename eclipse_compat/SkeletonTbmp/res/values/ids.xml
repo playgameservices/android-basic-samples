@@ -1,0 +1,4 @@
+<resources>
+    <!-- Use app id you created in the Developer Console -->
+    <string name="app_id">ReplaceMe</string>
+</resources>
