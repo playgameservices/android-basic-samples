@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2013 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="Theme.App" parent="@android:style/Theme.Holo.Light">
+        <item
+            name="android:windowBackground">@drawable/grey_background_pattern</item>
+        <item name="android:buttonStyle">@style/Button</item>
+        <item name="android:textAppearance">@style/DefaultText</item>
+        <item name="android:textAppearanceLarge">@style/Heading</item>
+        <item name="android:textAppearanceMedium">@style/SubHeading</item>
+    </style>
+
+
+    <style name="DefaultText" parent="@android:style/TextAppearance">
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+    
+    <style name="GuessWordText" parent="@android:style/TextAppearance">
+        <item name="android:fontFamily">sans-serif-bold</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+    
+
+    <style name="Heading" parent="@android:style/TextAppearance.Large">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="SubHeading" parent="@android:style/TextAppearance.Medium">
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="HelpText">
+        <item name="android:textSize">@dimen/font_size_medium</item>
+        <item name="android:lineSpacingMultiplier">1.2</item>
+    </style>
+
+    <style name="HelpText.Heading">
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textSize">@dimen/font_size_large</item>
+        <item name="android:lineSpacingMultiplier">1.0</item>
+    </style>
+
+    <style name="HelpText.Caption">
+        <item name="android:textSize">@dimen/font_size_small</item>
+    </style>
+
+    <style name="Button" parent="@android:style/Widget.Button">
+        <item name="android:background">@drawable/button</item>
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:textColor">#FF000000</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+</resources>
