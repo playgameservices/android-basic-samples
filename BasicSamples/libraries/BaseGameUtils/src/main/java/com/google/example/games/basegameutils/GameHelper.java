@@ -707,6 +707,7 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
         debugLog("Starting connections.");
         setState(STATE_CONNECTING);
         mInvitationId = null;
+        mTurnBasedMatch = null;
         connectNextClient();
     }
 
@@ -828,9 +829,6 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
     @Override
     public void onConnected(Bundle connectionHint) {
 
-        // Don't retain references to old matches.
-        mTurnBasedMatch = null;
-
         debugLog("onConnected: connected! client=" + mClientCurrentlyConnecting);
 
         // Mark the current client as connected
@@ -853,12 +851,8 @@ public class GameHelper implements GooglePlayServicesClient.ConnectionCallbacks,
 
             debugLog("onConnected: connection hint provided. Checking for TBMP game.");
 
-            TurnBasedMatch match = connectionHint
-                    .getParcelable(GamesClient.EXTRA_TURN_BASED_MATCH);
-
-            if (match != null) {
-                mTurnBasedMatch = match;
-            }
+            mTurnBasedMatch = connectionHint
+                    .getParcelable(GamesClient.EXTRA_TURN_BASED_MATCH);            
 
         }
 
