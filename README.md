@@ -126,4 +126,4 @@ If your question is not answered by the troubleshooting guide, we encourage you 
 
 * To [ligi](http://github.com/ligi) for contributing the initial Gradle build files
 * To [grantkemp](https://github.com/grantkemp) for fixing the Eclipse compat build when we migrated to Gradle
-
+* To [bechhansen](https://github.com/bechhansen) for fixing a bug in GameHelper where the turn-based match was being lost when a non-Games client connected.
