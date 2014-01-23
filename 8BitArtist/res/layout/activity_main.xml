@@ -1,0 +1,333 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/login_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:visibility="gone" >
+
+        <!-- sign-in button -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_large"
+            android:paddingBottom="20dp"
+            android:text="Welcome to 8-Bit Artist!  Please log in!"
+            android:textAppearance="@style/GuessWordText" >
+        </TextView>
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/sign_in_button"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/metadata_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:visibility="gone" >
+
+        <TextView
+            android:id="@+id/metadataText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/next_turn_" />
+
+        <Button
+            android:id="@+id/continue_button"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="40dp"
+            android:onClick="onMetadataDismissed"
+            android:text="@string/continue_str"
+            android:textColor="#FFFFFFFF" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/gameplay_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:visibility="gone"
+        tools:context=".DrawingActivity" >
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <com.google.example.eightbitartist.DrawView
+                android:id="@+id/drawView"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_above="@+id/instructions"
+                android:paddingBottom="100dp"
+                android:text="@string/hello_world" />
+
+            <TextView
+                android:id="@+id/instructions"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:padding="5dp"
+                android:text="@string/guesser_prompt"
+                android:textAlignment="center"
+                android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/skip_button"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:onClick="onSkipClicked"
+                android:padding="5dp"
+                android:text="Skip drawing"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <LinearLayout
+                android:id="@+id/replayUI"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin_small"
+                android:background="#FFFFFFFF"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/now_drawing_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_margin="@dimen/margin_small"
+                    android:gravity="center"
+                    android:text="@string/now_drawing"
+                    android:textAppearance="@style/DefaultText" />
+
+                <android.widget.ImageView
+                    android:id="@+id/replay_person_image"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:background="@drawable/grey_background_pattern"
+                    android:contentDescription="@string/hello_world" />
+
+                <TextView
+                    android:id="@+id/replay_person_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="@dimen/margin_small"
+                    android:gravity="center"
+                    android:text="@string/hello_world"
+                    android:textAppearance="@style/DefaultText" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/guessWord"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="150dp"
+                android:gravity="center"
+                android:text="@string/hello_world"
+                android:textAppearance="@style/GuessWordText"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/artistUI"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:visibility="visible" >
+
+                <com.google.example.eightbitartist.ColorChooser
+                    android:id="@+id/colorChooser"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10dp"
+                    android:text="@string/hello_world"
+                    android:visibility="visible" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:orientation="vertical" >
+
+                    <Button
+                        android:id="@+id/clearButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="onClearClicked"
+                        android:text="@string/clear" />
+
+                    <Button
+                        android:id="@+id/doneButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="onDoneClicked"
+                        android:text="@string/done"
+                        android:textAppearance="@style/HelpText.Heading" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/guesserUI"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal" >
+
+                <ListView
+                    android:id="@+id/listView"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:fadeScrollbars="false"
+                    android:scrollbarAlwaysDrawVerticalTrack="true"
+                    android:text="@string/hello_world" >
+                </ListView>
+
+                <LinearLayout
+                    android:id="@+id/personUI"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_small"
+                    android:background="#FFFFFFFF"
+                    android:orientation="horizontal" >
+
+                    <android.widget.ImageView
+                        android:id="@+id/person_image"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/grey_background_pattern"
+                        android:contentDescription="@string/hello_world" />
+
+                    <TextView
+                        android:id="@+id/person_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="@dimen/margin_small"
+                        android:gravity="center"
+                        android:text="My name"
+                        android:textAppearance="@style/DefaultText" />
+                </LinearLayout>
+            </LinearLayout>
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/matchup_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:visibility="visible"
+        tools:context=".DrawingActivity" >
+        
+        <TextView
+                android:id="@+id/name_field"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text=""
+                android:textAppearance="@style/HelpText.Caption" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:paddingBottom="20dp"
+            android:text="@string/eight_bit_instructions"
+            android:textAppearance="@style/DefaultText" >
+        </TextView>
+
+        <LinearLayout
+            android:id="@+id/matchup_layout_inner"
+            android:layout_width="match_parent"
+            android:layout_height="67dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            tools:context=".DrawingActivity" >
+
+            <Button
+                android:id="@+id/sign_out_button"
+                android:layout_width="190dp"
+                android:layout_height="wrap_content"
+                android:text="@string/sign_out" />
+
+            <Button
+                android:id="@+id/startMatchButton"
+                android:layout_width="190dp"
+                android:layout_height="wrap_content"
+                android:onClick="onStartMatchClicked"
+                android:text="@string/start_match" />
+
+            <Button
+                android:id="@+id/checkGamesButton"
+                android:layout_width="190dp"
+                android:layout_height="wrap_content"
+                android:onClick="onCheckGamesClicked"
+                android:text="@string/check_games" />
+        </LinearLayout>
+        
+        <TextView
+            android:id="@+id/turns_to_go"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:paddingBottom="20dp"
+            android:text=""
+            android:textAppearance="@style/HelpText.Caption" >
+        </TextView>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/progressLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#AAAAAAAA"
+        android:visibility="gone" >
+
+        <ProgressBar
+            android:id="@+id/progress_dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true" />
+    </RelativeLayout>
+
+</RelativeLayout>

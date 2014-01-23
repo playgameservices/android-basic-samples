@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">8BitArtist</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="words">time,people,man,day,child,mister,government,woman,number,world,house,hand,party,school,country,family,head,night,eye,home,question,power,money,book,water,car,line,face,road,door,hour,right,mother,period,center,police,city,million,cost,type,programme,girl,Father,force,health,street,mind,church,paper,bank,hundred,table,Death,staff,town,morning,letter,foot,boy,art,teacher,voice,arm,club,window,light,wife,pound,tax,nature,bed,hospital,wall,computer,bit,son,south,king,secretary,picture,thousand,shop,animal,evening,heart,doctor,hair,love,music,piece,tree,plant,pressure,fire,garden,rest,space,sea,step,couple,hotel,station,cup,cell,lady,skull,sound,floor,science,college,horse,answer,army,dog,look,brother,husband,element,glass,leg,park,summer,baby,daughter,sun,box,river,stone,oil,disease,goal,sign,fish,library,blood,island,television,bar,talk,no,star,mouth,second,chair,Earth,card,sister,bird,fear,miss,option,quarter,match,radio,railway,target,corner,finger,forest,afternoon,ball,kitchen,peace,scale,speech,hill,shoulder,tea,marriage,farm,file,newspaper,branch,copy,spirit,train,gas,museum,shape,artist,queen,exercise,fig,credit,half,bag,gold,link,skin,boat,dad,prison,wine,winter,injury,key,painting,phone,drink,judge,ship,visitor,volume,background,cabinet,engine,smile,victim,yard,bus,coffee,investigation,mountain,song,dinner,football,tour,wood,bridge,,flat,gentleman,lip,sheet,audience,code,loan,prince,theatre,freedom,magazine,plate,rain,writing,dream,factory,spring,victory,aircraft,decade,egg,reduction,bedroom,enterprise,middle,murder,neck,run,tape,weapon,acid,bottle,ear,store,teaching,transfer,Wave,channel,cut,lunch,photograph,temperature,waste,block,experiment,guide,nurse,silence,captain,journey,map,noise,pool,scientist,search,sequence,sky,sum,trip,violence,cat,display,gate,gun,heat,location,professor,reading,combination,drive,learning,prospect,soldier,tool,tooth,troop,breath,castle,coal,crown,flow,lane,mistake,motion,release,total,Jack-o-lantern,stormtrooper,lion,alien,Thor,spacewalk,velocoraptor attack,anime,jaws,clockwork,orange,anonymous,tangled,minion,tombstone,magic lamp,dragon,pi,pie,birthday cake,songbird,parrot,Friday,Android developer,lungs,spotted frog,big bad wolf,adorable bunny,juggling,axe throwing,counting sheep,unfortunate hat,awesome hat,granulated sugar,extreme skiing,my house,wicked witch,surprised,spinach puff,broccoli,squid,released kraken,superwhale</string>
+    <string name="next_turn_">Next turn</string>
+    <string name="welcome">Welcome to 8-Bit Artist, the game!  This is network-only, so you&amp;apos;ll need to log in to play!</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="match_instructions">To play, you need find an opponent.  How about a quick match?</string>
+    <string name="quick_match">Quick match</string>
+    <string name="continue_str">Continue</string>
+    <string name="guesser_prompt">This has not been set.</string>
+    <string name="clear">Clear</string>
+    <string name="done">Done</string>
+    <string name="eight_bit_instructions">8-Bit artist is a drawing game.  One player is given a word to draw and just 100 pixels and four colors to draw it in!  The other player will guess, and then they trade places.
+        
+Unlike many drawing/guessing games, feel free to use numbers or symbols if it helps.</string>
+    <string name="start_match">Start match</string>
+    <string name="check_games">Check games</string>
+    <string name="now_drawing">Now drawing:</string>
+
+</resources>

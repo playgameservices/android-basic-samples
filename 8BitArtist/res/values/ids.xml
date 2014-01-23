@@ -1,0 +1,9 @@
+
+<resources>
+  <string name="app_id">app_id_from_developer_console</string>
+  <string name="achievement_guessed_correctly">id_1</string>
+  <string name="achievement_started_a_game">id_2</string>
+  <string name="achievement_5_turns">id_3</string>
+  <string name="achievement_got_one_wrong">id_4</string>
+  <string name="achievement_10_turns">id_5</string>
+</resources>
