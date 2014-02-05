@@ -156,7 +156,7 @@ public abstract class BaseGameActivity extends FragmentActivity implements
     }
 
     protected void enableDebugLog(boolean enabled, String tag) {
-        mDebugLog = true;
+        mDebugLog = enabled;
         mDebugTag = tag;
         if (mHelper != null) {
             mHelper.enableDebugLog(enabled, tag);
