@@ -55,7 +55,7 @@ public class GameplayFragment extends Fragment implements OnClickListener {
             Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_gameplay, container, false);
         for (int i : MY_BUTTONS) {
-            ((Button) v.findViewById(i)).setOnClickListener(this);
+            v.findViewById(i).setOnClickListener(this);
         }
         return v;
     }
