@@ -233,15 +233,6 @@ public class MainActivity extends BaseGameActivity
         mOutbox.mBoredSteps++;
     }
 
-    void unlockAchievement(int achievementId, String fallbackString) {
-        if (isSignedIn()) {
-            getGamesClient().unlockAchievement(getString(achievementId));
-        } else {
-            Toast.makeText(this, getString(R.string.achievement) + ": " + fallbackString,
-                    Toast.LENGTH_LONG).show();
-        }
-    }
-
     void achievementToast(String achievement) {
         // Only show toast if not signed in. If signed in, the standard Google Play
         // toasts will appear, so we don't need to show our own.

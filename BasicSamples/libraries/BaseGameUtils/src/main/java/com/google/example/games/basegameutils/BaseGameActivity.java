@@ -87,7 +87,7 @@ public abstract class BaseGameActivity extends FragmentActivity implements
      *
      * @param requestedClients A combination of the flags CLIENT_GAMES, CLIENT_PLUS
      *         and CLIENT_APPSTATE, or CLIENT_ALL to request all available clients.
-     * @param additionalScopes.  Scopes that should also be requested when the auth
+     * @param additionalScopes  Scopes that should also be requested when the auth
      *         request is made.
      */
     protected void setRequestedClients(int requestedClients, String... additionalScopes) {

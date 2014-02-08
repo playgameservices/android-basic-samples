@@ -395,10 +395,10 @@ public class MainActivity extends BaseGameActivity
 
     private void showAlertBar(int resId) {
         ((TextView) findViewById(R.id.alert_bar)).setText(getString(resId));
-        ((TextView) findViewById(R.id.alert_bar)).setVisibility(View.VISIBLE);
+        findViewById(R.id.alert_bar).setVisibility(View.VISIBLE);
     }
 
     private void hideAlertBar() {
-        ((TextView) findViewById(R.id.alert_bar)).setVisibility(View.GONE);
+        findViewById(R.id.alert_bar).setVisibility(View.GONE);
     }
 }
