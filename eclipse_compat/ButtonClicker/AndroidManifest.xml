@@ -20,9 +20,8 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <!--  To use an earlier version of minSdk make sure you update your res/V11 and res/v14 string files -->    
     <uses-sdk
-       android:minSdkVersion="14" 
+        android:minSdkVersion="9"
         android:targetSdkVersion="19" />
 
     <application

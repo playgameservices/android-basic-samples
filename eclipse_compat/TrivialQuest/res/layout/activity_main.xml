@@ -27,6 +27,7 @@
 
     <!-- SIGN-IN BAR -->
     <LinearLayout android:id="@+id/sign_in_bar" style="@style/SignInOutBar">
+
         <com.google.android.gms.common.SignInButton
             android:id="@+id/button_sign_in" style="@style/SignInButton" />
 

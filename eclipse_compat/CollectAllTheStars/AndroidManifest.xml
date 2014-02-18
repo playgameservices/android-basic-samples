@@ -27,13 +27,12 @@
 
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.example.games.cas"
+    package="com.google.example.games.cats"
     android:versionCode="1"
     android:versionName="1.0" >
 
-     <!--  To use an earlier version of minSdk make sure you update your res/V11 and res/v14 string files -->
     <uses-sdk
-        android:minSdkVersion="11" 
+        android:minSdkVersion="9"
         android:targetSdkVersion="19" />
 
     <application

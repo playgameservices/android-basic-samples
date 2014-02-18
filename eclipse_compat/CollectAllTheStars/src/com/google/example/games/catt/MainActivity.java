@@ -29,10 +29,12 @@ import android.widget.RatingBar.OnRatingBarChangeListener;
 import android.widget.TextView;
 
 import com.google.android.gms.appstate.AppStateClient;
+import com.google.android.gms.appstate.AppStateManager;
 import com.google.android.gms.appstate.OnStateLoadedListener;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.example.games.basegameutils.BaseGameActivity;
 
-import com.google.example.games.cas.R;
+import com.google.example.games.cats.R;
 
 /**
  * Collect All the Stars sample. This sample demonstrates how to use the cloud save features
@@ -50,7 +52,7 @@ import com.google.example.games.cas.R;
  * @author Bruno Oliveira (Google)
  */
 public class MainActivity extends BaseGameActivity
-            implements OnStateLoadedListener, View.OnClickListener, OnRatingBarChangeListener {
+            implements View.OnClickListener, OnRatingBarChangeListener {
     private static final boolean ENABLE_DEBUG = true;
     private static final String TAG = "CollectAllTheStars";
 
@@ -134,19 +136,19 @@ public class MainActivity extends BaseGameActivity
 
     @Override
     protected void onStart() {
-        super.onStart();
         mLoadingDialog = new ProgressDialog(this);
         mLoadingDialog.setMessage(getString(R.string.loading_from_cloud));
         updateUi();
+        super.onStart();
     }
 
     @Override
     protected void onStop() {
-        super.onStop();
         if (mLoadingDialog != null) {
             mLoadingDialog.dismiss();
             mLoadingDialog = null;
         }
+        super.onStop();
     }
 
     @Override
@@ -234,7 +236,7 @@ public class MainActivity extends BaseGameActivity
 
         // Did the developer forget to change the package name?
         if (CHECK_PKGNAME && getPackageName().startsWith("com.google.example.")) {
-            Log.e(TAG, "*** Sample setup problem: " + 
+            Log.e(TAG, "*** Sample setup problem: " +
                 "package name cannot be com.google.example.*. Use your own " +
                 "package name.");
             return false;
@@ -261,7 +263,7 @@ public class MainActivity extends BaseGameActivity
 
     /** Complains to the user about an error. */
     void complain(String error) {
-        showAlert("Error", error);
+        showAlert("Error: " + error);
         Log.e(TAG, "*** Error: " + error);
     }
 
@@ -294,38 +296,52 @@ public class MainActivity extends BaseGameActivity
         }
     }
 
+    ResultCallback<AppStateManager.StateResult> mResultCallback = new
+            ResultCallback<AppStateManager.StateResult>() {
+        @Override
+        public void onResult(AppStateManager.StateResult result) {
+            AppStateManager.StateConflictResult conflictResult = result.getConflictResult();
+            AppStateManager.StateLoadedResult loadedResult = result.getLoadedResult();
+            if (loadedResult != null) {
+                processStateLoaded(loadedResult);
+            } else if (conflictResult != null) {
+                processStateConflict(conflictResult);
+            }
+        }
+    };
+
     void loadFromCloud() {
         mLoadingDialog.show();
-        getAppStateClient().loadState(this, OUR_STATE_KEY);
-        // this will trigger a call to onStateConflict or onStateLoaded
+        AppStateManager.load(getApiClient(), OUR_STATE_KEY).setResultCallback(mResultCallback);
     }
 
     void saveToCloud() {
-        getAppStateClient().updateState(OUR_STATE_KEY, mSaveGame.toBytes());
+        AppStateManager.update(getApiClient(), OUR_STATE_KEY, mSaveGame.toBytes());
         // Note: this is a fire-and-forget call. It will NOT trigger a call to any callbacks!
     }
 
-    @Override
-    public void onStateConflict(int stateKey, String resolvedVersion, byte[] localData,
-            byte[] serverData) {
+    private void processStateConflict(AppStateManager.StateConflictResult result) {
         // Need to resolve conflict between the two states.
         // We do that by taking the union of the two sets of cleared levels,
         // which means preserving the maximum star rating of each cleared
         // level:
+        byte[] serverData = result.getServerData();
+        byte[] localData = result.getLocalData();
+
         SaveGame localGame = new SaveGame(localData);
         SaveGame serverGame = new SaveGame(serverData);
         SaveGame resolvedGame = localGame.unionWith(serverGame);
-        getAppStateClient().resolveState(this, OUR_STATE_KEY, resolvedVersion,
-                resolvedGame.toBytes());
+
+        AppStateManager.resolve(getApiClient(), result.getStateKey(), result.getResolvedVersion(),
+                resolvedGame.toBytes()).setResultCallback(mResultCallback);
     }
 
-    @Override
-    public void onStateLoaded(int statusCode, int stateKey, byte[] localData) {
+    private void processStateLoaded(AppStateManager.StateLoadedResult result) {
         mLoadingDialog.dismiss();
-        switch (statusCode) {
+        switch (result.getStatus().getStatusCode()) {
         case AppStateClient.STATUS_OK:
             // Data was successfully loaded from the cloud: merge with local data.
-            mSaveGame = mSaveGame.unionWith(new SaveGame(localData));
+            mSaveGame = mSaveGame.unionWith(new SaveGame(result.getLocalData()));
             mAlreadyLoadedState = true;
             hideAlertBar();
             break;
@@ -346,7 +362,7 @@ public class MainActivity extends BaseGameActivity
             break;
         case AppStateClient.STATUS_CLIENT_RECONNECT_REQUIRED:
             // need to reconnect AppStateClient
-            reconnectClients(BaseGameActivity.CLIENT_APPSTATE);
+            reconnectClient();
             break;
         default:
             // error

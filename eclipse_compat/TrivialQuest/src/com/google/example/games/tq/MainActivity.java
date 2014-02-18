@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.BaseGameActivity;
 import com.google.example.games.tq.R;
 
@@ -90,7 +91,7 @@ public class MainActivity extends BaseGameActivity implements View.OnClickListen
             // NOTE: this check is here only because this is a sample! Don't include this
             // check in your actual production app.
             if (!verifyPlaceholderIdsReplaced()) {
-                showAlert("Error", "Sample not correctly set up. See README!");
+                showAlert("Error: sample not correctly set up. See README!");
                 break;
             }
 
@@ -105,10 +106,9 @@ public class MainActivity extends BaseGameActivity implements View.OnClickListen
         case R.id.button_win:
             // win!
             showAlert(getString(R.string.victory), getString(R.string.you_won));
-            if (getGamesClient().isConnected()) {
+            if (getApiClient().isConnected()) {
                 // unlock the "Trivial Victory" achievement.
-                getGamesClient().unlockAchievement(
-                        getString(R.string.trivial_victory_achievement_id));
+                Games.Achievements.unlock(getApiClient(), getString(R.string.trivial_victory_achievement_id));
             }
             break;
         }
@@ -127,7 +127,7 @@ public class MainActivity extends BaseGameActivity implements View.OnClickListen
 
         // Did the developer forget to change the package name?
         if (CHECK_PKGNAME && getPackageName().startsWith("com.google.example.")) {
-            Log.e(TAG, "*** Sample setup problem: " + 
+            Log.e(TAG, "*** Sample setup problem: " +
                 "package name cannot be com.google.example.*. Use your own " +
                 "package name.");
             return false;

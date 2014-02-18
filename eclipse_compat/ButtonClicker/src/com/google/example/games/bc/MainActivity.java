@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.GamesClient;
 import com.google.android.gms.games.multiplayer.Invitation;
@@ -135,7 +136,7 @@ public class MainActivity extends BaseGameActivity
 
         // register listener so we are notified if we receive an invitation to play
         // while we are in the game
-        getGamesClient().registerInvitationListener(this);
+        Games.Invitations.registerInvitationListener(getApiClient(), this);
 
         // if we received an invite via notification, accept it; otherwise, go to main screen
         if (getInvitationId() != null) {
@@ -159,7 +160,7 @@ public class MainActivity extends BaseGameActivity
             case R.id.button_sign_in:
                 // user wants to sign in
                 if (!verifyPlaceholderIdsReplaced()) {
-                    showAlert("Error", "Sample not set up correctly. Please see README.");
+                    showAlert("Error: sample not set up correctly. Please see README.");
                     return;
                 }
                 beginUserInitiatedSignIn();
@@ -171,13 +172,13 @@ public class MainActivity extends BaseGameActivity
                 break;
             case R.id.button_invite_players:
                 // show list of invitable players
-                intent = getGamesClient().getSelectPlayersIntent(1, 3);
+                intent = Games.RealTimeMultiplayer.getSelectOpponentsIntent(getApiClient(), 1, 3);
                 switchToScreen(R.id.screen_wait);
                 startActivityForResult(intent, RC_SELECT_PLAYERS);
                 break;
             case R.id.button_see_invitations:
                 // show list of pending invitations
-                intent = getGamesClient().getInvitationInboxIntent();
+                intent = Games.Invitations.getInvitationInboxIntent(getApiClient());
                 switchToScreen(R.id.screen_wait);
                 startActivityForResult(intent, RC_INVITATION_INBOX);
                 break;
@@ -210,7 +211,7 @@ public class MainActivity extends BaseGameActivity
         switchToScreen(R.id.screen_wait);
         keepScreenOn();
         resetGameVars();
-        getGamesClient().createRoom(rtmConfigBuilder.build());
+        Games.RealTimeMultiplayer.create(getApiClient(), rtmConfigBuilder.build());
     }
 
     @Override
@@ -284,7 +285,7 @@ public class MainActivity extends BaseGameActivity
         switchToScreen(R.id.screen_wait);
         keepScreenOn();
         resetGameVars();
-        getGamesClient().createRoom(rtmConfigBuilder.build());
+        Games.RealTimeMultiplayer.create(getApiClient(), rtmConfigBuilder.build());
         Log.d(TAG, "Room created, waiting for it to be ready...");
     }
 
@@ -315,7 +316,7 @@ public class MainActivity extends BaseGameActivity
         switchToScreen(R.id.screen_wait);
         keepScreenOn();
         resetGameVars();
-        getGamesClient().joinRoom(roomConfigBuilder.build());
+        Games.RealTimeMultiplayer.join(getApiClient(), roomConfigBuilder.build());
     }
 
     // Activity is going to the background. We have to leave the current room.
@@ -359,7 +360,7 @@ public class MainActivity extends BaseGameActivity
         mSecondsLeft = 0;
         stopKeepingScreenOn();
         if (mRoomId != null) {
-            getGamesClient().leaveRoom(this, mRoomId);
+            Games.RealTimeMultiplayer.leave(getApiClient(), this, mRoomId);
             mRoomId = null;
             switchToScreen(R.id.screen_wait);
         } else {
@@ -374,7 +375,7 @@ public class MainActivity extends BaseGameActivity
         // For simplicity, we require everyone to join the game before we start it
         // (this is signaled by Integer.MAX_VALUE).
         final int MIN_PLAYERS = Integer.MAX_VALUE;
-        Intent i = getGamesClient().getRealTimeWaitingRoomIntent(room, MIN_PLAYERS);
+        Intent i = Games.RealTimeMultiplayer.getWaitingRoomIntent(getApiClient(), room, MIN_PLAYERS);
 
         // show waiting room UI
         startActivityForResult(i, RC_WAITING_ROOM);
@@ -393,6 +394,14 @@ public class MainActivity extends BaseGameActivity
         switchToScreen(mCurScreen); // This will show the invitation popup
     }
 
+    @Override
+    public void onInvitationRemoved(String invitationId) {
+        if (mIncomingInvitationId.equals(invitationId)) {
+            mIncomingInvitationId = null;
+            switchToScreen(mCurScreen); // This will hide the invitation popup
+        }
+    }
+
     /*
      * CALLBACKS SECTION. This section shows how we implement the several games
      * API callbacks.
@@ -407,7 +416,7 @@ public class MainActivity extends BaseGameActivity
         // get room ID, participants and my ID:
         mRoomId = room.getRoomId();
         mParticipants = room.getParticipants();
-        mMyId = room.getParticipantId(getGamesClient().getCurrentPlayerId());
+        mMyId = room.getParticipantId(Games.Players.getCurrentPlayerId(getApiClient()));
 
         // print out the list of participants (for debug purposes)
         Log.d(TAG, "Room ID: " + mRoomId);
@@ -433,7 +442,7 @@ public class MainActivity extends BaseGameActivity
 
     // Show error message about game being cancelled and return to main screen.
     void showGameError() {
-        showAlert(getString(R.string.error), getString(R.string.game_problem));
+        showAlert(getString(R.string.game_problem));
         switchToMainScreen();
     }
 
@@ -674,11 +683,11 @@ public class MainActivity extends BaseGameActivity
                 continue;
             if (finalScore) {
                 // final score notification must be sent via reliable message
-                getGamesClient().sendReliableRealTimeMessage(null, mMsgBuf, mRoomId,
-                        p.getParticipantId());
+                Games.RealTimeMultiplayer.sendReliableMessage(getApiClient(), null, mMsgBuf,
+                        mRoomId, p.getParticipantId());
             } else {
                 // it's an interim score notification, so we can use unreliable
-                getGamesClient().sendUnreliableRealTimeMessage(mMsgBuf, mRoomId,
+                Games.RealTimeMultiplayer.sendUnreliableMessage(getApiClient(), mMsgBuf, mRoomId,
                         p.getParticipantId());
             }
         }
