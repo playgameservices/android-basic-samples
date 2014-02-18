@@ -12,11 +12,11 @@ buildscript {
 
 dependencies {
     compile 'com.android.support:support-v4:+'
-    compile 'com.google.android.gms:play-services:4.1.32+'
+    compile 'com.google.android.gms:play-services:4.2.42+'
 }
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.0"
+    buildToolsVersion '19.0.0'
 }
 

@@ -64,7 +64,8 @@ Now jump to the *Modify IDs, compile and run* section and continue to follow the
 <h3>If you're using Android Studio...</h3>
 
 1. Open Android Studio and launch the Android SDK manager from it (Tools | Android | SDK Manager)
-1. Check that these two components are installed. Install them if they are not installed yet.
+1. Check that these two components are installed and updated to the latest version. Install or upgrade
+   them if necessary.
    1. *Google Play Services*
    1. *Google Play Services Repository*
 1. Return to Android Studio and select *Import Project*
