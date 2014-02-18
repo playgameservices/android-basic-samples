@@ -25,6 +25,11 @@ These are the Android samples for Google Play game services.
 
 **Note:** the samples that have corresponding counterparts for iOS and web (particularly, CollectAllTheStars and TypeANumber) are compatible across the platforms. This means that you can play some levels on CollectAllTheStars on your Android device, and then pick up your iOS device and continue where you left off! For TypeANumber, you will see your achievements and leaderboards on all platforms, and progress obtained on one will be reflected on the others.
 
+<h2>Frequently Asked Questions</h2>
+
+If you have questions about the samples (particularly, about *BaseGameActivity* and *GameHelper*), please
+take a look at [our FAQ](https://github.com/playgameservices/android-samples/blob/master/FAQ.txt).
+
 <h2>How to run a sample</h2>
 
 1. Set up the project in Developer Console. For more info:
