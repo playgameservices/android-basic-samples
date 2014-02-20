@@ -28,17 +28,21 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesClient;
 import com.google.android.gms.games.multiplayer.Invitation;
+import com.google.android.gms.games.multiplayer.OnInvitationReceivedListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
-import com.google.android.gms.games.multiplayer.turnbased.LoadMatchesResponse;
+import com.google.android.gms.games.multiplayer.turnbased.OnTurnBasedMatchUpdateReceivedListener;
 import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMatch;
 import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMatchConfig;
-import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMultiplayerListener;
+import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMultiplayer;
 import com.google.example.games.basegameutils.BaseGameActivity;
-import com.google.example.tbmpskeletonprod.R;
+import com.google.example.games.tbmpskel.R;
 
-/** 
+/**
  * TBMPSkeleton: A minimalistic "game" that shows turn-based
  * multiplayer features for Play Games Services.  In this game, you
  * can invite a variable number of players and take turns editing a
@@ -55,8 +59,8 @@ import com.google.example.tbmpskeletonprod.R;
  *
  * @author Wolff (wolff@google.com), 2013
  */
-public class SkeletonActivity extends BaseGameActivity implements
-        TurnBasedMultiplayerListener {
+public class SkeletonActivity extends BaseGameActivity implements OnInvitationReceivedListener,
+            OnTurnBasedMatchUpdateReceivedListener {
     public static final String TAG = "DrawingActivity";
 
     // Local convenience pointers
@@ -117,14 +121,15 @@ public class SkeletonActivity extends BaseGameActivity implements
     // Displays your inbox. You will get back onActivityResult where
     // you will need to figure out what you clicked on.
     public void onCheckGamesClicked(View view) {
-        Intent intent = getGamesClient().getMatchInboxIntent();
+        Intent intent = Games.TurnBasedMultiplayer.getInboxIntent(getApiClient());
         startActivityForResult(intent, RC_LOOK_AT_MATCHES);
     }
 
     // Open the create-game UI. You will get back an onActivityResult
     // and figure out what to do.
     public void onStartMatchClicked(View view) {
-        Intent intent = getGamesClient().getSelectPlayersIntent(1, 7, true);
+        Intent intent = Games.TurnBasedMultiplayer.getSelectOpponentsIntent(getApiClient(),
+                1, 7, true);
         startActivityForResult(intent, RC_SELECT_PLAYERS);
     }
 
@@ -139,8 +144,14 @@ public class SkeletonActivity extends BaseGameActivity implements
 
         showSpinner();
 
-        // Kick the match off
-        getGamesClient().createTurnBasedMatch(this, tbmc);
+        // Start the match
+        ResultCallback<TurnBasedMultiplayer.InitiateMatchResult> cb = new ResultCallback<TurnBasedMultiplayer.InitiateMatchResult>() {
+            @Override
+            public void onResult(TurnBasedMultiplayer.InitiateMatchResult result) {
+                processResult(result);
+            }
+        };
+        Games.TurnBasedMultiplayer.createMatch(getApiClient(), tbmc).setResultCallback(cb);
     }
 
     // In-game controls
@@ -149,7 +160,13 @@ public class SkeletonActivity extends BaseGameActivity implements
     // giving up on the view.
     public void onCancelClicked(View view) {
         showSpinner();
-        getGamesClient().cancelTurnBasedMatch(this, mMatch.getMatchId());
+        Games.TurnBasedMultiplayer.cancelMatch(getApiClient(), mMatch.getMatchId())
+                .setResultCallback(new ResultCallback<TurnBasedMultiplayer.CancelMatchResult>() {
+                    @Override
+                    public void onResult(TurnBasedMultiplayer.CancelMatchResult result) {
+                        processResult(result);
+                    }
+                });
         isDoingTurn = false;
         setViewVisibility();
     }
@@ -159,19 +176,33 @@ public class SkeletonActivity extends BaseGameActivity implements
     public void onLeaveClicked(View view) {
         showSpinner();
         String nextParticipantId = getNextParticipantId();
-        getGamesClient().leaveTurnBasedMatchDuringTurn(this,
-                mMatch.getMatchId(), nextParticipantId);
+
+        Games.TurnBasedMultiplayer.leaveMatchDuringTurn(getApiClient(), mMatch.getMatchId(),
+                nextParticipantId).setResultCallback(
+                    new ResultCallback<TurnBasedMultiplayer.LeaveMatchResult>() {
+            @Override
+            public void onResult(TurnBasedMultiplayer.LeaveMatchResult result) {
+                processResult(result);
+            }
+        });
         setViewVisibility();
     }
 
     // Finish the game. Sometimes, this is your only choice.
     public void onFinishClicked(View view) {
         showSpinner();
-        getGamesClient().finishTurnBasedMatch(this, mMatch.getMatchId());
+        Games.TurnBasedMultiplayer.finishMatch(getApiClient(), mMatch.getMatchId())
+                .setResultCallback(new ResultCallback<TurnBasedMultiplayer.UpdateMatchResult>() {
+                    @Override
+                    public void onResult(TurnBasedMultiplayer.UpdateMatchResult result) {
+                        processResult(result);
+                    }
+                });
 
         isDoingTurn = false;
         setViewVisibility();
     }
+
 
     // Upload your new gamestate, then take a turn, and pass it on to the next
     // player.
@@ -185,8 +216,14 @@ public class SkeletonActivity extends BaseGameActivity implements
 
         showSpinner();
 
-        getGamesClient().takeTurn(this, mMatch.getMatchId(),
-                mTurnData.persist(), nextParticipantId);
+        Games.TurnBasedMultiplayer.takeTurn(getApiClient(), mMatch.getMatchId(),
+                mTurnData.persist(), nextParticipantId).setResultCallback(
+                new ResultCallback<TurnBasedMultiplayer.UpdateMatchResult>() {
+            @Override
+            public void onResult(TurnBasedMultiplayer.UpdateMatchResult result) {
+                processResult(result);
+            }
+        });
 
         mTurnData = null;
     }
@@ -207,8 +244,9 @@ public class SkeletonActivity extends BaseGameActivity implements
             return;
         }
 
-        ((TextView) findViewById(R.id.name_field)).setText(getGamesClient().getCurrentPlayer()
-                .getDisplayName());
+
+        ((TextView) findViewById(R.id.name_field)).setText(Games.Players.getCurrentPlayer(
+                getApiClient()).getDisplayName());
         findViewById(R.id.login_layout).setVisibility(View.GONE);
 
         if (isDoingTurn) {
@@ -244,12 +282,12 @@ public class SkeletonActivity extends BaseGameActivity implements
         // This is *NOT* required; if you do not register a handler for
         // invitation events, you will get standard notifications instead.
         // Standard notifications may be preferable behavior in many cases.
-        getGamesClient().registerInvitationListener(this);
+        Games.Invitations.registerInvitationListener(getApiClient(), this);
 
         // Likewise, we are registering the optional MatchUpdateListener, which
         // will replace notifications you would get otherwise. You do *NOT* have
         // to register a MatchUpdateListener.
-        getGamesClient().registerMatchUpdateListener(this);
+        Games.TurnBasedMultiplayer.registerMatchUpdateListener(getApiClient(), this);
     }
 
     // Switch to gameplay view.
@@ -374,9 +412,14 @@ public class SkeletonActivity extends BaseGameActivity implements
                     .addInvitedPlayers(invitees)
                     .setAutoMatchCriteria(autoMatchCriteria).build();
 
-            // Kick the match off
-            getGamesClient().createTurnBasedMatch(this, tbmc);
-
+            // Start the match
+            Games.TurnBasedMultiplayer.createMatch(getApiClient(), tbmc).setResultCallback(
+                    new ResultCallback<TurnBasedMultiplayer.InitiateMatchResult>() {
+                @Override
+                public void onResult(TurnBasedMultiplayer.InitiateMatchResult result) {
+                    processResult(result);
+                }
+            });
             showSpinner();
         }
     }
@@ -394,20 +437,31 @@ public class SkeletonActivity extends BaseGameActivity implements
 
         mMatch = match;
 
-        String myParticipantId = mMatch.getParticipantId(getGamesClient()
-                .getCurrentPlayerId());
+        String playerId = Games.Players.getCurrentPlayerId(getApiClient());
+        String myParticipantId = mMatch.getParticipantId(playerId);
 
         showSpinner();
 
-        // Taking this turn will cause turnBasedMatchUpdated
-        getGamesClient().takeTurn(this, match.getMatchId(),
-                mTurnData.persist(), myParticipantId);
+        Games.TurnBasedMultiplayer.takeTurn(getApiClient(), match.getMatchId(),
+                mTurnData.persist(), myParticipantId).setResultCallback(
+                new ResultCallback<TurnBasedMultiplayer.UpdateMatchResult>() {
+            @Override
+            public void onResult(TurnBasedMultiplayer.UpdateMatchResult result) {
+                processResult(result);
+            }
+        });
     }
 
     // If you choose to rematch, then call it and wait for a response.
     public void rematch() {
         showSpinner();
-        getGamesClient().rematchTurnBasedMatch(this, mMatch.getMatchId());
+        Games.TurnBasedMultiplayer.rematch(getApiClient(), mMatch.getMatchId()).setResultCallback(
+                new ResultCallback<TurnBasedMultiplayer.InitiateMatchResult>() {
+            @Override
+            public void onResult(TurnBasedMultiplayer.InitiateMatchResult result) {
+                processResult(result);
+            }
+        });
         mMatch = null;
         isDoingTurn = false;
     }
@@ -417,13 +471,13 @@ public class SkeletonActivity extends BaseGameActivity implements
      * round-robin, with all known players going before all automatch players.
      * This is not a requirement; players can go in any order. However, you can
      * take turns in any order.
-     * 
+     *
      * @return participantId of next player, or null if automatching
      */
     public String getNextParticipantId() {
 
-        String myParticipantId = mMatch.getParticipantId(getGamesClient()
-                .getCurrentPlayerId());
+        String playerId = Games.Players.getCurrentPlayerId(getApiClient());
+        String myParticipantId = mMatch.getParticipantId(playerId);
 
         ArrayList<String> participantIds = mMatch.getParticipantIds();
 
@@ -502,11 +556,10 @@ public class SkeletonActivity extends BaseGameActivity implements
         setViewVisibility();
     }
 
-    @Override
-    public void onTurnBasedMatchCanceled(int statusCode, String matchId) {
+    private void processResult(TurnBasedMultiplayer.CancelMatchResult result) {
         dismissSpinner();
 
-        if (!checkStatusCode(null, statusCode)) {
+        if (!checkStatusCode(null, result.getStatus().getStatusCode())) {
             return;
         }
 
@@ -516,11 +569,11 @@ public class SkeletonActivity extends BaseGameActivity implements
                 "This match is canceled.  All other players will have their game ended.");
     }
 
-    @Override
-    public void onTurnBasedMatchInitiated(int statusCode, TurnBasedMatch match) {
+    private void processResult(TurnBasedMultiplayer.InitiateMatchResult result) {
+        TurnBasedMatch match = result.getMatch();
         dismissSpinner();
 
-        if (!checkStatusCode(match, statusCode)) {
+        if (!checkStatusCode(match, result.getStatus().getStatusCode())) {
             return;
         }
 
@@ -533,20 +586,22 @@ public class SkeletonActivity extends BaseGameActivity implements
         startMatch(match);
     }
 
-    @Override
-    public void onTurnBasedMatchLeft(int statusCode, TurnBasedMatch match) {
+
+    private void processResult(TurnBasedMultiplayer.LeaveMatchResult result) {
+        TurnBasedMatch match = result.getMatch();
         dismissSpinner();
-        if (!checkStatusCode(match, statusCode)) {
+        if (!checkStatusCode(match, result.getStatus().getStatusCode())) {
             return;
         }
         isDoingTurn = (match.getTurnStatus() == TurnBasedMatch.MATCH_TURN_STATUS_MY_TURN);
         showWarning("Left", "You've left this match.");
     }
 
-    @Override
-    public void onTurnBasedMatchUpdated(int statusCode, TurnBasedMatch match) {
+
+    public void processResult(TurnBasedMultiplayer.UpdateMatchResult result) {
+        TurnBasedMatch match = result.getMatch();
         dismissSpinner();
-        if (!checkStatusCode(match, statusCode)) {
+        if (!checkStatusCode(match, result.getStatus().getStatusCode())) {
             return;
         }
         if (match.canRematch()) {
@@ -576,12 +631,6 @@ public class SkeletonActivity extends BaseGameActivity implements
     @Override
     public void onInvitationRemoved(String invitationId) {
         Toast.makeText(this, "An invitation was removed.", TOAST_DELAY).show();
-    }
-
-    @Override
-    public void onTurnBasedMatchesLoaded(int statusCode,
-            LoadMatchesResponse response) {
-        // Not used.
     }
 
     @Override
