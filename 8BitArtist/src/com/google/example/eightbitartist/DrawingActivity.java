@@ -1211,7 +1211,7 @@ public class DrawingActivity extends BaseGameActivity implements
             ((TextView) findViewById(R.id.replay_person_name)).setText(player
                     .getDisplayName());
             // In case the image load fails
-            ((ImageView) findViewById(R.id.person_image))
+            ((ImageView) findViewById(R.id.replay_person_image))
                     .setBackground(null);
             imMan.loadImage(new ImageManager.OnImageLoadedListener() {
                 @Override
