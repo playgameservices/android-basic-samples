@@ -593,7 +593,7 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
         if (!checkStatusCode(match, result.getStatus().getStatusCode())) {
             return;
         }
-        isDoingTurn = (match.getTurnStatus() == TurnBasedMatch.MATCH_TURN_STATUS_MY_TURN);
+        isDoingTurn = false;
         showWarning("Left", "You've left this match.");
     }
 
