@@ -740,6 +740,10 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
             debugLog("We're already expecting the result of a previous resolution.");
             return;
         }
+        if (mActivity == null) {
+            Log.e(TAG, "Ignoring attempt to resolve connection result without an active Activity.");
+            return;
+        }
 
         debugLog("resolveConnectionResult: trying to resolve result: " + mConnectionResult);
         if (mConnectionResult.hasResolution()) {
