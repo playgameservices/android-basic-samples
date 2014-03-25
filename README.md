@@ -72,7 +72,7 @@ Now jump to the *Modify IDs, compile and run* section and continue to follow the
 1. Check that these two components are installed and updated to the latest version. Install or upgrade
    them if necessary.
    1. *Google Play Services*
-   1. *Google Play Services Repository*
+   1. *Google Repository*
 1. Return to Android Studio and select *Import Project*
 1. Select the **BasicSamples** directory
 1. Select "Import from existing model - Gradle"
