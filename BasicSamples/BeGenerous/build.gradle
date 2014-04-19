@@ -5,7 +5,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.7+'
+        classpath 'com.android.tools.build:gradle:0.9+'
     }
 }
 
@@ -14,12 +14,12 @@ repositories {
 }
 
 dependencies {
-    compile 'com.google.android.gms:play-services:4.3.24+'
+    compile 'com.google.android.gms:play-services:4.3.23+'
     compile project(':libraries:BaseGameUtils')
 }
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.1"
+    buildToolsVersion "19.0.3"
 }
 
