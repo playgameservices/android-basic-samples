@@ -26,9 +26,10 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.google.android.gms.games.Games;
+import com.google.android.gms.games.GamesStatusCodes;
 import com.google.android.gms.games.GamesActivityResultCodes;
-import com.google.android.gms.games.GamesClient;
 import com.google.android.gms.games.multiplayer.Invitation;
+import com.google.android.gms.games.multiplayer.Multiplayer;
 import com.google.android.gms.games.multiplayer.OnInvitationReceivedListener;
 import com.google.android.gms.games.multiplayer.Participant;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessage;
@@ -260,13 +261,13 @@ public class MainActivity extends BaseGameActivity
         Log.d(TAG, "Select players UI succeeded.");
 
         // get the invitee list
-        final ArrayList<String> invitees = data.getStringArrayListExtra(GamesClient.EXTRA_PLAYERS);
+        final ArrayList<String> invitees = data.getStringArrayListExtra(Games.EXTRA_PLAYER_IDS);
         Log.d(TAG, "Invitee count: " + invitees.size());
 
         // get the automatch criteria
         Bundle autoMatchCriteria = null;
-        int minAutoMatchPlayers = data.getIntExtra(GamesClient.EXTRA_MIN_AUTOMATCH_PLAYERS, 0);
-        int maxAutoMatchPlayers = data.getIntExtra(GamesClient.EXTRA_MAX_AUTOMATCH_PLAYERS, 0);
+        int minAutoMatchPlayers = data.getIntExtra(Multiplayer.EXTRA_MIN_AUTOMATCH_PLAYERS, 0);
+        int maxAutoMatchPlayers = data.getIntExtra(Multiplayer.EXTRA_MAX_AUTOMATCH_PLAYERS, 0);
         if (minAutoMatchPlayers > 0 || maxAutoMatchPlayers > 0) {
             autoMatchCriteria = RoomConfig.createAutoMatchCriteria(
                     minAutoMatchPlayers, maxAutoMatchPlayers, 0);
@@ -299,7 +300,7 @@ public class MainActivity extends BaseGameActivity
         }
 
         Log.d(TAG, "Invitation inbox UI succeeded.");
-        Invitation inv = data.getExtras().getParcelable(GamesClient.EXTRA_INVITATION);
+        Invitation inv = data.getExtras().getParcelable(Multiplayer.EXTRA_INVITATION);
 
         // accept invitation
         acceptInviteToRoom(inv.getInvitationId());
@@ -450,7 +451,7 @@ public class MainActivity extends BaseGameActivity
     @Override
     public void onRoomCreated(int statusCode, Room room) {
         Log.d(TAG, "onRoomCreated(" + statusCode + ", " + room + ")");
-        if (statusCode != GamesClient.STATUS_OK) {
+        if (statusCode != GamesStatusCodes.STATUS_OK) {
             Log.e(TAG, "*** Error: onRoomCreated, status " + statusCode);
             showGameError();
             return;
@@ -464,7 +465,7 @@ public class MainActivity extends BaseGameActivity
     @Override
     public void onRoomConnected(int statusCode, Room room) {
         Log.d(TAG, "onRoomConnected(" + statusCode + ", " + room + ")");
-        if (statusCode != GamesClient.STATUS_OK) {
+        if (statusCode != GamesStatusCodes.STATUS_OK) {
             Log.e(TAG, "*** Error: onRoomConnected, status " + statusCode);
             showGameError();
             return;
@@ -475,7 +476,7 @@ public class MainActivity extends BaseGameActivity
     @Override
     public void onJoinedRoom(int statusCode, Room room) {
         Log.d(TAG, "onJoinedRoom(" + statusCode + ", " + room + ")");
-        if (statusCode != GamesClient.STATUS_OK) {
+        if (statusCode != GamesStatusCodes.STATUS_OK) {
             Log.e(TAG, "*** Error: onRoomConnected, status " + statusCode);
             showGameError();
             return;

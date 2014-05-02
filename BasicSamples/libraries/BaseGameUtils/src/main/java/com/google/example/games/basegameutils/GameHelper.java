@@ -51,7 +51,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
         /**
          * Called when sign-in fails. As a result, a "Sign-In" button can be
          * shown to the user; when that button is clicked, call
-         * 
+         *
          * @link{GamesHelper#beginUserInitiatedSignIn . Note that not all calls
          *                                            to this method mean an
          *                                            error; it may be a result
@@ -184,7 +184,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
      * Construct a GameHelper object, initially tied to the given Activity.
      * After constructing this object, call @link{setup} from the onCreate()
      * method of your Activity.
-     * 
+     *
      * @param clientsToUse
      *            the API clients to use (a combination of the CLIENT_* flags,
      *            or CLIENT_ALL to mean all clients).
@@ -298,7 +298,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
      * method of your Activity. This will create the clients and do a few other
      * initialization tasks. Next, call @link{#onStart} from the onStart()
      * method of your Activity.
-     * 
+     *
      * @param listener
      *            The listener to be notified of sign-in events.
      */
@@ -413,7 +413,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
     /**
      * Returns the invitation ID received through an invitation notification.
      * This should be called from your GameHelperListener's
-     * 
+     *
      * @link{GameHelperListener#onSignInSucceeded method, to check if there's an
      *                                            invitation available. In that
      *                                            case, accept the invitation.
@@ -431,7 +431,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
     /**
      * Returns the invitation received through an invitation notification. This
      * should be called from your GameHelperListener's
-     * 
+     *
      * @link{GameHelperListener#onSignInSucceeded method, to check if there's an
      *                                            invitation available. In that
      *                                            case, accept the invitation.
@@ -473,7 +473,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
     /**
      * Returns the tbmp match received through an invitation notification. This
      * should be called from your GameHelperListener's
-     * 
+     *
      * @link{GameHelperListener#onSignInSucceeded method, to check if there's a
      *                                            match available.
      * @return The match, or null if none was received.
@@ -490,7 +490,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
     /**
      * Returns the requests received through the onConnected bundle. This should
      * be called from your GameHelperListener's
-     * 
+     *
      * @link{GameHelperListener#onSignInSucceeded method, to check if there are
      *                                            incoming requests that must be
      *                                            handled.
@@ -538,7 +538,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
         // For the games client, signing out means calling signOut and
         // disconnecting
         if (0 != (mRequestedClients & CLIENT_GAMES)) {
-            debugLog("Signing out from GamesClient.");
+            debugLog("Signing out from the Google API Client.");
             Games.signOut(mGoogleApiClient);
         }
 
