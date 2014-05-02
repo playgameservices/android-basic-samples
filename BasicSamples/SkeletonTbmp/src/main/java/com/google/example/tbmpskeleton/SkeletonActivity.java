@@ -32,13 +32,13 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesStatusCodes;
 import com.google.android.gms.games.multiplayer.Invitation;
-import com.google.android.gms.games.multiplayer.Multiplayer;
 import com.google.android.gms.games.multiplayer.OnInvitationReceivedListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.android.gms.games.multiplayer.turnbased.OnTurnBasedMatchUpdateReceivedListener;
 import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMatch;
 import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMatchConfig;
 import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMultiplayer;
+import com.google.android.gms.games.multiplayer.Multiplayer;
 import com.google.example.games.basegameutils.BaseGameActivity;
 import com.google.example.games.tbmpskel.R;
 
@@ -172,7 +172,7 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
     }
 
     // Leave the game during your turn. Note that there is a separate
-    // GamesClient.leaveTurnBasedMatch() if you want to leave NOT on your turn.
+    // GamesStatusCodes.leaveTurnBasedMatch() if you want to leave NOT on your turn.
     public void onLeaveClicked(View view) {
         showSpinner();
         String nextParticipantId = getNextParticipantId();
