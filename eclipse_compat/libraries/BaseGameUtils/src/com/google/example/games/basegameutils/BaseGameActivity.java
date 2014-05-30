@@ -25,11 +25,11 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 /**
  * Example base class for games. This implementation takes care of setting up
- * the GamesClient object and managing its lifecycle. Subclasses only need to
+ * the API client object and managing its lifecycle. Subclasses only need to
  * override the @link{#onSignInSucceeded} and @link{#onSignInFailed} abstract
  * methods. To initiate the sign-in flow when the user clicks the sign-in
  * button, subclasses should call @link{#beginUserInitiatedSignIn}. By default,
- * this class only instantiates the GamesClient object. If the PlusClient or
+ * this class only instantiates the GoogleApiClient object. If the PlusClient or
  * AppStateClient objects are also wanted, call the BaseGameActivity(int)
  * constructor and specify the requested clients. For example, to request
  * PlusClient and GamesClient, use BaseGameActivity(CLIENT_GAMES | CLIENT_PLUS).
