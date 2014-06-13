@@ -23,7 +23,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.example.games.tan.R;
+import com.google.example.games.tanc.R;
 
 /**
  * Fragment with the main menu for the game. The main menu allows the player

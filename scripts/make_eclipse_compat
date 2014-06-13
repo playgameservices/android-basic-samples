@@ -9,7 +9,7 @@ fi
 echo "Making eclipse-compatible projects..."
 mkdir -p eclipse_compat
 
-for i in ButtonClicker TypeANumber CollectAllTheStars TrivialQuest libraries/BaseGameUtils; do
+for i in ButtonClicker TypeANumber CollectAllTheStars TrivialQuest SkeletonTbmp libraries/BaseGameUtils; do
     echo "Preparing $i..."
     mkdir -p eclipse_compat/$i
     cp BasicSamples/$i/src/main/AndroidManifest.xml eclipse_compat/$i

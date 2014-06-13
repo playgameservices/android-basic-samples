@@ -28,9 +28,9 @@ import android.widget.RatingBar;
 import android.widget.RatingBar.OnRatingBarChangeListener;
 import android.widget.TextView;
 
-import com.google.android.gms.appstate.AppStateClient;
+
+import com.google.android.gms.appstate.AppStateStatusCodes;
 import com.google.android.gms.appstate.AppStateManager;
-import com.google.android.gms.appstate.OnStateLoadedListener;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.example.games.basegameutils.BaseGameActivity;
 
@@ -52,7 +52,7 @@ import com.google.example.games.cats.R;
  * @author Bruno Oliveira (Google)
  */
 public class MainActivity extends BaseGameActivity
-            implements View.OnClickListener, OnRatingBarChangeListener {
+            implements View.OnClickListener, OnRatingBarChangeListener{
     private static final boolean ENABLE_DEBUG = true;
     private static final String TAG = "CollectAllTheStars";
 
@@ -339,28 +339,28 @@ public class MainActivity extends BaseGameActivity
     private void processStateLoaded(AppStateManager.StateLoadedResult result) {
         mLoadingDialog.dismiss();
         switch (result.getStatus().getStatusCode()) {
-        case AppStateClient.STATUS_OK:
+        case AppStateStatusCodes.STATUS_OK:
             // Data was successfully loaded from the cloud: merge with local data.
             mSaveGame = mSaveGame.unionWith(new SaveGame(result.getLocalData()));
             mAlreadyLoadedState = true;
             hideAlertBar();
             break;
-        case AppStateClient.STATUS_STATE_KEY_NOT_FOUND:
+        case AppStateStatusCodes.STATUS_STATE_KEY_NOT_FOUND:
             // key not found means there is no saved data. To us, this is the same as
             // having empty data, so we treat this as a success.
             mAlreadyLoadedState = true;
             hideAlertBar();
             break;
-        case AppStateClient.STATUS_NETWORK_ERROR_NO_DATA:
+        case AppStateStatusCodes.STATUS_NETWORK_ERROR_NO_DATA:
             // can't reach cloud, and we have no local state. Warn user that
             // they may not see their existing progress, but any new progress won't be lost.
             showAlertBar(R.string.no_data_warning);
             break;
-        case AppStateClient.STATUS_NETWORK_ERROR_STALE_DATA:
+        case AppStateStatusCodes.STATUS_NETWORK_ERROR_STALE_DATA:
             // can't reach cloud, but we have locally cached data.
             showAlertBar(R.string.stale_data_warning);
             break;
-        case AppStateClient.STATUS_CLIENT_RECONNECT_REQUIRED:
+        case AppStateStatusCodes.STATUS_CLIENT_RECONNECT_REQUIRED:
             // need to reconnect AppStateClient
             reconnectClient();
             break;
