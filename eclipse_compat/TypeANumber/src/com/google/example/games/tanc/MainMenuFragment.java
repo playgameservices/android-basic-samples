@@ -23,8 +23,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.example.games.tan.R;
-
 /**
  * Fragment with the main menu for the game. The main menu allows the player
  * to choose a gameplay mode (Easy or Hard), and click the buttons to

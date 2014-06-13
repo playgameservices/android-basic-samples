@@ -25,8 +25,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.example.games.tan.R;
-
 /**
  * Fragment for the gameplay portion of the game. It shows the keypad
  * where the user can request their score.
