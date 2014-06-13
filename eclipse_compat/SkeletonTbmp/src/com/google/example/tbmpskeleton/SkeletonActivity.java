@@ -172,7 +172,7 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
     }
 
     // Leave the game during your turn. Note that there is a separate
-    // GamesStatusCodes.leaveTurnBasedMatch() if you want to leave NOT on your turn.
+    // Games.TurnBasedMultiplayer.leaveMatch() if you want to leave NOT on your turn.
     public void onLeaveClicked(View view) {
         showSpinner();
         String nextParticipantId = getNextParticipantId();
