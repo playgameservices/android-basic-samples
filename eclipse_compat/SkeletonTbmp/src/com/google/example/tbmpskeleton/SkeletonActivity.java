@@ -28,10 +28,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.games.Games;
-import com.google.android.gms.games.GamesClient;
+import com.google.android.gms.games.GamesStatusCodes;
 import com.google.android.gms.games.multiplayer.Invitation;
 import com.google.android.gms.games.multiplayer.OnInvitationReceivedListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
@@ -39,6 +38,7 @@ import com.google.android.gms.games.multiplayer.turnbased.OnTurnBasedMatchUpdate
 import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMatch;
 import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMatchConfig;
 import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMultiplayer;
+import com.google.android.gms.games.multiplayer.Multiplayer;
 import com.google.example.games.basegameutils.BaseGameActivity;
 import com.google.example.games.tbmpskel.R;
 
@@ -172,7 +172,7 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
     }
 
     // Leave the game during your turn. Note that there is a separate
-    // GamesClient.leaveTurnBasedMatch() if you want to leave NOT on your turn.
+    // GamesStatusCodes.leaveTurnBasedMatch() if you want to leave NOT on your turn.
     public void onLeaveClicked(View view) {
         showSpinner();
         String nextParticipantId = getNextParticipantId();
@@ -374,7 +374,7 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
             }
 
             TurnBasedMatch match = data
-                    .getParcelableExtra(GamesClient.EXTRA_TURN_BASED_MATCH);
+                    .getParcelableExtra(Multiplayer.EXTRA_TURN_BASED_MATCH);
 
             if (match != null) {
                 updateMatch(match);
@@ -391,15 +391,15 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
 
             // get the invitee list
             final ArrayList<String> invitees = data
-                    .getStringArrayListExtra(GamesClient.EXTRA_PLAYERS);
+                    .getStringArrayListExtra(Games.EXTRA_PLAYER_IDS);
 
             // get automatch criteria
             Bundle autoMatchCriteria = null;
 
             int minAutoMatchPlayers = data.getIntExtra(
-                    GamesClient.EXTRA_MIN_AUTOMATCH_PLAYERS, 0);
+                    Multiplayer.EXTRA_MIN_AUTOMATCH_PLAYERS, 0);
             int maxAutoMatchPlayers = data.getIntExtra(
-                    GamesClient.EXTRA_MAX_AUTOMATCH_PLAYERS, 0);
+                    Multiplayer.EXTRA_MAX_AUTOMATCH_PLAYERS, 0);
 
             if (minAutoMatchPlayers > 0) {
                 autoMatchCriteria = RoomConfig.createAutoMatchCriteria(
@@ -654,9 +654,9 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
     // more cases, and probably report more accurate results.
     private boolean checkStatusCode(TurnBasedMatch match, int statusCode) {
         switch (statusCode) {
-            case GamesClient.STATUS_OK:
+            case GamesStatusCodes.STATUS_OK:
                 return true;
-            case GamesClient.STATUS_NETWORK_ERROR_OPERATION_DEFERRED:
+            case GamesStatusCodes.STATUS_NETWORK_ERROR_OPERATION_DEFERRED:
                 // This is OK; the action is stored by Google Play Services and will
                 // be dealt with later.
                 Toast.makeText(
@@ -666,30 +666,30 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
                 // NOTE: This toast is for informative reasons only; please remove
                 // it from your final application.
                 return true;
-            case GamesClient.STATUS_MULTIPLAYER_ERROR_NOT_TRUSTED_TESTER:
+            case GamesStatusCodes.STATUS_MULTIPLAYER_ERROR_NOT_TRUSTED_TESTER:
                 showErrorMessage(match, statusCode,
                         R.string.status_multiplayer_error_not_trusted_tester);
                 break;
-            case GamesClient.STATUS_MATCH_ERROR_ALREADY_REMATCHED:
+            case GamesStatusCodes.STATUS_MATCH_ERROR_ALREADY_REMATCHED:
                 showErrorMessage(match, statusCode,
                         R.string.match_error_already_rematched);
                 break;
-            case GamesClient.STATUS_NETWORK_ERROR_OPERATION_FAILED:
+            case GamesStatusCodes.STATUS_NETWORK_ERROR_OPERATION_FAILED:
                 showErrorMessage(match, statusCode,
                         R.string.network_error_operation_failed);
                 break;
-            case GamesClient.STATUS_CLIENT_RECONNECT_REQUIRED:
+            case GamesStatusCodes.STATUS_CLIENT_RECONNECT_REQUIRED:
                 showErrorMessage(match, statusCode,
                         R.string.client_reconnect_required);
                 break;
-            case GamesClient.STATUS_INTERNAL_ERROR:
+            case GamesStatusCodes.STATUS_INTERNAL_ERROR:
                 showErrorMessage(match, statusCode, R.string.internal_error);
                 break;
-            case GamesClient.STATUS_MATCH_ERROR_INACTIVE_MATCH:
+            case GamesStatusCodes.STATUS_MATCH_ERROR_INACTIVE_MATCH:
                 showErrorMessage(match, statusCode,
                         R.string.match_error_inactive_match);
                 break;
-            case GamesClient.STATUS_MATCH_ERROR_LOCALLY_MODIFIED:
+            case GamesStatusCodes.STATUS_MATCH_ERROR_LOCALLY_MODIFIED:
                 showErrorMessage(match, statusCode,
                         R.string.match_error_locally_modified);
                 break;

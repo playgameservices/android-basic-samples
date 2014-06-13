@@ -25,7 +25,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.example.games.tan.R;
+import com.google.example.games.tanc.R;
 
 /**
  * Fragment for the gameplay portion of the game. It shows the keypad

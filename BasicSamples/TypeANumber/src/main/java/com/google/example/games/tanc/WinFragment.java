@@ -23,7 +23,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.google.example.games.tan.R;
+import com.google.example.games.tanc.R;
 
 /**
  * Fragment that shows the 'You won' message. Apart from congratulating the user
