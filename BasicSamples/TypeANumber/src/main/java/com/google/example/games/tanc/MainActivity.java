@@ -25,7 +25,6 @@ import android.widget.Toast;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.Player;
 import com.google.example.games.basegameutils.BaseGameActivity;
-import com.google.example.games.tan.R;
 
 /**
  * Our main activity for the game.
