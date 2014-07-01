@@ -328,7 +328,7 @@ public class MainActivity extends BaseGameActivity
     }
 
 
-/**
+    /**
      * Prepares saving Snapshot to the user's synchronized storage, conditionally resolves errors,
      * and stores the Snapshot.
      */
@@ -648,7 +648,7 @@ public class MainActivity extends BaseGameActivity
      * did what they were supposed to in order for the sample to work.
      */
     boolean verifyPlaceholderIdsReplaced() {
-        final boolean CHECK_PKGNAME = false; // set to false to disable check
+        final boolean CHECK_PKGNAME = true;  // set to false to disable check
                                              // (not recommended!)
 
         // Did the developer forget to change the package name?

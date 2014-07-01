@@ -151,12 +151,6 @@ public class MainActivity extends BaseGameActivity implements View.OnClickListen
         pr.setResultCallback(qc);
     }
 
-    @Override
-    /**
-     * This is a handler that will be removed by release.
-     * DO NOT IMPLEMENT, this is deprecated.
-     */
-    public void onQuestReceived(Quest quest){ }
 
     /**
      * Class implementation for handling Quest results.
