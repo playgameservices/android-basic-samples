@@ -18,8 +18,6 @@ These are the Android samples for Google Play game services.
 
     * **TypeANumber**. Shows leaderboards and achievements. In this exciting game, you type the score you think you deserve. But wait! There is a twist. If you are playing in easy mode, you get the score you requested. However, if you are playing in hard mode, you only get half! (tough game, we know).
 
-   * **EndlessTunnel** - a more complex sample that shows how to integrate Google Play Games into an NDK game written in C++.
-
    * **SkeletonTbmp** A trivial turn-based-multiplayer game.  In this thrilling game, you can invite many friends, then send a shared gamestate string back and forth until someone finishes, cancels, or the second-to-last player leaves.
 
    * **BeGenerous** Send gifts and game requests to other players of BeGenerous.
