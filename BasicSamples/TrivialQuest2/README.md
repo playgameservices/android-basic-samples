@@ -14,7 +14,7 @@ Follow these steps to set up the sample:<br>
 4. Create your project in the Google Play Developer Console.<br>
 5. Link your app.<br>
 6. Copy the `APP ID` from the console into `TrivialQuest2/values/ids.xml`.<br>
-7. Set up four events in the Play Games console. As you create each event,
+7. Set up four events in the console. As you create each event,
    copy its identifier into `TrivialQuest2/values/ids.xml`.<br>
 8. If you are using Android Studio, resync gradle, and build the TrivialQuest 2
    module.<br>
