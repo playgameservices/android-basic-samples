@@ -70,7 +70,7 @@ import java.util.concurrent.CountDownLatch;
 public class MainActivity extends BaseGameActivity
             implements View.OnClickListener, OnRatingBarChangeListener {
     private static final boolean ENABLE_DEBUG = true;
-    private static final String TAG = "CollectAllTheStars";
+    private static final String TAG = "CollectAllTheStars2";
 
     // the state key under which we store our data. Since our data is small and
     // this is a simple example, we only use this one state key, but your app can
