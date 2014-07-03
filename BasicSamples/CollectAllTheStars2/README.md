@@ -10,7 +10,7 @@ Follow these steps to set up the sample:<br>
 2. Modify your app folder structure to match your package name.<br>
 3. Replace the package name in `MainActivity.java`. Note that the package name must be unique; otherwise, the API console
    cannot link your app correctly.<br>
-4. Create your project in the GPGS console.<br>
+4. Create your project in the Google Play Developer Console.<br>
 5. Link your app.<br>
 6. Copy the `APP ID` from the console into `CollectAllTheStars/values/ids.xml`.<br>
 
