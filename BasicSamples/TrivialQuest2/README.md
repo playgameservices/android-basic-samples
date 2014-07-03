@@ -1,6 +1,6 @@
 # Trivial Quest 2 #
-This sample demonstrates how to use the Events and Quests features of Google
-Play Game Services. In this sample, the game displays a sign-in button, along with four colored buttons. Each button allows the player to kill a monster. Clicking a button causes the application to send an event to Google Play Game Services ("GPGS"), enabling GPGS to track the player's progress toward a milestone.
+This sample demonstrates how to use the Events-and-Quests feature of Google
+Play Game Services. In this sample, the game displays a sign-in button, along with four colored buttons. Clicking each button causes the application to send an event to Google Play Game Services ("GPGS"), enabling GPGS to track the player's progress toward a milestone.
 
 When the player reaches a milestone specified in a Quest, the game receives a callback with an object describing the Quest reward.
 
