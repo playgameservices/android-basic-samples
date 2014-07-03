@@ -6,7 +6,7 @@ and then updates the UI to reflect the game state saved in the Snapshot.
 ## Setup ##
 Follow these steps to set up the sample:
 1. Update the package name in `AndroidManifest.xml` to be something other
-   than `com.google.example.games.catt2`.
+   than `com.google.example.games.catt2`.<br>
 2. Modify your app folder structure to match your package name.
 3. Replace the package name in `MainActivity.java`. Note that the package name must be unique; otherwise, the API console
    will not be able to link your app correctly.
