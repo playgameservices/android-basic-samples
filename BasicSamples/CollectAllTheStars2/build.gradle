@@ -1,0 +1,32 @@
+apply plugin: 'android'
+
+android {
+    compileSdkVersion 20
+    buildToolsVersion '20'
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 20
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+dependencies {
+    compile 'com.android.support:appcompat-v7:20.0.+'
+    compile 'com.android.support:support-v4:20.0.+'
+    compile 'com.google.android.gms:play-services:5+'
+    compile project(':libraries:BaseGameUtils')
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}

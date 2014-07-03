@@ -24,7 +24,8 @@
         android:minSdkVersion="9"
         android:targetSdkVersion="19" />
 
-    <application android:allowBackup="true" android:label="BaseGameUtils" >
+    <application android:allowBackup="true">
     </application>
+    <meta-data android:name="unityplayer.ForwardNativeEventsToDalvik" android:value="true" />
 
 </manifest>
