@@ -16,7 +16,7 @@
 -->
 <resources>
     <!-- Step 1: Replace by your app ID from the Play Games Console. -->
-    <string name="app_id">ReplaceMe</string>
+    <string name="app_id">382144964236</string>
 
     <!-- Step 2: Replace with your events the Play Games Console. -->
     <string name="red_event_id">ReplaceMe</string>
