@@ -34,6 +34,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.Api.ApiOptions.NoOptions;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.drive.Drive;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.Games.GamesOptions;
 import com.google.android.gms.games.GamesActivityResultCodes;
@@ -123,8 +124,9 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
     public final static int CLIENT_GAMES = 0x01;
     public final static int CLIENT_PLUS = 0x02;
     public final static int CLIENT_APPSTATE = 0x04;
+    public final static int CLIENT_SNAPSHOT = 0x05;
     public final static int CLIENT_ALL = CLIENT_GAMES | CLIENT_PLUS
-            | CLIENT_APPSTATE;
+            | CLIENT_APPSTATE | CLIENT_SNAPSHOT;
 
     // What clients were requested? (bit flags)
     int mRequestedClients = CLIENT_NONE;
@@ -283,13 +285,18 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
         }
 
         if (0 != (mRequestedClients & CLIENT_PLUS)) {
-            builder.addApi(Plus.API, mPlusApiOptions);
+            builder.addApi(Plus.API);
             builder.addScope(Plus.SCOPE_PLUS_LOGIN);
         }
 
         if (0 != (mRequestedClients & CLIENT_APPSTATE)) {
             builder.addApi(AppStateManager.API);
             builder.addScope(AppStateManager.SCOPE_APP_STATE);
+        }
+
+        if (0 != (mRequestedClients & CLIENT_SNAPSHOT)) {
+          builder.addScope(Drive.SCOPE_APPFOLDER);
+          builder.addApi(Drive.API);
         }
 
         mGoogleApiClientBuilder = builder;
