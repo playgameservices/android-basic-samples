@@ -11,7 +11,7 @@ Follow these steps to set up the sample:<br>
 2. Modify your app folder structure to match your package name.<br>
 3. Replace the package name in `MainActivity.java`.  The package name must be unique; otherwise, the API console
    cannot link your app correctly.<br>
-4. Create your project in the GPGS console.<br>
+4. Create your project in the Google Play Developer Console.<br>
 5. Link your app.<br>
 6. Copy the `APP ID` from the console into `TrivialQuest2/values/ids.xml`.<br>
 7. Set up four events in the Play Games console. As you create each event,
@@ -25,7 +25,7 @@ Follow these steps to set up the sample:<br>
 3. In the application, click the **Quests** button to show current quests.
 
 ## Creating and completing Quests ##
-1. Create a Quest in the GPGS console, setting a date range that includes the current date.
+1. Create a Quest in the Google Play Developer Console, setting a date range that includes the current date.
 2. Accept the Quest in the app.
 3. Complete the Quest.
 4. A toast appears showing the Quest reward (as JSON data, for example).
