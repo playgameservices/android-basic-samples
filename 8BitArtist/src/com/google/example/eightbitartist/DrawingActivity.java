@@ -179,7 +179,7 @@ public class DrawingActivity extends BaseGameActivity implements
     // Open the create-game UI. You will get back an onActivityResult
     // and figure out what to do.
     public void onStartMatchClicked(View view) {
-        Intent intent = getGamesClient().getSelectPlayersIntent(1, 1, true);
+        Intent intent = getGamesClient().getTurnBasedSelectOpponentsIntent(1, 1, true);
         startActivityForResult(intent, RC_SELECT_PLAYERS);
     }
 
@@ -1211,7 +1211,7 @@ public class DrawingActivity extends BaseGameActivity implements
             ((TextView) findViewById(R.id.replay_person_name)).setText(player
                     .getDisplayName());
             // In case the image load fails
-            ((ImageView) findViewById(R.id.person_image))
+            ((ImageView) findViewById(R.id.replay_person_image))
                     .setBackground(null);
             imMan.loadImage(new ImageManager.OnImageLoadedListener() {
                 @Override
