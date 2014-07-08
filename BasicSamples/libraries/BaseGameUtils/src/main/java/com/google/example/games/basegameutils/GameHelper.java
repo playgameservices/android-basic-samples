@@ -859,6 +859,10 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
         if (mConnectionResult.hasResolution()) {
             // This problem can be fixed. So let's try to fix it.
             debugLog("Result has resolution. Starting it.");
+            if (mActivity == null) {
+                logError("*** resolveConnectionResult failed: no current Activity!");
+                return;
+            }
             try {
                 // launch appropriate UI flow (which might, for example, be the
                 // sign-in flow)
@@ -868,6 +872,10 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
             } catch (SendIntentException e) {
                 // Try connecting again
                 debugLog("SendIntentException, so connecting again.");
+                connect();
+            } catch (NullPointerException e) {
+                // Try connecting again
+                debugLog("NullPointerExcception, so connecting again.");
                 connect();
             }
         } else {
