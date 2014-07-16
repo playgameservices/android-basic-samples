@@ -124,7 +124,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
     public final static int CLIENT_GAMES = 0x01;
     public final static int CLIENT_PLUS = 0x02;
     public final static int CLIENT_APPSTATE = 0x04;
-    public final static int CLIENT_SNAPSHOT = 0x05;
+    public final static int CLIENT_SNAPSHOT = 0x08;
     public final static int CLIENT_ALL = CLIENT_GAMES | CLIENT_PLUS
             | CLIENT_APPSTATE | CLIENT_SNAPSHOT;
 
