@@ -14,8 +14,6 @@ These are the Android samples for Google Play game services.
 
     * **CollectAllTheStars2**. Demonstrates how to use the Snapshots feature to save game data. The sample signs the user in, synchronizes their data from a named Snapshot, then updates the UI to reflect the game state saved in the Snapshot.
 
-    * **CollectAllTheStars**. Demonstrates a typical use of cloud save. In this challenging game, there are 20 worlds of 12 levels each. When you click on a level, it will ask you how many stars you think you deserve on it. Honesty required! This sample demonstrates how to deal with cloud save conflicts (for example, if you play some levels on your phone and a different set of levels on your tablet).
-
     * **TrivialQuest2**. Demonstrates how to use the Events and Quests features of Google Play Services. The sample presents a sign in button and four buttons to simulate killing monsters in-game. When you click the buttons, an event is
 created and sent to Google Play Games to track what the player is doing in game.
 
@@ -40,7 +38,7 @@ take a look at [our FAQ](https://github.com/playgameservices/android-samples/blo
 1. Set up the project in Developer Console. For more info:
 
       https://developers.google.com/games/services/console/enabling
- 
+
    Note your package name and the APP ID of the project.
 
 1. Create leaderboards/achievements as appropriate for the sample
