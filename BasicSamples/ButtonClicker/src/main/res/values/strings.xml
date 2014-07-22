@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Copyright (C) 2013 Google Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<resources>
+    <string name="signing_in">Signing in with Google</string>
+    <string name="signing_out">Signing out</string>
+    <string name="app_name">Button Clicker</string>
+    <string name="game_title">Button Clicker 2000!</string>
+    <string name="game_blurb">A sample game that tests your ability to click a button. Can you click faster than your friends? Only one way to find out! To play this game with friends, you must sign in with Google.</string>
+    <string name="single_player">Single Player</string>
+    <string name="single_player_explanation">Get some practice!</string>
+    <string name="quick_game">Quick game</string>
+    <string name="invite_players">Invite friends</string>
+    <string name="see_invitations">See invitations</string>
+    <string name="quick_game_explanation">Challenge a random opponent.</string>
+    <string name="invite_players_explanation">Invite friends to play a game.</string>
+    <string name="see_invitations_explanation">See who is inviting you right now.</string>
+    <string name="inv_popup_text">Incoming invitation!</string>
+    <string name="accept_popup_invite">Accept!</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="please_wait">Please wait...</string>
+    <string name="instructions">Click the button as fast as you can!</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="your_score">Your score:</string>
+    <string name="error">Error</string>
+    <string name="game_problem">An error occurred while starting the game. Please try again.</string>
+    <string name="click_me">Click me!</string>
+    <string name="is_inviting_you">is challenging you to a game!</string>
+</resources>
