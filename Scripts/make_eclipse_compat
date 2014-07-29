@@ -1,0 +1,33 @@
+#!/bin/sh
+
+if [ ! -f README.md -o ! -d BasicSamples ]; then
+    echo "*** Error: this script must be run from the base"
+    echo "*** directory of your working copy."
+    exit 1
+fi
+
+echo "Making eclipse-compatible projects..."
+mkdir -p eclipse_compat
+
+for i in BeGenerous ButtonClicker TypeANumber CollectAllTheStars2 TrivialQuest TrivialQuest2 SkeletonTbmp libraries/BaseGameUtils; do
+    echo "Preparing $i..."
+    mkdir -p eclipse_compat/$i
+    cp BasicSamples/$i/src/main/AndroidManifest.xml eclipse_compat/$i
+
+    # copy resources
+    rm -rf eclipse_compat/$i/res
+    cp -a BasicSamples/$i/src/main/res eclipse_compat/$i
+
+    # copy source files
+    rm -rf eclipse_compat/$i/src
+    mkdir -p eclipse_compat/$i/src
+    cp -a BasicSamples/$i/src/main/java/* eclipse_compat/$i/src
+
+    # copy libs
+    rm -rf eclipse_compat/$i/libs
+    mkdir -p eclipse_compat/$i/libs
+    cp -a scripts/eclipse_aux/*.jar eclipse_compat/$i/libs
+done
+
+echo "Eclipse-compatible folders generated in eclipse_compat/"
+
