@@ -1,0 +1,13 @@
+: ${GMS_BRANCH:=manchego}
+: ${GMS_VER:=6.00.00}
+: ${GMS_AAR:=gms.aar}
+
+echo Downloading dogfood version of GMSCore...
+DO_NOT_MERGE/dogfood_gms.par -k $CHEESETASTER_KEY -b ub-gcore-$GMS_BRANCH-release gms.aar
+
+echo removing old versions...
+DO_NOT_MERGE/fake_maven.par remove -r $ANDROID_HOME/extras/google/m2repository -p com.google.android.gms.play-services -v '.*'
+
+echo installing newest version...
+DO_NOT_MERGE/fake_maven.par add -r $ANDROID_HOME/extras/google/m2repository -p com.google.android.gms.play-services -v 6.00.00 -f gms.aar
+
