@@ -21,7 +21,7 @@ android {
 dependencies {
     compile 'com.android.support:appcompat-v7:20.0.+'
     compile 'com.android.support:support-v4:20.0.+'
-    compile 'com.google.android.gms:play-services:5+'
+    compile 'com.google.android.gms:play-services:6+'
     compile project(':libraries:BaseGameUtils')
 }
 
