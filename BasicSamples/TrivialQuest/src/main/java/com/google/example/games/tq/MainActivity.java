@@ -24,6 +24,7 @@ import android.view.View;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
+import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
@@ -170,7 +171,7 @@ public class MainActivity extends Activity
             mSignInClicked = false;
             mResolvingConnectionFailure = true;
             if (!BaseGameUtils.resolveConnectionFailure(this, mGoogleApiClient, connectionResult,
-                    RC_SIGN_IN, "Error signing in. Try again later.")) {
+                    RC_SIGN_IN, R.string.signin_other_error)) {
                 mResolvingConnectionFailure = false;
             }
         }
@@ -185,6 +186,9 @@ public class MainActivity extends Activity
             mResolvingConnectionFailure = false;
             if (responseCode == RESULT_OK) {
                 mGoogleApiClient.connect();
+            } else {
+                BaseGameUtils.showActivityResultError(this, responseCode,
+                        R.string.signin_failure, R.string.signin_other_error);
             }
         }
     }
