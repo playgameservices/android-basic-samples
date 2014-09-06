@@ -243,7 +243,6 @@ public class MainActivity extends BaseGameActivity
     @Override
     public void onSignInSucceeded() {
         // Sign-in worked!
-        mLoadingDialog.dismiss();
         log("Sign-in successful! Loading game state from cloud.");
         showSignOutBar();
         if (!mAlreadyLoadedState) {
@@ -267,9 +266,6 @@ public class MainActivity extends BaseGameActivity
                 }
 
                 // start the sign-in flow
-                mLoadingDialog = new ProgressDialog(this);
-                mLoadingDialog.setMessage(getString(R.string.signing_in));
-                mLoadingDialog.show();
                 beginUserInitiatedSignIn();
                 break;
             case R.id.button_sign_out:
@@ -380,12 +376,19 @@ public class MainActivity extends BaseGameActivity
                 return resultMessage;
             }
 
+            protected void onProgressUpdate(Integer... progress) {
+                mLoadingDialog.dismiss();
+                hideAlertBar();
+                updateUi();
+            }
+
             @Override
             protected void onPostExecute(String message){
                 Log.i(TAG, "Snapshots loaded.");
                 Log.i(TAG, "Details: " + message);
                 mLoadingDialog.dismiss();
                 hideAlertBar();
+                updateUi();
             }
         };
 
@@ -423,6 +426,7 @@ public class MainActivity extends BaseGameActivity
             protected void onProgressUpdate(Integer... progress) {
                 mLoadingDialog.dismiss();
                 hideAlertBar();
+                updateUi();
             }
 
             @Override
