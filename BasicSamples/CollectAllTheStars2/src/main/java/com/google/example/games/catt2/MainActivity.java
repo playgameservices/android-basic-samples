@@ -167,6 +167,8 @@ public class MainActivity extends BaseGameActivity
         findViewById(R.id.button_sign_in).setOnClickListener(this);
         findViewById(R.id.button_sign_out).setOnClickListener(this);
         ((RatingBar) findViewById(R.id.gameplay_rating)).setOnRatingBarChangeListener(this);
+        mSaveGame = new SaveGame();
+        updateUi();
     }
 
 
@@ -377,7 +379,9 @@ public class MainActivity extends BaseGameActivity
             }
 
             protected void onProgressUpdate(Integer... progress) {
-                mLoadingDialog.dismiss();
+                if (mLoadingDialog != null) {
+                    mLoadingDialog.dismiss();
+                }
                 hideAlertBar();
                 updateUi();
             }
@@ -386,7 +390,10 @@ public class MainActivity extends BaseGameActivity
             protected void onPostExecute(String message){
                 Log.i(TAG, "Snapshots loaded.");
                 Log.i(TAG, "Details: " + message);
-                mLoadingDialog.dismiss();
+
+                if (mLoadingDialog != null) {
+                    mLoadingDialog.dismiss();
+                }
                 hideAlertBar();
                 updateUi();
             }
@@ -424,7 +431,9 @@ public class MainActivity extends BaseGameActivity
             }
 
             protected void onProgressUpdate(Integer... progress) {
-                mLoadingDialog.dismiss();
+                if (mLoadingDialog != null) {
+                    mLoadingDialog.dismiss();
+                }
                 hideAlertBar();
                 updateUi();
             }
