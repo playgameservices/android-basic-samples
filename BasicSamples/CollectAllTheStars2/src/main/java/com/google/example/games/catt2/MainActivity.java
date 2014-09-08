@@ -119,6 +119,7 @@ public class MainActivity extends BaseGameActivity
     private CountDownLatch mConflictLatch = null;
     final static int MAX_SNAPSHOT_RESOLVE_RETRIES = 3;
 
+
     public MainActivity() {
         // request that superclass initialize and manage the AppStateClient for us
         super(BaseGameActivity.CLIENT_ALL);
@@ -146,7 +147,172 @@ public class MainActivity extends BaseGameActivity
                 saveSnapshot();
             }
         }
+        super.onActivityResult(requestCode, resultCode, intent);
     }
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        enableDebugLog(ENABLE_DEBUG);
+        log("onCreate.");
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        loadLocal();
+
+        for (int id : LEVEL_BUTTON_IDS) {
+            findViewById(id).setOnClickListener(this);
+        }
+        findViewById(R.id.button_next_world).setOnClickListener(this);
+        findViewById(R.id.button_prev_world).setOnClickListener(this);
+        findViewById(R.id.button_sign_in).setOnClickListener(this);
+        findViewById(R.id.button_sign_out).setOnClickListener(this);
+        ((RatingBar) findViewById(R.id.gameplay_rating)).setOnRatingBarChangeListener(this);
+        mSaveGame = new SaveGame();
+        updateUi();
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        // Player wants to force save or load.
+        // NOTE: this button exists in this sample for debug purposes and so that you can
+        // see the effects immediately. A game probably shouldn't have a "Load/Save"
+        // button (or at least not one that's so prominently displayed in the UI).
+        if (item.getItemId() == R.id.menu_sync) {
+            loadFromSnapshot();
+            return true;
+        }
+        if (item.getItemId() == R.id.menu_save) {
+            saveSnapshot();
+            return true;
+        }
+        if (item.getItemId() == R.id.menu_select)
+        {
+            showSnapshots();
+        }
+        return false;
+    }
+
+
+    @Override
+    protected void onStart() {
+        mLoadingDialog = new ProgressDialog(this);
+        mLoadingDialog.setMessage(getString(R.string.loading_from_cloud));
+        updateUi();
+        super.onStart();
+    }
+
+
+    @Override
+    protected void onStop() {
+        if (mLoadingDialog != null) {
+            mLoadingDialog.dismiss();
+            mLoadingDialog = null;
+        }
+        super.onStop();
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.activity_main, menu);
+        return true;
+    }
+
+
+    /**
+     * Called to notify us that sign in failed. Notice that a failure in sign in is not
+     * necessarily due to an error; it might be that the user never signed in, so our
+     * attempt to automatically sign in fails because the user has not gone through
+     * the authorization flow. So our reaction to sign in failure is to show the sign in
+     * button. When the user clicks that button, the sign in process will start/resume.
+     */
+    @Override
+    public void onSignInFailed() {
+        // Sign-in has failed. So show the user the sign-in button
+        // so they can click the "Sign-in" button.
+        log("Sign-in failed. Showing sign-in button.");
+        showSignInBar();
+    }
+
+
+    /**
+     * Called to notify us that sign in succeeded. We react by loading the loot from the
+     * cloud and updating the UI to show a sign-out button.
+     */
+    @Override
+    public void onSignInSucceeded() {
+        // Sign-in worked!
+        log("Sign-in successful! Loading game state from cloud.");
+        showSignOutBar();
+        if (!mAlreadyLoadedState) {
+            loadFromSnapshot();
+        }
+        listSnapshots();
+    }
+
+
+    /** Called when the "sign in" or "sign out" button is clicked. */
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.button_sign_in:
+                // Check to see the developer who's running this sample code read the instructions :-)
+                // NOTE: this check is here only because this is a sample! Don't include this
+                // check in your actual production app.
+                if (!verifyPlaceholderIdsReplaced()) {
+                    complain("Sample not correctly set up. See README!");
+                    break;
+                }
+
+                // start the sign-in flow
+                beginUserInitiatedSignIn();
+                break;
+            case R.id.button_sign_out:
+                // sign out.
+                signOut();
+                showSignInBar();
+                mSaveGame = new SaveGame();
+                updateUi();
+                break;
+            case R.id.button_next_world:
+                if (mWorld < WORLD_MAX) {
+                    mWorld++;
+                    updateUi();
+                }
+                break;
+            case R.id.button_prev_world:
+                if (mWorld > WORLD_MIN) {
+                    mWorld--;
+                    updateUi();
+                }
+                break;
+            default:
+                for (int i = 0; i < LEVEL_BUTTON_IDS.length; ++i) {
+                    if (view.getId() == LEVEL_BUTTON_IDS[i]) {
+                        launchLevel(i + 1);
+                        return;
+                    }
+                }
+        }
+    }
+
+
+    /** Loads local data from shared preferences. */
+    private void loadLocal() {
+        SharedPreferences sp = getSharedPreferences("gamestate", Context.MODE_PRIVATE);
+        mSaveGame = new SaveGame(sp, "gamestate");
+    }
+
+
+    /** Saves local data to shared preferences. */
+    private void saveLocal() {
+        SharedPreferences sp = getSharedPreferences("gamestate", Context.MODE_PRIVATE);
+        mSaveGame.save(sp, "gamestate");
+    }
+
 
     /**
      * Gets a screenshot to use with snapshots. Note that in practice you probably do not want to
@@ -169,14 +335,14 @@ public class MainActivity extends BaseGameActivity
         return coverImage;
     }
 
-    /**
-     * Shows the user's snapshots.
-     */
+
+    /** Shows the user's snapshots. */
     void showSnapshots(){
         android.content.Intent snapshotIntent = Games.Snapshots.getSelectSnapshotIntent(
                 getApiClient(), "Select a snap", true, true, 5);
         startActivityForResult(snapshotIntent, 0);
     }
+
 
     /** Lists a user's snapshots. */
     void listSnapshots(){
@@ -212,17 +378,30 @@ public class MainActivity extends BaseGameActivity
                 return resultMessage;
             }
 
+            protected void onProgressUpdate(Integer... progress) {
+                if (mLoadingDialog != null) {
+                    mLoadingDialog.dismiss();
+                }
+                hideAlertBar();
+                updateUi();
+            }
+
             @Override
             protected void onPostExecute(String message){
                 Log.i(TAG, "Snapshots loaded.");
                 Log.i(TAG, "Details: " + message);
-                mLoadingDialog.dismiss();
+
+                if (mLoadingDialog != null) {
+                    mLoadingDialog.dismiss();
+                }
                 hideAlertBar();
+                updateUi();
             }
         };
 
         task.execute();
     }
+
 
     /**
      * Loads a Snapshot from the user's synchronized storage.
@@ -251,6 +430,14 @@ public class MainActivity extends BaseGameActivity
                 return status;
             }
 
+            protected void onProgressUpdate(Integer... progress) {
+                if (mLoadingDialog != null) {
+                    mLoadingDialog.dismiss();
+                }
+                hideAlertBar();
+                updateUi();
+            }
+
             @Override
             protected void onPostExecute(Integer status){
                 Log.i(TAG, "Snapshot loaded: " + status);
@@ -271,16 +458,13 @@ public class MainActivity extends BaseGameActivity
                             Toast.LENGTH_SHORT);
                 }
 
-                // Reflect the changes in the UI.
-                updateUi();
-
-                mLoadingDialog.dismiss();
-                hideAlertBar();
+                publishProgress();
             }
         };
 
         task.execute();
     }
+
 
     /**
      * Conflict resolution for when Snapshots are opened.
@@ -371,86 +555,6 @@ public class MainActivity extends BaseGameActivity
     }
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-        enableDebugLog(ENABLE_DEBUG, TAG);
-        log("onCreate.");
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        loadLocal();
-
-        for (int id : LEVEL_BUTTON_IDS) {
-            findViewById(id).setOnClickListener(this);
-        }
-        findViewById(R.id.button_next_world).setOnClickListener(this);
-        findViewById(R.id.button_prev_world).setOnClickListener(this);
-        findViewById(R.id.button_sign_in).setOnClickListener(this);
-        findViewById(R.id.button_sign_out).setOnClickListener(this);
-        ((RatingBar) findViewById(R.id.gameplay_rating)).setOnRatingBarChangeListener(this);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        // Player wants to force save or load.
-        // NOTE: this button exists in this sample for debug purposes and so that you can
-        // see the effects immediately. A game probably shouldn't have a "Load/Save"
-        // button (or at least not one that's so prominently displayed in the UI).
-        if (item.getItemId() == R.id.menu_sync) {
-            loadFromSnapshot();
-            return true;
-        }
-        if (item.getItemId() == R.id.menu_save) {
-            saveSnapshot();
-            return true;
-        }
-        if (item.getItemId() == R.id.menu_select)
-        {
-            showSnapshots();
-        }
-        return false;
-    }
-
-    @Override
-    protected void onStart() {
-        mLoadingDialog = new ProgressDialog(this);
-        mLoadingDialog.setMessage(getString(R.string.loading_from_cloud));
-        updateUi();
-        super.onStart();
-    }
-
-
-    @Override
-    protected void onStop() {
-        if (mLoadingDialog != null) {
-            mLoadingDialog.dismiss();
-            mLoadingDialog = null;
-        }
-        super.onStop();
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
-    }
-
-
-    private void loadLocal() {
-        SharedPreferences sp = getSharedPreferences("gamestate", Context.MODE_PRIVATE);
-        mSaveGame = new SaveGame(sp, "gamestate");
-    }
-
-
-    private void saveLocal() {
-        SharedPreferences sp = getSharedPreferences("gamestate", Context.MODE_PRIVATE);
-        mSaveGame.save(sp, "gamestate");
-    }
-
-
     /** Shows the "sign in" bar (explanation and button). */
     private void showSignInBar() {
         findViewById(R.id.sign_in_bar).setVisibility(View.VISIBLE);
@@ -463,137 +567,8 @@ public class MainActivity extends BaseGameActivity
         findViewById(R.id.sign_out_bar).setVisibility(View.VISIBLE);
     }
 
-    /** Called when the "sign in" or "sign out" button is clicked. */
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-        case R.id.button_sign_in:
-            // Check to see the developer who's running this sample code read the instructions :-)
-            // NOTE: this check is here only because this is a sample! Don't include this
-            // check in your actual production app.
-            if (!verifyPlaceholderIdsReplaced()) {
-                complain("Sample not correctly set up. See README!");
-                break;
-            }
 
-            // start the sign-in flow
-            beginUserInitiatedSignIn();
-            break;
-        case R.id.button_sign_out:
-            // sign out.
-            signOut();
-            showSignInBar();
-            mSaveGame = new SaveGame();
-            updateUi();
-            break;
-        case R.id.button_next_world:
-            if (mWorld < WORLD_MAX) {
-                mWorld++;
-                updateUi();
-            }
-            break;
-        case R.id.button_prev_world:
-            if (mWorld > WORLD_MIN) {
-                mWorld--;
-                updateUi();
-            }
-            break;
-        default:
-            for (int i = 0; i < LEVEL_BUTTON_IDS.length; ++i) {
-                if (view.getId() == LEVEL_BUTTON_IDS[i]) {
-                    launchLevel(i + 1);
-                    return;
-                }
-            }
-        }
-    }
-
-
-    /** Prints a log message (convenience method). */
-    void log(String message) {
-        Log.d(TAG, message);
-    }
-
-
-    /** Complains to the user about an error. */
-    void complain(String error) {
-        showAlert("Error: " + error);
-        Log.e(TAG, "*** Error: " + error);
-    }
-
-
-    /**
-     * Called to notify us that sign in failed. Notice that a failure in sign in is not
-     * necessarily due to an error; it might be that the user never signed in, so our
-     * attempt to automatically sign in fails because the user has not gone through
-     * the authorization flow. So our reaction to sign in failure is to show the sign in
-     * button. When the user clicks that button, the sign in process will start/resume.
-     */
-    @Override
-    public void onSignInFailed() {
-        // Sign-in has failed. So show the user the sign-in button
-        // so they can click the "Sign-in" button.
-        log("Sign-in failed. Showing sign-in button.");
-        showSignInBar();
-    }
-
-
-    /**
-     * Called to notify us that sign in succeeded. We react by loading the loot from the
-     * cloud and updating the UI to show a sign-out button.
-     */
-    @Override
-    public void onSignInSucceeded() {
-        // Sign-in worked!
-        log("Sign-in successful! Loading game state from cloud.");
-        showSignOutBar();
-        showAccessToken();
-        if (!mAlreadyLoadedState) {
-            loadFromSnapshot();
-        }
-        listSnapshots();
-    }
-
-    public void showAccessToken(){
-        AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-                String token = null;
-
-                try {
-                    token = GoogleAuthUtil.getToken(
-                            MainActivity.this,
-                            "class@google.com",
-                            "oauth2:" + Scopes.DRIVE_APPFOLDER);
-                } catch (IOException transientEx) {
-                    // Network or server error, try later
-                    Log.e(TAG, transientEx.toString());
-                } catch (UserRecoverableAuthException e) {
-                    // Recover (with e.getIntent())
-                    Log.e(TAG, e.toString());
-                    Intent recover = e.getIntent();
-                    //startActivityForResult(recover, REQUEST_CODE_TOKEN_AUTH);
-                } catch (GoogleAuthException authEx) {
-                    // The call is not ever expected to succeed
-                    // assuming you have already verified that
-                    // Google Play services is installed.
-                    Log.e(TAG, authEx.toString());
-                }
-
-                return token;
-            }
-
-            @Override
-            protected void onPostExecute(String token) {
-                Log.i(TAG, "Access token retrieved:" + token);
-            }
-        };
-
-        task.execute();
-    }
-
-
-
+    /** Updates the game UI. */
     private void updateUi() {
         ((TextView) findViewById(R.id.world_display)).setText(getString(R.string.world)
                 + " " + mWorld);
@@ -608,6 +583,11 @@ public class MainActivity extends BaseGameActivity
         }
     }
 
+
+    /**
+     * Loads the specified level state.
+     * @param {int} level to load.
+     */
     private void launchLevel(int level) {
         mLevel = level;
         ((TextView) findViewById(R.id.gameplay_level_display)).setText(
@@ -617,6 +597,7 @@ public class MainActivity extends BaseGameActivity
         findViewById(R.id.screen_gameplay).setVisibility(View.VISIBLE);
         findViewById(R.id.screen_main).setVisibility(View.GONE);
     }
+
 
     @Override
     public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
@@ -630,11 +611,27 @@ public class MainActivity extends BaseGameActivity
         saveSnapshot();
     }
 
+    /** Prints a log message (convenience method). */
+    void log(String message) {
+        Log.d(TAG, message);
+    }
+
+
+    /** Complains to the user about an error. */
+    void complain(String error) {
+        showAlert("Error: " + error);
+        Log.e(TAG, "*** Error: " + error);
+    }
+
+
+    /** Shows an alert message. */
     private void showAlertBar(int resId) {
         ((TextView) findViewById(R.id.alert_bar)).setText(getString(resId));
         ((TextView) findViewById(R.id.alert_bar)).setVisibility(View.VISIBLE);
     }
 
+
+    /** Dismisses the previously displayed alert message. */
     private void hideAlertBar() {
         ((TextView) findViewById(R.id.alert_bar)).setVisibility(View.GONE);
     }
