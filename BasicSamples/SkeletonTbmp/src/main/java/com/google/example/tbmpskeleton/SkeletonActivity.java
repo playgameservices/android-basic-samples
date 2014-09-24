@@ -28,6 +28,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesStatusCodes;
@@ -39,7 +41,8 @@ import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMatch;
 import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMatchConfig;
 import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMultiplayer;
 import com.google.android.gms.games.multiplayer.Multiplayer;
-import com.google.example.games.basegameutils.BaseGameActivity;
+import com.google.android.gms.plus.Plus;
+import com.google.example.games.basegameutils.BaseGameUtils;
 import com.google.example.games.tbmpskel.R;
 
 /**
@@ -59,9 +62,27 @@ import com.google.example.games.tbmpskel.R;
  *
  * @author Wolff (wolff@google.com), 2013
  */
-public class SkeletonActivity extends BaseGameActivity implements OnInvitationReceivedListener,
-            OnTurnBasedMatchUpdateReceivedListener {
-    public static final String TAG = "DrawingActivity";
+public class SkeletonActivity extends Activity
+        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        OnInvitationReceivedListener, OnTurnBasedMatchUpdateReceivedListener,
+        View.OnClickListener {
+
+    public static final String TAG = "SkeletonActivity";
+
+    // Client used to interact with Google APIs
+    private GoogleApiClient mGoogleApiClient;
+
+    // Are we currently resolving a connection failure?
+    private boolean mResolvingConnectionFailure = false;
+
+    // Has the user clicked the sign-in button?
+    private boolean mSignInClicked = false;
+
+    // Automatically start the sign-in flow when the Activity starts
+    private boolean mAutoStartSignInFlow = true;
+
+    // Current turn-based match
+    private TurnBasedMatch mTurnBasedMatch;
 
     // Local convenience pointers
     public TextView mDataView;
@@ -70,11 +91,12 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
     private AlertDialog mAlertDialog;
 
     // For our intents
+    private static final int RC_SIGN_IN = 9001;
     final static int RC_SELECT_PLAYERS = 10000;
     final static int RC_LOOK_AT_MATCHES = 10001;
 
     // How long to show toasts.
-    final static int TOAST_DELAY = 2000;
+    final static int TOAST_DELAY = Toast.LENGTH_SHORT;
 
     // Should I be showing the turn API?
     public boolean isDoingTurn = false;
@@ -92,43 +114,111 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Setup signin button
-        findViewById(R.id.sign_out_button).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        signOut();
-                        setViewVisibility();
-                    }
-                });
+        // Create the Google API Client with access to Plus and Games
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
+                .addApi(Games.API).addScope(Games.SCOPE_GAMES)
+                .build();
 
-        findViewById(R.id.sign_in_button).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // start the asynchronous sign in flow
-                        beginUserInitiatedSignIn();
+        // Setup signin and signout buttons
+        findViewById(R.id.sign_out_button).setOnClickListener(this);
+        findViewById(R.id.sign_in_button).setOnClickListener(this);
 
-                        findViewById(R.id.sign_in_button).setVisibility(
-                                View.GONE);
-
-                    }
-                });
         mDataView = ((TextView) findViewById(R.id.data_view));
         mTurnTextView = ((TextView) findViewById(R.id.turn_counter_view));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart(): Connecting to Google APIs");
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop(): Disconnecting from Google APIs");
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        Log.d(TAG, "onConnected(): Connection successful");
+        setViewVisibility();
+
+        // Retrieve the TurnBasedMatch from the connectionHint
+        if (connectionHint != null) {
+            mTurnBasedMatch = connectionHint.getParcelable(Multiplayer.EXTRA_TURN_BASED_MATCH);
+        }
+
+        if (mTurnBasedMatch != null) {
+            if (mGoogleApiClient == null || !mGoogleApiClient.isConnected()) {
+                Log.d(TAG, "Warning: accessing TurnBasedMatch when not connected");
+            }
+
+            updateMatch(mTurnBasedMatch);
+            return;
+        }
+
+        // As a demonstration, we are registering this activity as a handler for
+        // invitation and match events.
+
+        // This is *NOT* required; if you do not register a handler for
+        // invitation events, you will get standard notifications instead.
+        // Standard notifications may be preferable behavior in many cases.
+        Games.Invitations.registerInvitationListener(mGoogleApiClient, this);
+
+        // Likewise, we are registering the optional MatchUpdateListener, which
+        // will replace notifications you would get otherwise. You do *NOT* have
+        // to register a MatchUpdateListener.
+        Games.TurnBasedMultiplayer.registerMatchUpdateListener(mGoogleApiClient, this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d(TAG, "onConnectionSuspended():  Trying to reconnect.");
+        mGoogleApiClient.connect();
+        setViewVisibility();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.d(TAG, "onConnectionFailed(): attempting to resolve");
+        if (mResolvingConnectionFailure) {
+            // Already resolving
+            Log.d(TAG, "onConnectionFailed(): ignoring connection failure, already resolving.");
+            return;
+        }
+
+        // Launch the sign-in flow if the button was clicked or if auto sign-in is enabled
+        if (mSignInClicked || mAutoStartSignInFlow) {
+            mAutoStartSignInFlow = false;
+            mSignInClicked = false;
+
+            mResolvingConnectionFailure = BaseGameUtils.resolveConnectionFailure(this,
+                    mGoogleApiClient, connectionResult, RC_SIGN_IN,
+                    getString(R.string.signin_other_error));
+        }
+
+        setViewVisibility();
     }
 
     // Displays your inbox. You will get back onActivityResult where
     // you will need to figure out what you clicked on.
     public void onCheckGamesClicked(View view) {
-        Intent intent = Games.TurnBasedMultiplayer.getInboxIntent(getApiClient());
+        Intent intent = Games.TurnBasedMultiplayer.getInboxIntent(mGoogleApiClient);
         startActivityForResult(intent, RC_LOOK_AT_MATCHES);
     }
 
     // Open the create-game UI. You will get back an onActivityResult
     // and figure out what to do.
     public void onStartMatchClicked(View view) {
-        Intent intent = Games.TurnBasedMultiplayer.getSelectOpponentsIntent(getApiClient(),
+        Intent intent = Games.TurnBasedMultiplayer.getSelectOpponentsIntent(mGoogleApiClient,
                 1, 7, true);
         startActivityForResult(intent, RC_SELECT_PLAYERS);
     }
@@ -151,7 +241,7 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
                 processResult(result);
             }
         };
-        Games.TurnBasedMultiplayer.createMatch(getApiClient(), tbmc).setResultCallback(cb);
+        Games.TurnBasedMultiplayer.createMatch(mGoogleApiClient, tbmc).setResultCallback(cb);
     }
 
     // In-game controls
@@ -160,7 +250,7 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
     // giving up on the view.
     public void onCancelClicked(View view) {
         showSpinner();
-        Games.TurnBasedMultiplayer.cancelMatch(getApiClient(), mMatch.getMatchId())
+        Games.TurnBasedMultiplayer.cancelMatch(mGoogleApiClient, mMatch.getMatchId())
                 .setResultCallback(new ResultCallback<TurnBasedMultiplayer.CancelMatchResult>() {
                     @Override
                     public void onResult(TurnBasedMultiplayer.CancelMatchResult result) {
@@ -177,7 +267,7 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
         showSpinner();
         String nextParticipantId = getNextParticipantId();
 
-        Games.TurnBasedMultiplayer.leaveMatchDuringTurn(getApiClient(), mMatch.getMatchId(),
+        Games.TurnBasedMultiplayer.leaveMatchDuringTurn(mGoogleApiClient, mMatch.getMatchId(),
                 nextParticipantId).setResultCallback(
                     new ResultCallback<TurnBasedMultiplayer.LeaveMatchResult>() {
             @Override
@@ -191,7 +281,7 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
     // Finish the game. Sometimes, this is your only choice.
     public void onFinishClicked(View view) {
         showSpinner();
-        Games.TurnBasedMultiplayer.finishMatch(getApiClient(), mMatch.getMatchId())
+        Games.TurnBasedMultiplayer.finishMatch(mGoogleApiClient, mMatch.getMatchId())
                 .setResultCallback(new ResultCallback<TurnBasedMultiplayer.UpdateMatchResult>() {
                     @Override
                     public void onResult(TurnBasedMultiplayer.UpdateMatchResult result) {
@@ -216,7 +306,7 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
 
         showSpinner();
 
-        Games.TurnBasedMultiplayer.takeTurn(getApiClient(), mMatch.getMatchId(),
+        Games.TurnBasedMultiplayer.takeTurn(mGoogleApiClient, mMatch.getMatchId(),
                 mTurnData.persist(), nextParticipantId).setResultCallback(
                 new ResultCallback<TurnBasedMultiplayer.UpdateMatchResult>() {
             @Override
@@ -232,7 +322,9 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
 
     // Update the visibility based on what state we're in.
     public void setViewVisibility() {
-        if (!isSignedIn()) {
+        boolean isSignedIn = (mGoogleApiClient != null) && (mGoogleApiClient.isConnected());
+
+        if (!isSignedIn) {
             findViewById(R.id.login_layout).setVisibility(View.VISIBLE);
             findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
             findViewById(R.id.matchup_layout).setVisibility(View.GONE);
@@ -246,7 +338,7 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
 
 
         ((TextView) findViewById(R.id.name_field)).setText(Games.Players.getCurrentPlayer(
-                getApiClient()).getDisplayName());
+                mGoogleApiClient).getDisplayName());
         findViewById(R.id.login_layout).setVisibility(View.GONE);
 
         if (isDoingTurn) {
@@ -256,38 +348,6 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
             findViewById(R.id.matchup_layout).setVisibility(View.VISIBLE);
             findViewById(R.id.gameplay_layout).setVisibility(View.GONE);
         }
-    }
-
-    @Override
-    public void onSignInFailed() {
-        setViewVisibility();
-    }
-
-    @Override
-    public void onSignInSucceeded() {
-        if (mHelper.getTurnBasedMatch() != null) {
-            // GameHelper will cache any connection hint it gets. In this case,
-            // it can cache a TurnBasedMatch that it got from choosing a turn-based
-            // game notification. If that's the case, you should go straight into
-            // the game.
-            updateMatch(mHelper.getTurnBasedMatch());
-            return;
-        }
-
-        setViewVisibility();
-
-        // As a demonstration, we are registering this activity as a handler for
-        // invitation and match events.
-
-        // This is *NOT* required; if you do not register a handler for
-        // invitation events, you will get standard notifications instead.
-        // Standard notifications may be preferable behavior in many cases.
-        Games.Invitations.registerInvitationListener(getApiClient(), this);
-
-        // Likewise, we are registering the optional MatchUpdateListener, which
-        // will replace notifications you would get otherwise. You do *NOT* have
-        // to register a MatchUpdateListener.
-        Games.TurnBasedMultiplayer.registerMatchUpdateListener(getApiClient(), this);
     }
 
     // Switch to gameplay view.
@@ -361,11 +421,16 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
     // Games built-in inbox, or else the create game built-in interface.
     @Override
     public void onActivityResult(int request, int response, Intent data) {
-        // It's VERY IMPORTANT for you to remember to call your superclass.
-        // BaseGameActivity will not work otherwise.
-        super.onActivityResult(request, response, data);
-
-        if (request == RC_LOOK_AT_MATCHES) {
+        if (request == RC_SIGN_IN) {
+            mSignInClicked = false;
+            mResolvingConnectionFailure = false;
+            if (response == Activity.RESULT_OK) {
+                mGoogleApiClient.connect();
+            } else {
+                BaseGameUtils.showActivityResultError(this, request, response,
+                        R.string.signin_failure, R.string.signin_other_error);
+            }
+        } else if (request == RC_LOOK_AT_MATCHES) {
             // Returning from the 'Select Match' dialog
 
             if (response != Activity.RESULT_OK) {
@@ -413,7 +478,7 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
                     .setAutoMatchCriteria(autoMatchCriteria).build();
 
             // Start the match
-            Games.TurnBasedMultiplayer.createMatch(getApiClient(), tbmc).setResultCallback(
+            Games.TurnBasedMultiplayer.createMatch(mGoogleApiClient, tbmc).setResultCallback(
                     new ResultCallback<TurnBasedMultiplayer.InitiateMatchResult>() {
                 @Override
                 public void onResult(TurnBasedMultiplayer.InitiateMatchResult result) {
@@ -437,25 +502,25 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
 
         mMatch = match;
 
-        String playerId = Games.Players.getCurrentPlayerId(getApiClient());
+        String playerId = Games.Players.getCurrentPlayerId(mGoogleApiClient);
         String myParticipantId = mMatch.getParticipantId(playerId);
 
         showSpinner();
 
-        Games.TurnBasedMultiplayer.takeTurn(getApiClient(), match.getMatchId(),
+        Games.TurnBasedMultiplayer.takeTurn(mGoogleApiClient, match.getMatchId(),
                 mTurnData.persist(), myParticipantId).setResultCallback(
                 new ResultCallback<TurnBasedMultiplayer.UpdateMatchResult>() {
-            @Override
-            public void onResult(TurnBasedMultiplayer.UpdateMatchResult result) {
-                processResult(result);
-            }
-        });
+                    @Override
+                    public void onResult(TurnBasedMultiplayer.UpdateMatchResult result) {
+                        processResult(result);
+                    }
+                });
     }
 
     // If you choose to rematch, then call it and wait for a response.
     public void rematch() {
         showSpinner();
-        Games.TurnBasedMultiplayer.rematch(getApiClient(), mMatch.getMatchId()).setResultCallback(
+        Games.TurnBasedMultiplayer.rematch(mGoogleApiClient, mMatch.getMatchId()).setResultCallback(
                 new ResultCallback<TurnBasedMultiplayer.InitiateMatchResult>() {
             @Override
             public void onResult(TurnBasedMultiplayer.InitiateMatchResult result) {
@@ -476,7 +541,7 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
      */
     public String getNextParticipantId() {
 
-        String playerId = Games.Players.getCurrentPlayerId(getApiClient());
+        String playerId = Games.Players.getCurrentPlayerId(mGoogleApiClient);
         String myParticipantId = mMatch.getParticipantId(playerId);
 
         ArrayList<String> participantIds = mMatch.getParticipantIds();
@@ -700,5 +765,30 @@ public class SkeletonActivity extends BaseGameActivity implements OnInvitationRe
         }
 
         return false;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.sign_in_button:
+                // Check to see the developer who's running this sample code read the instructions :-)
+                // NOTE: this check is here only because this is a sample! Don't include this
+                // check in your actual production app.
+                if (!BaseGameUtils.verifySampleSetup(this, R.string.app_id)) {
+                    Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
+                }
+
+                mSignInClicked = true;
+                mTurnBasedMatch = null;
+                findViewById(R.id.sign_in_button).setVisibility(View.GONE);
+                mGoogleApiClient.connect();
+                break;
+            case R.id.sign_out_button:
+                mSignInClicked = false;
+                Games.signOut(mGoogleApiClient);
+                mGoogleApiClient.disconnect();
+                setViewVisibility();
+                break;
+        }
     }
 }
