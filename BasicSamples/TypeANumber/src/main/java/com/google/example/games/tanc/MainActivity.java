@@ -17,14 +17,19 @@
 package com.google.example.games.tanc;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.Player;
-import com.google.example.games.basegameutils.BaseGameActivity;
+import com.google.android.gms.plus.Plus;
+import com.google.example.games.basegameutils.BaseGameUtils;
 
 /**
  * Our main activity for the game.
@@ -41,17 +46,32 @@ import com.google.example.games.basegameutils.BaseGameActivity;
  *
  * @author Bruno Oliveira
  */
-public class MainActivity extends BaseGameActivity
+public class MainActivity extends FragmentActivity
         implements MainMenuFragment.Listener,
-        GameplayFragment.Listener, WinFragment.Listener {
+        GameplayFragment.Listener, WinFragment.Listener,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     // Fragments
     MainMenuFragment mMainMenuFragment;
     GameplayFragment mGameplayFragment;
     WinFragment mWinFragment;
 
+    // Client used to interact with Google APIs
+    private GoogleApiClient mGoogleApiClient;
+
+    // Are we currently resolving a connection failure?
+    private boolean mResolvingConnectionFailure = false;
+
+    // Has the user clicked the sign-in button?
+    private boolean mSignInClicked = false;
+
+    // Automatically start the sign-in flow when the Activity starts
+    private boolean mAutoStartSignInFlow = true;
+
     // request codes we use when invoking an external activity
-    final int RC_RESOLVE = 5000, RC_UNUSED = 5001;
+    private static final int RC_RESOLVE = 5000;
+    private static final int RC_UNUSED = 5001;
+    private static final int RC_SIGN_IN = 9001;
 
     // tag for debug logging
     final boolean ENABLE_DEBUG = true;
@@ -66,9 +86,16 @@ public class MainActivity extends BaseGameActivity
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        enableDebugLog(ENABLE_DEBUG, TAG);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Create the Google API Client with access to Plus and Games
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
+                .addApi(Games.API).addScope(Games.SCOPE_GAMES)
+                .build();
 
         // create fragments
         mMainMenuFragment = new MainMenuFragment();
@@ -100,6 +127,26 @@ public class MainActivity extends BaseGameActivity
                 .commit();
     }
 
+    private boolean isSignedIn() {
+        return (mGoogleApiClient != null && mGoogleApiClient.isConnected());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart(): connecting");
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop(): disconnecting");
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
     @Override
     public void onStartGameRequested(boolean hardMode) {
         startGame(hardMode);
@@ -108,20 +155,20 @@ public class MainActivity extends BaseGameActivity
     @Override
     public void onShowAchievementsRequested() {
         if (isSignedIn()) {
-            startActivityForResult(Games.Achievements.getAchievementsIntent(getApiClient()),
+            startActivityForResult(Games.Achievements.getAchievementsIntent(mGoogleApiClient),
                     RC_UNUSED);
         } else {
-            showAlert(getString(R.string.achievements_not_available));
+            BaseGameUtils.makeSimpleDialog(this, getString(R.string.achievements_not_available)).show();
         }
     }
 
     @Override
     public void onShowLeaderboardsRequested() {
         if (isSignedIn()) {
-            startActivityForResult(Games.Leaderboards.getAllLeaderboardsIntent(getApiClient()),
+            startActivityForResult(Games.Leaderboards.getAllLeaderboardsIntent(mGoogleApiClient),
                     RC_UNUSED);
         } else {
-            showAlert(getString(R.string.leaderboards_not_available));
+            BaseGameUtils.makeSimpleDialog(this, getString(R.string.leaderboards_not_available)).show();
         }
     }
 
@@ -134,42 +181,6 @@ public class MainActivity extends BaseGameActivity
     void startGame(boolean hardMode) {
         mHardMode = hardMode;
         switchToFragment(mGameplayFragment);
-    }
-
-    /**
-     * Checks that the developer (that's you!) read the instructions.
-     *
-     * IMPORTANT: a method like this SHOULD NOT EXIST in your production app!
-     * It merely exists here to check that anyone running THIS PARTICULAR SAMPLE
-     * did what they were supposed to in order for the sample to work.
-     */
-    boolean verifyPlaceholderIdsReplaced() {
-        final boolean CHECK_PKGNAME = true; // set to false to disable check
-                                            // (not recommended!)
-
-        // Did the developer forget to change the package name?
-        if (CHECK_PKGNAME && getPackageName().startsWith("com.google.example.")) {
-            Log.e(TAG, "*** Sample setup problem: " +
-                "package name cannot be com.google.example.*. Use your own " +
-                "package name.");
-            return false;
-        }
-
-        // Did the developer forget to replace a placeholder ID?
-        int res_ids[] = new int[] {
-                R.string.app_id, R.string.achievement_arrogant,
-                R.string.achievement_bored, R.string.achievement_humble,
-                R.string.achievement_leet, R.string.achievement_prime,
-                R.string.leaderboard_easy, R.string.leaderboard_hard
-        };
-        for (int i : res_ids) {
-            if (getString(i).equalsIgnoreCase("ReplaceMe")) {
-                Log.e(TAG, "*** Sample setup problem: You must replace all " +
-                    "placeholder IDs in the ids.xml file by your project's IDs.");
-                return false;
-            }
-        }
-        return true;
     }
 
     @Override
@@ -237,7 +248,7 @@ public class MainActivity extends BaseGameActivity
 
     void unlockAchievement(int achievementId, String fallbackString) {
         if (isSignedIn()) {
-            Games.Achievements.unlock(getApiClient(), getString(achievementId));
+            Games.Achievements.unlock(mGoogleApiClient, getString(achievementId));
         } else {
             Toast.makeText(this, getString(R.string.achievement) + ": " + fallbackString,
                     Toast.LENGTH_LONG).show();
@@ -260,34 +271,34 @@ public class MainActivity extends BaseGameActivity
             return;
         }
         if (mOutbox.mPrimeAchievement) {
-            Games.Achievements.unlock(getApiClient(), getString(R.string.achievement_prime));
+            Games.Achievements.unlock(mGoogleApiClient, getString(R.string.achievement_prime));
             mOutbox.mPrimeAchievement = false;
         }
         if (mOutbox.mArrogantAchievement) {
-            Games.Achievements.unlock(getApiClient(), getString(R.string.achievement_arrogant));
+            Games.Achievements.unlock(mGoogleApiClient, getString(R.string.achievement_arrogant));
             mOutbox.mArrogantAchievement = false;
         }
         if (mOutbox.mHumbleAchievement) {
-            Games.Achievements.unlock(getApiClient(), getString(R.string.achievement_humble));
+            Games.Achievements.unlock(mGoogleApiClient, getString(R.string.achievement_humble));
             mOutbox.mHumbleAchievement = false;
         }
         if (mOutbox.mLeetAchievement) {
-            Games.Achievements.unlock(getApiClient(), getString(R.string.achievement_leet));
+            Games.Achievements.unlock(mGoogleApiClient, getString(R.string.achievement_leet));
             mOutbox.mLeetAchievement = false;
         }
         if (mOutbox.mBoredSteps > 0) {
-            Games.Achievements.increment(getApiClient(), getString(R.string.achievement_really_bored),
+            Games.Achievements.increment(mGoogleApiClient, getString(R.string.achievement_really_bored),
                     mOutbox.mBoredSteps);
-            Games.Achievements.increment(getApiClient(), getString(R.string.achievement_bored),
+            Games.Achievements.increment(mGoogleApiClient, getString(R.string.achievement_bored),
                     mOutbox.mBoredSteps);
         }
         if (mOutbox.mEasyModeScore >= 0) {
-            Games.Leaderboards.submitScore(getApiClient(), getString(R.string.leaderboard_easy),
+            Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_easy),
                     mOutbox.mEasyModeScore);
             mOutbox.mEasyModeScore = -1;
         }
         if (mOutbox.mHardModeScore >= 0) {
-            Games.Leaderboards.submitScore(getApiClient(), getString(R.string.leaderboard_hard),
+            Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_hard),
                     mOutbox.mHardModeScore);
             mOutbox.mHardModeScore = -1;
         }
@@ -313,15 +324,22 @@ public class MainActivity extends BaseGameActivity
     }
 
     @Override
-    public void onSignInFailed() {
-        // Sign-in failed, so show sign-in button on main menu
-        mMainMenuFragment.setGreeting(getString(R.string.signed_out_greeting));
-        mMainMenuFragment.setShowSignInButton(true);
-        mWinFragment.setShowSignInButton(true);
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == RC_SIGN_IN) {
+            mSignInClicked = false;
+            mResolvingConnectionFailure = false;
+            if (resultCode == RESULT_OK) {
+                mGoogleApiClient.connect();
+            } else {
+                BaseGameUtils.showActivityResultError(this, requestCode, resultCode,
+                        R.string.signin_failure, R.string.signin_other_error);
+            }
+        }
     }
 
     @Override
-    public void onSignInSucceeded() {
+    public void onConnected(Bundle bundle) {
+        Log.d(TAG, "onConnected(): connected to Google APIs");
         // Show sign-out button on main menu
         mMainMenuFragment.setShowSignInButton(false);
 
@@ -329,7 +347,7 @@ public class MainActivity extends BaseGameActivity
         mWinFragment.setShowSignInButton(false);
 
         // Set the greeting appropriately on main menu
-        Player p = Games.Players.getCurrentPlayer(getApiClient());
+        Player p = Games.Players.getCurrentPlayer(mGoogleApiClient);
         String displayName;
         if (p == null) {
             Log.w(TAG, "mGamesClient.getCurrentPlayer() is NULL!");
@@ -349,21 +367,56 @@ public class MainActivity extends BaseGameActivity
     }
 
     @Override
-    public void onSignInButtonClicked() {
-        // check if developer read the documentation!
-        // (Note: in a production application, this code should NOT exist)
-        if (!verifyPlaceholderIdsReplaced()) {
-            showAlert("Sample not set up correctly. See README.");
+    public void onConnectionSuspended(int i) {
+        Log.d(TAG, "onConnectionSuspended(): attempting to connect");
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.d(TAG, "onConnectionFailed(): attempting to resolve");
+        if (mResolvingConnectionFailure) {
+            Log.d(TAG, "onConnectionFailed(): already resolving");
             return;
         }
 
+        if (mSignInClicked || mAutoStartSignInFlow) {
+            mAutoStartSignInFlow = false;
+            mSignInClicked = false;
+            mResolvingConnectionFailure = true;
+            if (!BaseGameUtils.resolveConnectionFailure(this, mGoogleApiClient, connectionResult,
+                    RC_SIGN_IN, getString(R.string.signin_other_error))) {
+                mResolvingConnectionFailure = false;
+            }
+        }
+
+        // Sign-in failed, so show sign-in button on main menu
+        mMainMenuFragment.setGreeting(getString(R.string.signed_out_greeting));
+        mMainMenuFragment.setShowSignInButton(true);
+        mWinFragment.setShowSignInButton(true);
+    }
+
+    @Override
+    public void onSignInButtonClicked() {
+        // Check to see the developer who's running this sample code read the instructions :-)
+        // NOTE: this check is here only because this is a sample! Don't include this
+        // check in your actual production app.
+        if(!BaseGameUtils.verifySampleSetup(this, R.string.app_id,
+                R.string.achievement_prime, R.string.leaderboard_easy)) {
+            Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
+        }
+
         // start the sign-in flow
-        beginUserInitiatedSignIn();
+        mSignInClicked = true;
+        mGoogleApiClient.connect();
     }
 
     @Override
     public void onSignOutButtonClicked() {
-        signOut();
+        mSignInClicked = false;
+        Games.signOut(mGoogleApiClient);
+        mGoogleApiClient.disconnect();
+
         mMainMenuFragment.setGreeting(getString(R.string.signed_out_greeting));
         mMainMenuFragment.setShowSignInButton(true);
         mWinFragment.setShowSignInButton(true);
@@ -399,6 +452,7 @@ public class MainActivity extends BaseGameActivity
 
     @Override
     public void onWinScreenSignInClicked() {
-        beginUserInitiatedSignIn();
+        mSignInClicked = true;
+        mGoogleApiClient.connect();
     }
 }
