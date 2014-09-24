@@ -16,17 +16,14 @@
 package com.google.example.games.tq;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
-import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
@@ -185,35 +182,8 @@ public class MainActivity extends Activity
       if (responseCode == RESULT_OK) {
         mGoogleApiClient.connect();
       } else {
-        Dialog errorDialog;
-        int stringId = 0;
-        switch (responseCode) {
-          case GamesActivityResultCodes.RESULT_APP_MISCONFIGURED:
-            stringId = R.string.result_app_misconfigured;
-            break;
-          case GamesActivityResultCodes.RESULT_SIGN_IN_FAILED:
-            stringId = R.string.result_sign_in_failed;
-            break;
-          case GamesActivityResultCodes.RESULT_LICENSE_FAILED:
-            stringId = R.string.result_license_failed;
-            break;
-        }
-        if (stringId != 0) {
-          errorDialog = BaseGameUtils.makeSimpleDialog(this, getString(stringId));
-        } else {
-          // No meaningful Activity response code, so generate default Google
-          // Play services dialog
-          errorDialog = GooglePlayServicesUtil.getErrorDialog(responseCode,
-              this, requestCode, null);
-          if (errorDialog == null) {
-            // get fallback dialog
-            Log.e(TAG,
-                "No standard error dialog available. Making fallback dialog.");
-            errorDialog = BaseGameUtils.makeSimpleDialog(this,
-                getString(R.string.signin_failure) + " " + getString(R.string.signin_other_error));
-          }
-        }
-        errorDialog.show();
+        BaseGameUtils.showActivityResultError(this,requestCode,responseCode,
+            R.string.signin_failure, R.string.signin_other_error);
       }
     }
   }

@@ -90,20 +90,20 @@ public class BaseGameUtils {
       Log.e("BaseGameUtils", "*** No Activity. Can't show failure dialog!");
       return;
     }
-    Dialog errorDialog = null;
+    Dialog errorDialog;
 
     switch (actResp) {
       case GamesActivityResultCodes.RESULT_APP_MISCONFIGURED:
-        errorDialog = makeSimpleDialog(activity, GameHelperUtils_old.getString(
-            activity, GameHelperUtils_old.R_APP_MISCONFIGURED));
+        errorDialog = makeSimpleDialog(activity,
+            activity.getString(R.string.gamehelper_app_misconfigured));
         break;
       case GamesActivityResultCodes.RESULT_SIGN_IN_FAILED:
-        errorDialog = makeSimpleDialog(activity, GameHelperUtils_old.getString(
-            activity, GameHelperUtils_old.R_SIGN_IN_FAILED));
+        errorDialog = makeSimpleDialog(activity,
+            activity.getString(R.string.gamehelper_sign_in_failed));
       break;
       case GamesActivityResultCodes.RESULT_LICENSE_FAILED:
-        errorDialog = makeSimpleDialog(activity, GameHelperUtils_old.getString(
-            activity, GameHelperUtils_old.R_LICENSE_FAILED));
+        errorDialog = makeSimpleDialog(activity,
+            activity.getString(R.string.gamehelper_license_failed));
         break;
       default:
         // No meaningful Activity response code, so generate default Google
@@ -112,7 +112,7 @@ public class BaseGameUtils {
             activity, requestCode, null);
         if (errorDialog == null) {
           // get fallback dialog
-          Log.e("GameHelper",
+          Log.e("BaseGamesUtils",
               "No standard error dialog available. Making fallback dialog.");
           errorDialog = makeSimpleDialog(
               activity,

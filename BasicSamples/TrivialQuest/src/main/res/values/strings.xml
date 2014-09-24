@@ -27,7 +27,4 @@
     <string name="you_won">OK! You won!</string>
     <string name="signin_failure">Unable to sign in. Check your internet connection and try again later.</string>
     <string name="signin_other_error">There was an issue with sign in. Please try again later.</string>
-    <string name="result_app_misconfigured">The application is incorrectly configured. Check that the package name and signing certificate match the client ID created in Developer Console. Also, if the application is not yet published, check that the account you are trying to sign in with is listed as a tester account. See logs for more information.</string>
-    <string name="result_sign_in_failed">Failed to sign in. Please check your network connection and try again.</string>
-    <string name="result_license_failed">License check failed.</string>
 </resources>
