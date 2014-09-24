@@ -15,6 +15,7 @@
 
 package com.google.example.games.catt2;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -32,10 +33,10 @@ import android.widget.RatingBar.OnRatingBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.GoogleAuthException;
-import com.google.android.gms.auth.GoogleAuthUtil;
-import com.google.android.gms.auth.UserRecoverableAuthException;
-import com.google.android.gms.common.Scopes;
+import com.google.android.gms.appstate.AppStateManager;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.drive.Drive;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesStatusCodes;
 import com.google.android.gms.games.snapshot.Snapshot;
@@ -43,14 +44,13 @@ import com.google.android.gms.games.snapshot.SnapshotMetadata;
 import com.google.android.gms.games.snapshot.SnapshotMetadataBuffer;
 import com.google.android.gms.games.snapshot.SnapshotMetadataChange;
 import com.google.android.gms.games.snapshot.Snapshots;
-import com.google.example.games.basegameutils.BaseGameActivity;
+import com.google.android.gms.plus.Plus;
 
-import java.io.IOException;
+import com.google.example.games.basegameutils.BaseGameUtils;
+
 import java.math.BigInteger;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.Random;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * Collect All the Stars sample. This sample demonstrates how to use the cloud save features
@@ -67,16 +67,28 @@ import java.util.concurrent.CountDownLatch;
  *
  * @author Bruno Oliveira (Google)
  */
-public class MainActivity extends BaseGameActivity
-            implements View.OnClickListener, OnRatingBarChangeListener {
-    private static final boolean ENABLE_DEBUG = true;
-    private static final String TAG = "CollectAllTheStars2";
+public class MainActivity extends Activity
+    implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+    View.OnClickListener, OnRatingBarChangeListener {
 
-    // the state key under which we store our data. Since our data is small and
-    // this is a simple example, we only use this one state key, but your app can
-    // use multiple keys! Be sure not to exceed the maximum number of keys
-    // given by AppStateClient.getMaxNumKeys().
-    private static final int OUR_STATE_KEY = 0;
+
+  private static final String TAG = "CollectAllTheStars2";
+
+  // Request code used to invoke sign in user interactions.
+  private static final int RC_SIGN_IN = 9001;
+
+  // Client used to interact with Google APIs.
+  private GoogleApiClient mGoogleApiClient;
+
+  // Are we currently resolving a connection failure?
+  private boolean mResolvingConnectionFailure = false;
+
+  // Has the user clicked the sign-in button?
+  private boolean mSignInClicked = false;
+
+  // Set to true to automatically start the sign in flow when the Activity starts.
+  // Set to false to require the user to click the button in order to sign in.
+  private boolean mAutoStartSignInFlow = true;
 
     // current save game
     SaveGame mSaveGame = new SaveGame();
@@ -116,15 +128,7 @@ public class MainActivity extends BaseGameActivity
     };
 
     // Members related to the conflict resolution chooser of Snapshots.
-    private CountDownLatch mConflictLatch = null;
     final static int MAX_SNAPSHOT_RESOLVE_RETRIES = 3;
-
-
-    public MainActivity() {
-        // request that superclass initialize and manage the AppStateClient for us
-        super(BaseGameActivity.CLIENT_ALL);
-    }
-
 
     /**
      * You can capture the Snapshot selection intent in the onActivityResult method. The result
@@ -132,6 +136,18 @@ public class MainActivity extends BaseGameActivity
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == RC_SIGN_IN) {
+          Log.d(TAG, "onActivityResult with requestCode == RC_SIGN_IN, responseCode="
+              + resultCode + ", intent=" + intent);
+          mSignInClicked = false;
+          mResolvingConnectionFailure = false;
+          if (resultCode == RESULT_OK) {
+            mGoogleApiClient.connect();
+          } else {
+            BaseGameUtils.showActivityResultError(this,requestCode,resultCode,
+                R.string.signin_failure, R.string.signin_other_error);
+          }
+        }
         if (intent != null) {
             if (intent.hasExtra(Snapshots.EXTRA_SNAPSHOT_METADATA)) {
                 // Load a snapshot.
@@ -153,10 +169,21 @@ public class MainActivity extends BaseGameActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        enableDebugLog(ENABLE_DEBUG);
+
         log("onCreate.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Create the Google Api Client with access to Plus and Games
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+            .addConnectionCallbacks(this)
+            .addOnConnectionFailedListener(this)
+            .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
+            .addApi(Games.API).addScope(Games.SCOPE_GAMES)
+            .addApi(AppStateManager.API).addScope(AppStateManager.SCOPE_APP_STATE)
+            .addApi(Drive.API).addScope(Drive.SCOPE_APPFOLDER)
+            .build();
+
         loadLocal();
 
         for (int id : LEVEL_BUTTON_IDS) {
@@ -221,29 +248,9 @@ public class MainActivity extends BaseGameActivity
         return true;
     }
 
-
-    /**
-     * Called to notify us that sign in failed. Notice that a failure in sign in is not
-     * necessarily due to an error; it might be that the user never signed in, so our
-     * attempt to automatically sign in fails because the user has not gone through
-     * the authorization flow. So our reaction to sign in failure is to show the sign in
-     * button. When the user clicks that button, the sign in process will start/resume.
-     */
     @Override
-    public void onSignInFailed() {
-        // Sign-in has failed. So show the user the sign-in button
-        // so they can click the "Sign-in" button.
-        log("Sign-in failed. Showing sign-in button.");
-        showSignInBar();
-    }
+    public void onConnected(Bundle connectionHint) {
 
-
-    /**
-     * Called to notify us that sign in succeeded. We react by loading the loot from the
-     * cloud and updating the UI to show a sign-out button.
-     */
-    @Override
-    public void onSignInSucceeded() {
         // Sign-in worked!
         log("Sign-in successful! Loading game state from cloud.");
         showSignOutBar();
@@ -254,6 +261,30 @@ public class MainActivity extends BaseGameActivity
     }
 
 
+    @Override
+    public void onConnectionSuspended(int i) {
+      Log.d(TAG, "onConnectionSuspended() called. Trying to reconnect.");
+      mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+      Log.d(TAG, "onConnectionFailed() called, result: " + connectionResult);
+
+      if (mResolvingConnectionFailure) {
+        Log.d(TAG, "onConnectionFailed() ignoring connection failure; already resolving.");
+        return;
+      }
+
+      if (mSignInClicked || mAutoStartSignInFlow) {
+        mAutoStartSignInFlow = false;
+        mSignInClicked = false;
+        mResolvingConnectionFailure = BaseGameUtils.resolveConnectionFailure(this, mGoogleApiClient,
+            connectionResult, RC_SIGN_IN, getString(R.string.signin_other_error));
+      }
+      showSignInBar();
+    }
+
     /** Called when the "sign in" or "sign out" button is clicked. */
     @Override
     public void onClick(View view) {
@@ -262,17 +293,20 @@ public class MainActivity extends BaseGameActivity
                 // Check to see the developer who's running this sample code read the instructions :-)
                 // NOTE: this check is here only because this is a sample! Don't include this
                 // check in your actual production app.
-                if (!verifyPlaceholderIdsReplaced()) {
-                    complain("Sample not correctly set up. See README!");
-                    break;
+                if (!BaseGameUtils.verifySampleSetup(this, R.string.app_id)) {
+                  Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
                 }
 
                 // start the sign-in flow
-                beginUserInitiatedSignIn();
+                Log.d(TAG, "Sign-in button clicked");
+                mSignInClicked = true;
+                mGoogleApiClient.connect();
                 break;
             case R.id.button_sign_out:
                 // sign out.
-                signOut();
+                mSignInClicked = false;
+                Games.signOut(mGoogleApiClient);
+                mGoogleApiClient.disconnect();
                 showSignInBar();
                 mSaveGame = new SaveGame();
                 updateUi();
@@ -339,7 +373,7 @@ public class MainActivity extends BaseGameActivity
     /** Shows the user's snapshots. */
     void showSnapshots(){
         android.content.Intent snapshotIntent = Games.Snapshots.getSelectSnapshotIntent(
-                getApiClient(), "Select a snap", true, true, 5);
+                mGoogleApiClient, "Select a snap", true, true, 5);
         startActivityForResult(snapshotIntent, 0);
     }
 
@@ -354,7 +388,7 @@ public class MainActivity extends BaseGameActivity
             @Override
             protected String doInBackground(Void... params) {
                 Log.i(TAG, "Opening snapshot " + currentSaveName);
-                Snapshots.LoadSnapshotsResult lresult = Games.Snapshots.load(getApiClient(), true)
+                Snapshots.LoadSnapshotsResult lresult = Games.Snapshots.load(mGoogleApiClient, true)
                         .await();
 
                 String resultMessage = "";
@@ -363,17 +397,15 @@ public class MainActivity extends BaseGameActivity
 
                 if (status == GamesStatusCodes.STATUS_OK){
                     SnapshotMetadataBuffer smdb = lresult.getSnapshots();
-                    Iterator<SnapshotMetadata> snapsIt = smdb.iterator();
 
-                    while(snapsIt.hasNext()){
-                        SnapshotMetadata thisSnap = snapsIt.next();
-                        resultMessage += thisSnap.getDescription();
+                    for (SnapshotMetadata thisSnap : smdb){
+                      resultMessage += thisSnap.getDescription();
                     }
                     smdb.close();
-                }else {
-                    // Fail and notify the client.
-                    Log.e(TAG,"failure while listing snapshots: " + status);
-                    resultMessage = "Error: " + status;
+                } else {
+                  // Fail and notify the client.
+                  Log.e(TAG,"failure while listing snapshots: " + status);
+                  resultMessage = "Error: " + status;
                 }
                 return resultMessage;
             }
@@ -415,7 +447,7 @@ public class MainActivity extends BaseGameActivity
             @Override
             protected Integer doInBackground(Void... params) {
                 Log.i(TAG, "Opening snapshot " + currentSaveName);
-                Snapshots.OpenSnapshotResult result = Games.Snapshots.open(getApiClient(),
+                Snapshots.OpenSnapshotResult result = Games.Snapshots.open(mGoogleApiClient,
                         currentSaveName, true).await();
 
                 int status = result.getStatus().getStatusCode();
@@ -447,15 +479,15 @@ public class MainActivity extends BaseGameActivity
                 if (status == GamesStatusCodes.STATUS_SNAPSHOT_NOT_FOUND){
                     Log.i(TAG,"Error: Snapshot not found");
                     Toast.makeText(getBaseContext(), "Error: Snapshot not found",
-                            Toast.LENGTH_SHORT);
-                }else if (status == GamesStatusCodes.STATUS_SNAPSHOT_CONTENTS_UNAVAILABLE) {
+                            Toast.LENGTH_SHORT).show();
+                } else if (status == GamesStatusCodes.STATUS_SNAPSHOT_CONTENTS_UNAVAILABLE) {
                     Log.i(TAG, "Error: Snapshot contents unavailable");
                     Toast.makeText(getBaseContext(), "Error: Snapshot contents unavailable",
-                            Toast.LENGTH_SHORT);
-                }else if (status == GamesStatusCodes.STATUS_SNAPSHOT_FOLDER_UNAVAILABLE){
+                            Toast.LENGTH_SHORT).show();
+                } else if (status == GamesStatusCodes.STATUS_SNAPSHOT_FOLDER_UNAVAILABLE){
                     Log.i(TAG, "Error: Snapshot folder unavailable");
                     Toast.makeText(getBaseContext(), "Error: Snapshot folder unavailable.",
-                            Toast.LENGTH_SHORT);
+                            Toast.LENGTH_SHORT).show();
                 }
 
                 publishProgress();
@@ -495,15 +527,15 @@ public class MainActivity extends BaseGameActivity
             }
 
             Snapshots.OpenSnapshotResult resolveResult = Games.Snapshots.resolveConflict(
-                    getApiClient(), result.getConflictId(), mResolvedSnapshot)
+                    mGoogleApiClient, result.getConflictId(), mResolvedSnapshot)
                     .await();
 
             if (retryCount < MAX_SNAPSHOT_RESOLVE_RETRIES){
                 return processSnapshotOpenResult(resolveResult, retryCount);
-            }else{
+            } else {
                 String message = "Could not resolve snapshot conflicts";
                 Log.e(TAG, message);
-                Toast.makeText(getBaseContext(), message, Toast.LENGTH_LONG);
+                Toast.makeText(getBaseContext(), message, Toast.LENGTH_LONG).show();
             }
 
         }
@@ -521,7 +553,7 @@ public class MainActivity extends BaseGameActivity
                 new AsyncTask<Void, Void, Snapshots.OpenSnapshotResult>() {
                     @Override
                     protected Snapshots.OpenSnapshotResult doInBackground(Void... params) {
-                        Snapshots.OpenSnapshotResult result = Games.Snapshots.open(getApiClient(),
+                        Snapshots.OpenSnapshotResult result = Games.Snapshots.open(mGoogleApiClient,
                                 currentSaveName, true).await();
                         return result;
                     }
@@ -550,7 +582,7 @@ public class MainActivity extends BaseGameActivity
                 .setCoverImage(getScreenShot())
                 .setDescription("Modified data at: " + Calendar.getInstance().getTime())
                 .build();
-        Games.Snapshots.commitAndClose(getApiClient(), snapshot, metadataChange);
+        Games.Snapshots.commitAndClose(mGoogleApiClient, snapshot, metadataChange);
         return snapshot.toString();
     }
 
@@ -561,11 +593,11 @@ public class MainActivity extends BaseGameActivity
         findViewById(R.id.sign_out_bar).setVisibility(View.GONE);
     }
 
-    /** Shows the "sign out" bar (explanation and button). */
-    private void showSignOutBar() {
-        findViewById(R.id.sign_in_bar).setVisibility(View.GONE);
-        findViewById(R.id.sign_out_bar).setVisibility(View.VISIBLE);
-    }
+  /** Shows the "sign out" bar (explanation and button). */
+  private void showSignOutBar() {
+    findViewById(R.id.sign_in_bar).setVisibility(View.GONE);
+    findViewById(R.id.sign_out_bar).setVisibility(View.VISIBLE);
+  }
 
 
     /** Updates the game UI. */
@@ -617,56 +649,15 @@ public class MainActivity extends BaseGameActivity
     }
 
 
-    /** Complains to the user about an error. */
-    void complain(String error) {
-        showAlert("Error: " + error);
-        Log.e(TAG, "*** Error: " + error);
-    }
-
-
     /** Shows an alert message. */
     private void showAlertBar(int resId) {
         ((TextView) findViewById(R.id.alert_bar)).setText(getString(resId));
-        ((TextView) findViewById(R.id.alert_bar)).setVisibility(View.VISIBLE);
+        findViewById(R.id.alert_bar).setVisibility(View.VISIBLE);
     }
 
 
     /** Dismisses the previously displayed alert message. */
     private void hideAlertBar() {
-        ((TextView) findViewById(R.id.alert_bar)).setVisibility(View.GONE);
-    }
-
-
-    /**
-     * Checks that the developer (that's you!) read the instructions.
-     *
-     * IMPORTANT: a method like this SHOULD NOT EXIST in your production app!
-     * It merely exists here to check that anyone running THIS PARTICULAR SAMPLE
-     * did what they were supposed to in order for the sample to work.
-     */
-    boolean verifyPlaceholderIdsReplaced() {
-        final boolean CHECK_PKGNAME = true;  // set to false to disable check
-                                             // (not recommended!)
-
-        // Did the developer forget to change the package name?
-        if (CHECK_PKGNAME && getPackageName().startsWith("com.google.example.")) {
-            Log.e(TAG, "*** Sample setup problem: " +
-                    "package name cannot be com.google.example.*. Use your own " +
-                    "package name.");
-            return false;
-        }
-
-        // Did the developer forget to replace a placeholder ID?
-        int res_ids[] = new int[] {
-                R.string.app_id
-        };
-        for (int i : res_ids) {
-            if (getString(i).equalsIgnoreCase("ReplaceMe")) {
-                Log.e(TAG, "*** Sample setup problem: You must replace all " +
-                        "placeholder IDs in the ids.xml file by your project's IDs.");
-                return false;
-            }
-        }
-        return true;
-    }
+        findViewById(R.id.alert_bar).setVisibility(View.GONE);
+  }
 }
