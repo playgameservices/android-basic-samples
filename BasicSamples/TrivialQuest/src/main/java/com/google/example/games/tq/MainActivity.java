@@ -72,6 +72,8 @@ public class MainActivity extends Activity
         .build();
 
     setContentView(R.layout.activity_main);
+
+    // set this class to listen for the button clicks
     findViewById(R.id.button_sign_in).setOnClickListener(this);
     findViewById(R.id.button_sign_out).setOnClickListener(this);
     findViewById(R.id.button_win).setOnClickListener(this);
@@ -167,8 +169,8 @@ public class MainActivity extends Activity
     if (mSignInClicked || mAutoStartSignInFlow) {
       mAutoStartSignInFlow = false;
       mSignInClicked = false;
-      mResolvingConnectionFailure = BaseGameUtils.resolveConnectionFailure(this, mGoogleApiClient, connectionResult,
-          RC_SIGN_IN, getString(R.string.signin_other_error));
+      mResolvingConnectionFailure = BaseGameUtils.resolveConnectionFailure(this, mGoogleApiClient,
+          connectionResult, RC_SIGN_IN, getString(R.string.signin_other_error));
     }
     showSignInBar();
   }
