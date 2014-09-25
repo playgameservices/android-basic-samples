@@ -124,6 +124,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
         if (requestCode == RC_SIGN_IN) {
             mSignInClicked = false;
             mResolvingConnectionFailure = false;
@@ -370,7 +371,9 @@ public class MainActivity extends Activity implements View.OnClickListener,
                 // sign out.
                 mSignInClicked = false;
                 Games.signOut(mGoogleApiClient);
-                mGoogleApiClient.disconnect();
+                if (mGoogleApiClient.isConnected()) {
+                    mGoogleApiClient.disconnect();
+                }
                 showSignInBar();
                 break;
             case R.id.button_quests:

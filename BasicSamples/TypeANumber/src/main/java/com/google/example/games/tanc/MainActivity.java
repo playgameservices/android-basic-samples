@@ -325,6 +325,7 @@ public class MainActivity extends FragmentActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
         if (requestCode == RC_SIGN_IN) {
             mSignInClicked = false;
             mResolvingConnectionFailure = false;
@@ -415,7 +416,9 @@ public class MainActivity extends FragmentActivity
     public void onSignOutButtonClicked() {
         mSignInClicked = false;
         Games.signOut(mGoogleApiClient);
-        mGoogleApiClient.disconnect();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
 
         mMainMenuFragment.setGreeting(getString(R.string.signed_out_greeting));
         mMainMenuFragment.setShowSignInButton(true);

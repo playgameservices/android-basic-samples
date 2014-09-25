@@ -149,21 +149,22 @@ public class SkeletonActivity extends Activity
     @Override
     public void onConnected(Bundle connectionHint) {
         Log.d(TAG, "onConnected(): Connection successful");
-        setViewVisibility();
 
         // Retrieve the TurnBasedMatch from the connectionHint
         if (connectionHint != null) {
             mTurnBasedMatch = connectionHint.getParcelable(Multiplayer.EXTRA_TURN_BASED_MATCH);
-        }
 
-        if (mTurnBasedMatch != null) {
-            if (mGoogleApiClient == null || !mGoogleApiClient.isConnected()) {
-                Log.d(TAG, "Warning: accessing TurnBasedMatch when not connected");
+            if (mTurnBasedMatch != null) {
+                if (mGoogleApiClient == null || !mGoogleApiClient.isConnected()) {
+                    Log.d(TAG, "Warning: accessing TurnBasedMatch when not connected");
+                }
+
+                updateMatch(mTurnBasedMatch);
+                return;
             }
-
-            updateMatch(mTurnBasedMatch);
-            return;
         }
+
+        setViewVisibility();
 
         // As a demonstration, we are registering this activity as a handler for
         // invitation and match events.
@@ -421,6 +422,7 @@ public class SkeletonActivity extends Activity
     // Games built-in inbox, or else the create game built-in interface.
     @Override
     public void onActivityResult(int request, int response, Intent data) {
+        super.onActivityResult(request, response, data);
         if (request == RC_SIGN_IN) {
             mSignInClicked = false;
             mResolvingConnectionFailure = false;
@@ -786,7 +788,9 @@ public class SkeletonActivity extends Activity
             case R.id.sign_out_button:
                 mSignInClicked = false;
                 Games.signOut(mGoogleApiClient);
-                mGoogleApiClient.disconnect();
+                if (mGoogleApiClient.isConnected()) {
+                    mGoogleApiClient.disconnect();
+                }
                 setViewVisibility();
                 break;
         }
