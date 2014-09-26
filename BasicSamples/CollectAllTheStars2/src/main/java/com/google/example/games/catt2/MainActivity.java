@@ -409,12 +409,25 @@ public class MainActivity extends Activity
 
                 int status = result.getStatus().getStatusCode();
 
+                Snapshot snapshot = null;
                 if (status == GamesStatusCodes.STATUS_OK) {
-                    Snapshot snapshot = result.getSnapshot();
-                    mSaveGame = new SaveGame(snapshot.readFully());
-                    mAlreadyLoadedState = true;
-                }else{
+                    snapshot = result.getSnapshot();
+                } else if (status == GamesStatusCodes.STATUS_SNAPSHOT_CONFLICT) {
+
+                    // if there is a conflict  - then resolve it.
+                    snapshot = processSnapshotOpenResult(result, 3);
+
+                    // if it resolved OK, change the status to Ok
+                    if (snapshot != null) {
+                      status = GamesStatusCodes.STATUS_OK;
+                    }
+                } else {
                     Log.e(TAG, "Error while loading: " + status);
+                }
+
+                if (snapshot != null) {
+                  mSaveGame = new SaveGame(snapshot.readFully());
+                  mAlreadyLoadedState = true;
                 }
 
                 return status;
