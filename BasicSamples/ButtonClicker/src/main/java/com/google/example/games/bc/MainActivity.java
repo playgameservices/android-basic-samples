@@ -25,6 +25,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesStatusCodes;
 import com.google.android.gms.games.GamesActivityResultCodes;
@@ -38,7 +40,9 @@ import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
-import com.google.example.games.basegameutils.BaseGameActivity;
+import com.google.android.gms.plus.Plus;
+
+import com.google.example.games.basegameutils.BaseGameUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,23 +70,38 @@ import java.util.Set;
  *
  * @author Bruno Oliveira (btco), 2013-04-26
  */
-public class MainActivity extends BaseGameActivity
-        implements View.OnClickListener, RealTimeMessageReceivedListener,
-        RoomStatusUpdateListener, RoomUpdateListener, OnInvitationReceivedListener {
+public class MainActivity extends Activity
+    implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+    View.OnClickListener, RealTimeMessageReceivedListener,
+    RoomStatusUpdateListener, RoomUpdateListener, OnInvitationReceivedListener {
 
     /*
      * API INTEGRATION SECTION. This section contains the code that integrates
      * the game with the Google Play game services API.
      */
 
-    // Debug tag
-    final static boolean ENABLE_DEBUG = true;
     final static String TAG = "ButtonClicker2000";
 
     // Request codes for the UIs that we show with startActivityForResult:
     final static int RC_SELECT_PLAYERS = 10000;
     final static int RC_INVITATION_INBOX = 10001;
     final static int RC_WAITING_ROOM = 10002;
+
+  // Request code used to invoke sign in user interactions.
+  private static final int RC_SIGN_IN = 9001;
+
+  // Client used to interact with Google APIs.
+  private GoogleApiClient mGoogleApiClient;
+
+  // Are we currently resolving a connection failure?
+  private boolean mResolvingConnectionFailure = false;
+
+  // Has the user clicked the sign-in button?
+  private boolean mSignInClicked = false;
+
+  // Set to true to automatically start the sign in flow when the Activity starts.
+  // Set to false to require the user to click the button in order to sign in.
+  private boolean mAutoStartSignInFlow = true;
 
     // Room ID where the currently active game is taking place; null if we're
     // not playing.
@@ -106,50 +125,26 @@ public class MainActivity extends BaseGameActivity
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        enableDebugLog(ENABLE_DEBUG, TAG);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // set up a click listener for everything we care about
-        for (int id : CLICKABLES) {
-            findViewById(id).setOnClickListener(this);
-        }
+    // Create the Google Api Client with access to Plus and Games
+    mGoogleApiClient = new GoogleApiClient.Builder(this)
+        .addConnectionCallbacks(this)
+        .addOnConnectionFailedListener(this)
+        .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
+        .addApi(Games.API).addScope(Games.SCOPE_GAMES)
+        .build();
+
+    // set up a click listener for everything we care about
+    for (int id : CLICKABLES) {
+      findViewById(id).setOnClickListener(this);
     }
+  }
 
-    /**
-     * Called by the base class (BaseGameActivity) when sign-in has failed. For
-     * example, because the user hasn't authenticated yet. We react to this by
-     * showing the sign-in button.
-     */
-    @Override
-    public void onSignInFailed() {
-        Log.d(TAG, "Sign-in failed.");
-        switchToScreen(R.id.screen_sign_in);
-    }
-
-    /**
-     * Called by the base class (BaseGameActivity) when sign-in succeeded. We
-     * react by going to our main screen.
-     */
-    @Override
-    public void onSignInSucceeded() {
-        Log.d(TAG, "Sign-in succeeded.");
-
-        // register listener so we are notified if we receive an invitation to play
-        // while we are in the game
-        Games.Invitations.registerInvitationListener(getApiClient(), this);
-
-        // if we received an invite via notification, accept it; otherwise, go to main screen
-        if (getInvitationId() != null) {
-            acceptInviteToRoom(getInvitationId());
-            return;
-        }
-        switchToMainScreen();
-    }
-
-    @Override
-    public void onClick(View v) {
-        Intent intent;
+  @Override
+  public void onClick(View v) {
+    Intent intent;
 
         switch (v.getId()) {
             case R.id.button_single_player:
@@ -160,26 +155,36 @@ public class MainActivity extends BaseGameActivity
                 break;
             case R.id.button_sign_in:
                 // user wants to sign in
-                if (!verifyPlaceholderIdsReplaced()) {
-                    showAlert("Error: sample not set up correctly. Please see README.");
-                    return;
+                // Check to see the developer who's running this sample code read the instructions :-)
+                // NOTE: this check is here only because this is a sample! Don't include this
+                // check in your actual production app.
+                if (!BaseGameUtils.verifySampleSetup(this, R.string.app_id)) {
+                  Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
                 }
-                beginUserInitiatedSignIn();
-                break;
+
+                // start the sign-in flow
+                Log.d(TAG, "Sign-in button clicked");
+                mSignInClicked = true;
+                mGoogleApiClient.connect();
+            break;
             case R.id.button_sign_out:
                 // user wants to sign out
-                signOut();
+                // sign out.
+                Log.d(TAG, "Sign-out button clicked");
+                mSignInClicked = false;
+                Games.signOut(mGoogleApiClient);
+                mGoogleApiClient.disconnect();
                 switchToScreen(R.id.screen_sign_in);
                 break;
             case R.id.button_invite_players:
                 // show list of invitable players
-                intent = Games.RealTimeMultiplayer.getSelectOpponentsIntent(getApiClient(), 1, 3);
+                intent = Games.RealTimeMultiplayer.getSelectOpponentsIntent(mGoogleApiClient, 1, 3);
                 switchToScreen(R.id.screen_wait);
                 startActivityForResult(intent, RC_SELECT_PLAYERS);
                 break;
             case R.id.button_see_invitations:
                 // show list of pending invitations
-                intent = Games.Invitations.getInvitationInboxIntent(getApiClient());
+                intent = Games.Invitations.getInvitationInboxIntent(mGoogleApiClient);
                 switchToScreen(R.id.screen_wait);
                 startActivityForResult(intent, RC_INVITATION_INBOX);
                 break;
@@ -212,7 +217,7 @@ public class MainActivity extends BaseGameActivity
         switchToScreen(R.id.screen_wait);
         keepScreenOn();
         resetGameVars();
-        Games.RealTimeMultiplayer.create(getApiClient(), rtmConfigBuilder.build());
+        Games.RealTimeMultiplayer.create(mGoogleApiClient, rtmConfigBuilder.build());
     }
 
     @Override
@@ -246,7 +251,20 @@ public class MainActivity extends BaseGameActivity
                     leaveRoom();
                 }
                 break;
+            case RC_SIGN_IN:
+                Log.d(TAG, "onActivityResult with requestCode == RC_SIGN_IN, responseCode="
+                    + responseCode + ", intent=" + intent);
+                mSignInClicked = false;
+                mResolvingConnectionFailure = false;
+                if (responseCode == RESULT_OK) {
+                  mGoogleApiClient.connect();
+                } else {
+                  BaseGameUtils.showActivityResultError(this,requestCode,responseCode,
+                      R.string.signin_failure, R.string.signin_other_error);
+                }
+                break;
         }
+        super.onActivityResult(requestCode, responseCode, intent);
     }
 
     // Handle the result of the "Select players UI" we launched when the user clicked the
@@ -286,7 +304,7 @@ public class MainActivity extends BaseGameActivity
         switchToScreen(R.id.screen_wait);
         keepScreenOn();
         resetGameVars();
-        Games.RealTimeMultiplayer.create(getApiClient(), rtmConfigBuilder.build());
+        Games.RealTimeMultiplayer.create(mGoogleApiClient, rtmConfigBuilder.build());
         Log.d(TAG, "Room created, waiting for it to be ready...");
     }
 
@@ -317,7 +335,7 @@ public class MainActivity extends BaseGameActivity
         switchToScreen(R.id.screen_wait);
         keepScreenOn();
         resetGameVars();
-        Games.RealTimeMultiplayer.join(getApiClient(), roomConfigBuilder.build());
+        Games.RealTimeMultiplayer.join(mGoogleApiClient, roomConfigBuilder.build());
     }
 
     // Activity is going to the background. We have to leave the current room.
@@ -331,9 +349,14 @@ public class MainActivity extends BaseGameActivity
         // stop trying to keep the screen on
         stopKeepingScreenOn();
 
-        switchToScreen(R.id.screen_wait);
+        if (mGoogleApiClient == null || !mGoogleApiClient.isConnected()){
+          switchToScreen(R.id.screen_sign_in);
+        }
+        else {
+          switchToScreen(R.id.screen_wait);
+        }
         super.onStop();
-    }
+      }
 
     // Activity just got to the foreground. We switch to the wait screen because we will now
     // go through the sign-in flow (remember that, yes, every time the Activity comes back to the
@@ -342,6 +365,13 @@ public class MainActivity extends BaseGameActivity
     @Override
     public void onStart() {
         switchToScreen(R.id.screen_wait);
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+          Log.w(TAG,
+              "GameHelper: client was already connected on onStart()");
+        } else {
+          Log.d(TAG,"Connecting client.");
+          mGoogleApiClient.connect();
+        }
         super.onStart();
     }
 
@@ -361,7 +391,7 @@ public class MainActivity extends BaseGameActivity
         mSecondsLeft = 0;
         stopKeepingScreenOn();
         if (mRoomId != null) {
-            Games.RealTimeMultiplayer.leave(getApiClient(), this, mRoomId);
+            Games.RealTimeMultiplayer.leave(mGoogleApiClient, this, mRoomId);
             mRoomId = null;
             switchToScreen(R.id.screen_wait);
         } else {
@@ -376,7 +406,7 @@ public class MainActivity extends BaseGameActivity
         // For simplicity, we require everyone to join the game before we start it
         // (this is signaled by Integer.MAX_VALUE).
         final int MIN_PLAYERS = Integer.MAX_VALUE;
-        Intent i = Games.RealTimeMultiplayer.getWaitingRoomIntent(getApiClient(), room, MIN_PLAYERS);
+        Intent i = Games.RealTimeMultiplayer.getWaitingRoomIntent(mGoogleApiClient, room, MIN_PLAYERS);
 
         // show waiting room UI
         startActivityForResult(i, RC_WAITING_ROOM);
@@ -408,6 +438,56 @@ public class MainActivity extends BaseGameActivity
      * API callbacks.
      */
 
+    @Override
+    public void onConnected(Bundle connectionHint) {
+      Log.d(TAG, "onConnected() called. Sign in successful!");
+
+      Log.d(TAG, "Sign-in succeeded.");
+
+      // register listener so we are notified if we receive an invitation to play
+      // while we are in the game
+      Games.Invitations.registerInvitationListener(mGoogleApiClient, this);
+
+      if (connectionHint != null) {
+        Log.d(TAG, "onConnected: connection hint provided. Checking for invite.");
+        Invitation inv = connectionHint
+            .getParcelable(Multiplayer.EXTRA_INVITATION);
+        if (inv != null && inv.getInvitationId() != null) {
+          // retrieve and cache the invitation ID
+          Log.d(TAG,"onConnected: connection hint has a room invite!");
+          acceptInviteToRoom(inv.getInvitationId());
+          return;
+        }
+      }
+      switchToMainScreen();
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+      Log.d(TAG, "onConnectionSuspended() called. Trying to reconnect.");
+      mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+      Log.d(TAG, "onConnectionFailed() called, result: " + connectionResult);
+
+      if (mResolvingConnectionFailure) {
+        Log.d(TAG, "onConnectionFailed() ignoring connection failure; already resolving.");
+        return;
+      }
+
+      if (mSignInClicked || mAutoStartSignInFlow) {
+        mAutoStartSignInFlow = false;
+        mSignInClicked = false;
+        mResolvingConnectionFailure = BaseGameUtils.resolveConnectionFailure(this, mGoogleApiClient,
+            connectionResult, RC_SIGN_IN, getString(R.string.signin_other_error));
+      }
+
+      switchToScreen(R.id.screen_sign_in);
+    }
+
     // Called when we are connected to the room. We're not ready to play yet! (maybe not everybody
     // is connected yet).
     @Override
@@ -417,7 +497,7 @@ public class MainActivity extends BaseGameActivity
         // get room ID, participants and my ID:
         mRoomId = room.getRoomId();
         mParticipants = room.getParticipants();
-        mMyId = room.getParticipantId(Games.Players.getCurrentPlayerId(getApiClient()));
+        mMyId = room.getParticipantId(Games.Players.getCurrentPlayerId(mGoogleApiClient));
 
         // print out the list of participants (for debug purposes)
         Log.d(TAG, "Room ID: " + mRoomId);
@@ -443,7 +523,7 @@ public class MainActivity extends BaseGameActivity
 
     // Show error message about game being cancelled and return to main screen.
     void showGameError() {
-        showAlert(getString(R.string.game_problem));
+        BaseGameUtils.makeSimpleDialog(this, getString(R.string.game_problem));
         switchToMainScreen();
     }
 
@@ -684,11 +764,11 @@ public class MainActivity extends BaseGameActivity
                 continue;
             if (finalScore) {
                 // final score notification must be sent via reliable message
-                Games.RealTimeMultiplayer.sendReliableMessage(getApiClient(), null, mMsgBuf,
+                Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, mMsgBuf,
                         mRoomId, p.getParticipantId());
             } else {
                 // it's an interim score notification, so we can use unreliable
-                Games.RealTimeMultiplayer.sendUnreliableMessage(getApiClient(), mMsgBuf, mRoomId,
+                Games.RealTimeMultiplayer.sendUnreliableMessage(mGoogleApiClient, mMsgBuf, mRoomId,
                         p.getParticipantId());
             }
         }
@@ -737,7 +817,12 @@ public class MainActivity extends BaseGameActivity
     }
 
     void switchToMainScreen() {
-        switchToScreen(isSignedIn() ? R.id.screen_main : R.id.screen_sign_in);
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            switchToScreen(R.id.screen_main);
+        }
+        else {
+            switchToScreen(R.id.screen_sign_in);
+        }
     }
 
     // updates the label that shows my score
@@ -784,37 +869,6 @@ public class MainActivity extends BaseGameActivity
      * MISC SECTION. Miscellaneous methods.
      */
 
-    /**
-     * Checks that the developer (that's you!) read the instructions. IMPORTANT:
-     * a method like this SHOULD NOT EXIST in your production app! It merely
-     * exists here to check that anyone running THIS PARTICULAR SAMPLE did what
-     * they were supposed to in order for the sample to work.
-     */
-    boolean verifyPlaceholderIdsReplaced() {
-        final boolean CHECK_PKGNAME = true; // set to false to disable check
-                                            // (not recommended!)
-
-        // Did the developer forget to change the package name?
-        if (CHECK_PKGNAME && getPackageName().startsWith("com.google.example.")) {
-            Log.e(TAG, "*** Sample setup problem: " +
-                "package name cannot be com.google.example.*. Use your own " +
-                "package name.");
-            return false;
-        }
-
-        // Did the developer forget to replace a placeholder ID?
-        int res_ids[] = new int[] {
-                R.string.app_id
-        };
-        for (int i : res_ids) {
-            if (getString(i).equalsIgnoreCase("ReplaceMe")) {
-                Log.e(TAG, "*** Sample setup problem: You must replace all " +
-                    "placeholder IDs in the ids.xml file by your project's IDs.");
-                return false;
-            }
-        }
-        return true;
-    }
 
     // Sets the flag to keep this screen on. It's recommended to do that during
     // the
