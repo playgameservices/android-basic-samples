@@ -40,4 +40,10 @@
     <string name="title_saved_games">"Saved Games"</string>
     <string name="title_load_game">Select saved game to load</string>
     <string name="please_sign_in">"Please sign-in before playing"</string>
+    <string name="select_conflicted_game">Select which game to load</string>
+    <string name="format_days_ago">%d days ago</string>
+    <string name="format_hours_ago">%d hours ago</string>
+    <string name="format_minutes_ago">%d minutes ago</string>
+    <string name="format_seconds_ago">%d seconds ago</string>
+    <string name="moments_ago">moments ago</string>
 </resources>
