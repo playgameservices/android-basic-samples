@@ -168,13 +168,13 @@ public class MainActivity extends Activity
                     SnapshotMetadata snapshotMetadata =
                             intent.getParcelableExtra(Snapshots.EXTRA_SNAPSHOT_METADATA);
                     currentSaveName = snapshotMetadata.getUniqueName();
-                    loadFromSnapshot();
+                    loadFromSnapshot(snapshotMetadata);
                 } else if (intent.hasExtra(Snapshots.EXTRA_SNAPSHOT_NEW)) {
                     // Create a new snapshot named with a unique string
                     // TODO: check for existing snapshot, for now, add garbage text.
                     String unique = new BigInteger(281, new Random()).toString(13);
                     currentSaveName = "snapshotTemp-" + unique;
-                    saveSnapshot();
+                    saveSnapshot(null);
                 }
             }
         }
@@ -188,7 +188,7 @@ public class MainActivity extends Activity
                             intent.getParcelableExtra(SelectSnapshotActivity.SNAPSHOT_METADATA);
                     currentSaveName = snapshotMetadata.getUniqueName();
                     Log.d(TAG, "ok - loading " + currentSaveName);
-                    loadFromSnapshot();
+                    loadFromSnapshot(snapshotMetadata);
                 } else {
                     Log.w(TAG, "Expected snapshot metadata but found none.");
                 }
@@ -196,18 +196,21 @@ public class MainActivity extends Activity
         }
         // loading a snapshot into the game.
         else if (requestCode == RC_LOAD_SNAPSHOT) {
+            Log.d(TAG,"Loading a snapshot resultCode = " + resultCode);
             if (resultCode == RESULT_OK) {
-                if (intent != null && intent.hasExtra(SelectSnapshotActivity.SNAPSHOT)) {
+                if (intent != null && intent.hasExtra(SelectSnapshotActivity.SNAPSHOT_METADATA)) {
                     // Load a snapshot.
                     String conflictId = intent.getStringExtra(SelectSnapshotActivity.CONFLICT_ID);
                     int retryCount = intent.getIntExtra(SelectSnapshotActivity.RETRY_COUNT,
                             MAX_SNAPSHOT_RESOLVE_RETRIES);
-                    Snapshot snapshot =
-                            intent.getParcelableExtra(SelectSnapshotActivity.SNAPSHOT);
+                    SnapshotMetadata snapshotMetadata =
+                            intent.getParcelableExtra(SelectSnapshotActivity.SNAPSHOT_METADATA);
                     if (conflictId == null) {
-                        readSavedGame(snapshot);
+                        loadFromSnapshot(snapshotMetadata);
                     } else {
-                        resolveSnapshotConflict(requestCode, conflictId, retryCount, snapshot);
+                        Log.d(TAG,"resolving " + snapshotMetadata);
+                        resolveSnapshotConflict(requestCode, conflictId, retryCount,
+                                snapshotMetadata);
                     }
                 }
             }
@@ -216,17 +219,18 @@ public class MainActivity extends Activity
         // saving the game into a snapshot.
         else if (requestCode == RC_SAVE_SNAPSHOT) {
             if (resultCode == RESULT_OK) {
-                if (intent != null && intent.hasExtra(SelectSnapshotActivity.SNAPSHOT)) {
+                if (intent != null && intent.hasExtra(SelectSnapshotActivity.SNAPSHOT_METADATA)) {
                     // Load a snapshot.
                     String conflictId = intent.getStringExtra(SelectSnapshotActivity.CONFLICT_ID);
                     int retryCount = intent.getIntExtra(SelectSnapshotActivity.RETRY_COUNT,
                             MAX_SNAPSHOT_RESOLVE_RETRIES);
-                    Snapshot snapshot =
-                            intent.getParcelableExtra(SelectSnapshotActivity.SNAPSHOT);
+                    SnapshotMetadata snapshotMetadata =
+                            intent.getParcelableExtra(SelectSnapshotActivity.SNAPSHOT_METADATA);
                     if (conflictId == null) {
-                        writeSnapshot(snapshot);
+                        saveSnapshot(snapshotMetadata);
                     } else {
-                        resolveSnapshotConflict(requestCode, conflictId, retryCount, snapshot);
+                        Log.d(TAG,"resolving " + snapshotMetadata);
+                        resolveSnapshotConflict(requestCode, conflictId, retryCount, snapshotMetadata);
                     }
                 }
             }
@@ -273,16 +277,15 @@ public class MainActivity extends Activity
         // see the effects immediately. A game probably shouldn't have a "Load/Save"
         // button (or at least not one that's so prominently displayed in the UI).
         if (item.getItemId() == R.id.menu_sync) {
-            loadFromSnapshot();
+            loadFromSnapshot(null);
             return true;
         }
         if (item.getItemId() == R.id.menu_save) {
-            saveSnapshot();
+            saveSnapshot(null);
             return true;
         }
         if (item.getItemId() == R.id.menu_select) {
             selectSnapshot();
-
         }
         return false;
     }
@@ -458,7 +461,7 @@ public class MainActivity extends Activity
     /**
      * Loads a Snapshot from the user's synchronized storage.
      */
-    void loadFromSnapshot() {
+    void loadFromSnapshot(SnapshotMetadata snapshotMetadata) {
         if (mLoadingDialog == null) {
             mLoadingDialog = new ProgressDialog(this);
             mLoadingDialog.setMessage(getString(R.string.loading_from_cloud));
@@ -487,6 +490,9 @@ public class MainActivity extends Activity
                     // if it resolved OK, change the status to Ok
                     if (snapshot != null) {
                         status = GamesStatusCodes.STATUS_OK;
+                    }
+                    else {
+                        Log.w(TAG,"Conflict was not resolved automatically");
                     }
                 } else {
                     Log.e(TAG, "Error while loading: " + status);
@@ -535,7 +541,6 @@ public class MainActivity extends Activity
         mAlreadyLoadedState = true;
     }
 
-
     /**
      * Conflict resolution for when Snapshots are opened.
      *
@@ -571,14 +576,29 @@ public class MainActivity extends Activity
 
     private void resolveSnapshotConflict(final int requestCode, final String conflictId,
             final int retryCount,
-            final Snapshot snapshot) {
+            final SnapshotMetadata snapshotMetadata) {
 
+        Log.i(TAG,"Resolving conflict retry count = " + retryCount);
         AsyncTask<Void, Void, Snapshots.OpenSnapshotResult> task =
                 new AsyncTask<Void, Void, Snapshots.OpenSnapshotResult>() {
                     @Override
                     protected Snapshots.OpenSnapshotResult doInBackground(Void... voids) {
+
+                        Snapshots.OpenSnapshotResult result;
+                        if (snapshotMetadata.getUniqueName() != null) {
+
+                            result = Games.Snapshots.open(mGoogleApiClient, snapshotMetadata)
+                                    .await();
+                        }
+                        else {
+                            result = Games.Snapshots.open(mGoogleApiClient, currentSaveName, true)
+                                    .await();
+                        }
+
+                        Log.d(TAG,"opening from metadata - tesult is " + result.getStatus());
+
                         return Games.Snapshots
-                                .resolveConflict(mGoogleApiClient, conflictId, snapshot)
+                                .resolveConflict(mGoogleApiClient, conflictId, result.getSnapshot())
                                 .await();
                     }
 
@@ -587,12 +607,14 @@ public class MainActivity extends Activity
                         Snapshot snapshot = processSnapshotOpenResult(requestCode,
                                 openSnapshotResult,
                                 retryCount);
+                        Log.d(TAG,"resolved snapshot conflict - snapshot is " + snapshot);
                         // if there is a snapshot returned, then pass it along to onActivityResult.
                         // otherwise, another activity will be used to resolve the conflict so we
                         // don't need to do anything here.
                         if (snapshot != null) {
                             Intent intent = new Intent("");
-                            intent.putExtra(SelectSnapshotActivity.SNAPSHOT, snapshot.freeze());
+                            intent.putExtra(SelectSnapshotActivity.SNAPSHOT_METADATA,
+                                    snapshot.getMetadata().freeze());
                             onActivityResult(requestCode, RESULT_OK, intent);
                         }
                     }
@@ -606,13 +628,19 @@ public class MainActivity extends Activity
      * Prepares saving Snapshot to the user's synchronized storage, conditionally resolves errors,
      * and stores the Snapshot.
      */
-    void saveSnapshot() {
+    void saveSnapshot(final SnapshotMetadata snapshotMetadata) {
         AsyncTask<Void, Void, Snapshots.OpenSnapshotResult> task =
                 new AsyncTask<Void, Void, Snapshots.OpenSnapshotResult>() {
                     @Override
                     protected Snapshots.OpenSnapshotResult doInBackground(Void... params) {
-                        return Games.Snapshots.open(mGoogleApiClient, currentSaveName, true)
-                                .await();
+                        if (snapshotMetadata == null) {
+                            return Games.Snapshots.open(mGoogleApiClient, currentSaveName, true)
+                                    .await();
+                        }
+                        else {
+                            return Games.Snapshots.open(mGoogleApiClient, snapshotMetadata)
+                                    .await();
+                        }
                     }
 
                     @Override
@@ -707,7 +735,7 @@ public class MainActivity extends Activity
 
         mInLevel = false;
         // save new data to cloud
-        saveSnapshot();
+        saveSnapshot(null);
     }
 
     /** Prints a log message (convenience method). */
@@ -795,12 +823,12 @@ public class MainActivity extends Activity
     private void selectSnapshotItem(int requestCode, ArrayList<Snapshot> items,
             String conflictId, int retryCount) {
 
-        ArrayList<Snapshot> snapshotList = new ArrayList<Snapshot>(items.size());
+        ArrayList<SnapshotMetadata> snapshotList = new ArrayList<SnapshotMetadata>(items.size());
         for (Snapshot m : items) {
-            snapshotList.add(m.freeze());
+            snapshotList.add(m.getMetadata().freeze());
         }
         Intent intent = new Intent(this, SelectSnapshotActivity.class);
-        intent.putParcelableArrayListExtra(SelectSnapshotActivity.SNAPSHOT_LIST,
+        intent.putParcelableArrayListExtra(SelectSnapshotActivity.SNAPSHOT_METADATA_LIST,
                 snapshotList);
 
         intent.putExtra(SelectSnapshotActivity.CONFLICT_ID, conflictId);

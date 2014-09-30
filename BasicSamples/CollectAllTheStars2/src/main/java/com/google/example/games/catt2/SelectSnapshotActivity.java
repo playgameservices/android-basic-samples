@@ -45,12 +45,6 @@ import java.util.ArrayList;
  */
 public class SelectSnapshotActivity extends Activity implements AdapterView.OnItemClickListener {
 
-    // intent data which is a snapshot.
-    public static final String SNAPSHOT = "snapshot";
-
-    // intent data which is a list of snapshots.
-    public static final String SNAPSHOT_LIST = "snapshots";
-
     // intent data which is a snapshot metadata
     public static final String SNAPSHOT_METADATA = "snapshotmeta";
 
@@ -65,6 +59,7 @@ public class SelectSnapshotActivity extends Activity implements AdapterView.OnIt
 
     // keep these variables for the current activity and return them in the result.
     private String mConflictId;
+
     private int mRetryCount;
 
     @Override
@@ -78,20 +73,12 @@ public class SelectSnapshotActivity extends Activity implements AdapterView.OnIt
             ArrayList<SnapshotMetadata> snapshotMetadataList;
             ListView vw = (ListView) findViewById(R.id.snapshot_list);
 
-            if (intent.hasExtra(SNAPSHOT_LIST)) {
-                ArrayList<Snapshot> snapshotList =
-                        intent.getParcelableArrayListExtra(SNAPSHOT_LIST);
-                // set a custom list adapter that can display the image and other
-                // information about a snapshot.
-                vw.setAdapter(new SnapshotListAdapter<Snapshot>(this, snapshotList));
-            }
-            else if (intent.hasExtra(SNAPSHOT_METADATA_LIST)) {
-                snapshotMetadataList = intent.getParcelableArrayListExtra(SNAPSHOT_METADATA_LIST);
-                // set a custom list adapter that can display the image and other
-                // information about a snapshot.
-                vw.setAdapter(
-                        new SnapshotListAdapter<SnapshotMetadata>(this, snapshotMetadataList));
-            }
+            snapshotMetadataList = intent.getParcelableArrayListExtra(SNAPSHOT_METADATA_LIST);
+            // set a custom list adapter that can display the image and other
+            // information about a snapshot.
+            vw.setAdapter(
+                    new SnapshotListAdapter<SnapshotMetadata>(this, snapshotMetadataList));
+
             mConflictId = intent.getStringExtra(CONFLICT_ID);
             mRetryCount = intent.getIntExtra(RETRY_COUNT, 0);
 
@@ -104,17 +91,11 @@ public class SelectSnapshotActivity extends Activity implements AdapterView.OnIt
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long listId) {
 
-        Object selected = adapterView.getItemAtPosition(position);
+        SnapshotMetadata selected = (SnapshotMetadata) adapterView.getItemAtPosition(position);
         Intent intent = new Intent(Intent.ACTION_DEFAULT);
 
-        // look at the type of the selected item to place it in the correct location in the
-        // result intent
+        intent.putExtra(SNAPSHOT_METADATA, ( selected).freeze());
 
-        if (selected instanceof Snapshot) {
-            intent.putExtra(SNAPSHOT, ((Snapshot) selected).freeze());
-        } else {
-            intent.putExtra(SNAPSHOT_METADATA, ((SnapshotMetadata) selected).freeze());
-        }
         if (mConflictId != null) {
             intent.putExtra(CONFLICT_ID, mConflictId);
             intent.putExtra(RETRY_COUNT, mRetryCount);
