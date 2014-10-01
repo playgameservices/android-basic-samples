@@ -53,12 +53,15 @@ import com.google.example.games.basegameutils.BaseGameUtils;
  * @author Dan Galpin (Google) and Wolff Dobson (Google)
  */
 public class BeGenerousActivity extends Activity
-    implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-    View.OnClickListener {
+        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        View.OnClickListener {
 
     private static final String TAG = "BeGenerous";
+
     private static final int SHOW_INBOX = 1;
+
     private static final int SEND_GIFT_CODE = 2;
+
     private static final int SEND_REQUEST_CODE = 3;
 
     /** Default lifetime of a request, 1 week. */
@@ -90,12 +93,11 @@ public class BeGenerousActivity extends Activity
 
         // Create the Google Api Client with access to Plus and Games
         mGoogleApiClient = new GoogleApiClient.Builder(this)
-            .addConnectionCallbacks(this)
-            .addOnConnectionFailedListener(this)
-            .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
-            .addApi(Games.API).addScope(Games.SCOPE_GAMES)
-            .build();
-
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
+                .addApi(Games.API).addScope(Games.SCOPE_GAMES)
+                .build();
 
         // Set up click listeners
         setContentView(R.layout.activity_main);
@@ -123,29 +125,29 @@ public class BeGenerousActivity extends Activity
 
     // Called back after you load the current requests
     private final ResultCallback<Requests.LoadRequestsResult> mLoadRequestsCallback =
-          new ResultCallback<Requests.LoadRequestsResult>() {
+            new ResultCallback<Requests.LoadRequestsResult>() {
 
-        @Override
-        public void onResult(LoadRequestsResult result) {
-            int giftCount = 0;
-            int wishCount = 0;
-            GameRequestBuffer buf;
-            buf = result.getRequests(GameRequest.TYPE_GIFT);
-            if (null != buf) {
-                giftCount = buf.getCount();
-            }
-            buf = result.getRequests(GameRequest.TYPE_WISH);
-            if (null != buf) {
-                wishCount = buf.getCount();
-            }
-            // Update the counts in the layout
-            ((TextView) findViewById(R.id.tv_gift_count)).setText(String
-                    .format(getString(R.string.gift_count), giftCount));
-            ((TextView) findViewById(R.id.tv_request_count)).setText(String
-                    .format(getString(R.string.request_count), wishCount));
-        }
+                @Override
+                public void onResult(LoadRequestsResult result) {
+                    int giftCount = 0;
+                    int wishCount = 0;
+                    GameRequestBuffer buf;
+                    buf = result.getRequests(GameRequest.TYPE_GIFT);
+                    if (null != buf) {
+                        giftCount = buf.getCount();
+                    }
+                    buf = result.getRequests(GameRequest.TYPE_WISH);
+                    if (null != buf) {
+                        wishCount = buf.getCount();
+                    }
+                    // Update the counts in the layout
+                    ((TextView) findViewById(R.id.tv_gift_count)).setText(String
+                            .format(getString(R.string.gift_count), giftCount));
+                    ((TextView) findViewById(R.id.tv_request_count)).setText(String
+                            .format(getString(R.string.request_count), wishCount));
+                }
 
-    };
+            };
 
     // Changes the numbers at the top of the layout
     private void updateRequestCounts() {
@@ -159,8 +161,7 @@ public class BeGenerousActivity extends Activity
 
     // This shows how to set up a listener for requests received. It is not
     // necessary; it only is useful if you do not want the default notifications
-    // to
-    // happen when someone sends a request to someone.
+    // to happen when someone sends a request to someone.
     private final OnRequestReceivedListener mRequestListener = new OnRequestReceivedListener() {
 
         /*
@@ -173,14 +174,14 @@ public class BeGenerousActivity extends Activity
         public void onRequestReceived(GameRequest request) {
             int requestStringResource;
             switch (request.getType()) {
-            case GameRequest.TYPE_GIFT:
-                requestStringResource = R.string.new_gift_received;
-                break;
-            case GameRequest.TYPE_WISH:
-                requestStringResource = R.string.new_request_received;
-                break;
-            default:
-                return;
+                case GameRequest.TYPE_GIFT:
+                    requestStringResource = R.string.new_gift_received;
+                    break;
+                case GameRequest.TYPE_WISH:
+                    requestStringResource = R.string.new_request_received;
+                    break;
+                default:
+                    return;
             }
             Toast.makeText(BeGenerousActivity.this, requestStringResource,
                     Toast.LENGTH_LONG).show();
@@ -210,15 +211,13 @@ public class BeGenerousActivity extends Activity
 
         if (connectionHint != null) {
 
-             ArrayList<GameRequest> requests;
-             // Do we have any requests pending? (getGameRequestsFromBundle never returns null
-             requests = Games.Requests.getGameRequestsFromBundle(connectionHint);
-             if (!requests.isEmpty()) {
-                 // We have requests in onConnected's connectionHint.
-                 Log.d(TAG, "onConnected: connection hint has " + requests.size()
-                     + " request(s)");
-
-             }
+            ArrayList<GameRequest> requests;
+            // Do we have any requests pending? (getGameRequestsFromBundle never returns null
+            requests = Games.Requests.getGameRequestsFromBundle(connectionHint);
+            if (!requests.isEmpty()) {
+                // We have requests in onConnected's connectionHint.
+                Log.d(TAG, "onConnected: connection hint has " + requests.size() + " request(s)");
+            }
             Log.d(TAG, "===========\nRequests count " + requests.size());
             // Use regular handler
             handleRequests(requests);
@@ -230,26 +229,27 @@ public class BeGenerousActivity extends Activity
 
     @Override
     public void onConnectionSuspended(int i) {
-      Log.d(TAG, "onConnectionSuspended() called. Trying to reconnect.");
-      mGoogleApiClient.connect();
+        Log.d(TAG, "onConnectionSuspended() called. Trying to reconnect.");
+        mGoogleApiClient.connect();
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-      Log.d(TAG, "onConnectionFailed() called, result: " + connectionResult);
+        Log.d(TAG, "onConnectionFailed() called, result: " + connectionResult);
 
-      if (mResolvingConnectionFailure) {
-        Log.d(TAG, "onConnectionFailed() ignoring connection failure; already resolving.");
-        return;
-      }
+        if (mResolvingConnectionFailure) {
+            Log.d(TAG, "onConnectionFailed() ignoring connection failure; already resolving.");
+            return;
+        }
 
-      if (mSignInClicked || mAutoStartSignInFlow) {
-        mAutoStartSignInFlow = false;
-        mSignInClicked = false;
-        mResolvingConnectionFailure = BaseGameUtils.resolveConnectionFailure(this, mGoogleApiClient,
-            connectionResult, RC_SIGN_IN, getString(R.string.signin_other_error));
-      }
-      showSignInBar();
+        if (mSignInClicked || mAutoStartSignInFlow) {
+            mAutoStartSignInFlow = false;
+            mSignInClicked = false;
+            mResolvingConnectionFailure = BaseGameUtils
+                    .resolveConnectionFailure(this, mGoogleApiClient,
+                            connectionResult, RC_SIGN_IN, getString(R.string.signin_other_error));
+        }
+        showSignInBar();
     }
 
     /**
@@ -413,40 +413,40 @@ public class BeGenerousActivity extends Activity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-        case SEND_REQUEST_CODE:
-            if (resultCode == GamesActivityResultCodes.RESULT_SEND_REQUEST_FAILED) {
-                Toast.makeText(this, "FAILED TO SEND REQUEST!",
-                        Toast.LENGTH_LONG).show();
-            }
-            break;
-        case SEND_GIFT_CODE:
-            if (resultCode == GamesActivityResultCodes.RESULT_SEND_REQUEST_FAILED) {
-                Toast.makeText(this, "FAILED TO SEND GIFT!", Toast.LENGTH_LONG)
-                        .show();
-            }
-            break;
-        case SHOW_INBOX:
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                handleRequests(Games.Requests
-                        .getGameRequestsFromInboxResponse(data));
-            } else {
-                Log.e(TAG, "Failed to process inbox result: resultCode = "
-                        + resultCode + ", data = "
-                        + (data == null ? "null" : "valid"));
-            }
-            break;
-        case RC_SIGN_IN:
-          Log.d(TAG, "onActivityResult with requestCode == RC_SIGN_IN, responseCode="
-              + resultCode + ", intent=" + data);
-          mSignInClicked = false;
-          mResolvingConnectionFailure = false;
-          if (resultCode == RESULT_OK) {
-            mGoogleApiClient.connect();
-          } else {
-            BaseGameUtils.showActivityResultError(this,requestCode,resultCode,
-                R.string.signin_failure, R.string.signin_other_error);
-          }
-          break;
+            case SEND_REQUEST_CODE:
+                if (resultCode == GamesActivityResultCodes.RESULT_SEND_REQUEST_FAILED) {
+                    Toast.makeText(this, "FAILED TO SEND REQUEST!",
+                            Toast.LENGTH_LONG).show();
+                }
+                break;
+            case SEND_GIFT_CODE:
+                if (resultCode == GamesActivityResultCodes.RESULT_SEND_REQUEST_FAILED) {
+                    Toast.makeText(this, "FAILED TO SEND GIFT!", Toast.LENGTH_LONG)
+                            .show();
+                }
+                break;
+            case SHOW_INBOX:
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    handleRequests(Games.Requests
+                            .getGameRequestsFromInboxResponse(data));
+                } else {
+                    Log.e(TAG, "Failed to process inbox result: resultCode = "
+                            + resultCode + ", data = "
+                            + (data == null ? "null" : "valid"));
+                }
+                break;
+            case RC_SIGN_IN:
+                Log.d(TAG, "onActivityResult with requestCode == RC_SIGN_IN, responseCode="
+                        + resultCode + ", intent=" + data);
+                mSignInClicked = false;
+                mResolvingConnectionFailure = false;
+                if (resultCode == RESULT_OK) {
+                    mGoogleApiClient.connect();
+                } else {
+                    BaseGameUtils.showActivityResultError(this, requestCode, resultCode,
+                            R.string.signin_failure, R.string.signin_other_error);
+                }
+                break;
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -454,43 +454,43 @@ public class BeGenerousActivity extends Activity
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-        case R.id.button_sign_in:
-          // Check to see the developer who's running this sample code read the instructions :-)
-          // NOTE: this check is here only because this is a sample! Don't include this
-          // check in your actual production app.
-          if (!BaseGameUtils.verifySampleSetup(this, R.string.app_id)) {
-            Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
-          }
+            case R.id.button_sign_in:
+                // Check to see the developer who's running this sample code read the instructions :-)
+                // NOTE: this check is here only because this is a sample! Don't include this
+                // check in your actual production app.
+                if (!BaseGameUtils.verifySampleSetup(this, R.string.app_id)) {
+                    Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
+                }
 
-        // start the sign-in flow
-        Log.d(TAG, "Sign-in button clicked");
-        mSignInClicked = true;
-        mGoogleApiClient.connect();
-        break;
-      case R.id.button_sign_out:
-        // sign out.
-        Log.d(TAG, "Sign-out button clicked");
-        mSignInClicked = false;
-        Games.signOut(mGoogleApiClient);
-        mGoogleApiClient.disconnect();
-        showSignInBar();
-        break;
-      case R.id.button_send_gift:
-        // send gift!
-        showSendIntent(GameRequest.TYPE_GIFT);
-        break;
-      case R.id.button_send_request:
-        // request gift!
-        showSendIntent(GameRequest.TYPE_WISH);
-        break;
-      case R.id.button_open_inbox:
-        // show inbox!
-        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-          startActivityForResult(
-              Games.Requests.getInboxIntent(mGoogleApiClient),
-              SHOW_INBOX);
+                // start the sign-in flow
+                Log.d(TAG, "Sign-in button clicked");
+                mSignInClicked = true;
+                mGoogleApiClient.connect();
+                break;
+            case R.id.button_sign_out:
+                // sign out.
+                Log.d(TAG, "Sign-out button clicked");
+                mSignInClicked = false;
+                Games.signOut(mGoogleApiClient);
+                mGoogleApiClient.disconnect();
+                showSignInBar();
+                break;
+            case R.id.button_send_gift:
+                // send gift!
+                showSendIntent(GameRequest.TYPE_GIFT);
+                break;
+            case R.id.button_send_request:
+                // request gift!
+                showSendIntent(GameRequest.TYPE_WISH);
+                break;
+            case R.id.button_open_inbox:
+                // show inbox!
+                if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+                    startActivityForResult(
+                            Games.Requests.getInboxIntent(mGoogleApiClient),
+                            SHOW_INBOX);
+                }
+                break;
         }
-        break;
     }
-  }
 }

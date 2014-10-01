@@ -130,4 +130,12 @@ public class BaseGameUtils {
         .setNeutralButton(android.R.string.ok, null).create();
   }
 
+  public static Dialog makeSimpleDialog(Activity activity, String title, String text) {
+      return (new AlertDialog.Builder(activity))
+              .setTitle(title)
+              .setMessage(text)
+              .setNeutralButton(android.R.string.ok, null)
+              .create();
+  }
+
 }
