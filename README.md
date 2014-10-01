@@ -52,7 +52,7 @@ Pick a set of instructions below depending on whether you're using Eclipse or An
 1. Start Eclipse
 1. Import the Google Play Services library project (available for download through the SDK manager):
     1. Click **File | Import | Android | Existing Android Code into Workspace**
-    1. Select `SDK/extras/google/google_play_services/google_play_services_lib` (where `SDK` stands for the path where you installed your Android SDK)
+    1. Select `SDK/extras/google/libproject/google_play_services/google_play_services_lib` (where `SDK` stands for the path where you installed your Android SDK)
     1. Click **Finish**
 1. Import `eclipse_compat/libraries/BaseGameUtils` **as a library**
     1. Click **File | Import | Android | Existing Android Code into Workspace**
