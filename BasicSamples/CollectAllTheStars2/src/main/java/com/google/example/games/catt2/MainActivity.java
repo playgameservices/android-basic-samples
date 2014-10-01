@@ -31,7 +31,6 @@ import android.widget.RatingBar.OnRatingBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.appstate.AppStateManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.Drive;
@@ -252,7 +251,6 @@ public class MainActivity extends Activity
                 .addOnConnectionFailedListener(this)
                 .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
                 .addApi(Games.API).addScope(Games.SCOPE_GAMES)
-                .addApi(AppStateManager.API).addScope(AppStateManager.SCOPE_APP_STATE)
                 .addApi(Drive.API).addScope(Drive.SCOPE_APPFOLDER)
                 .build();
 
@@ -461,7 +459,7 @@ public class MainActivity extends Activity
     /**
      * Loads a Snapshot from the user's synchronized storage.
      */
-    void loadFromSnapshot(SnapshotMetadata snapshotMetadata) {
+    void loadFromSnapshot(final SnapshotMetadata snapshotMetadata) {
         if (mLoadingDialog == null) {
             mLoadingDialog = new ProgressDialog(this);
             mLoadingDialog.setMessage(getString(R.string.loading_from_cloud));
@@ -472,9 +470,15 @@ public class MainActivity extends Activity
         AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>() {
             @Override
             protected Integer doInBackground(Void... params) {
-                Log.i(TAG, "Opening snapshot " + currentSaveName);
-                Snapshots.OpenSnapshotResult result = Games.Snapshots.open(mGoogleApiClient,
-                        currentSaveName, true).await();
+                 Snapshots.OpenSnapshotResult result;
+                if (snapshotMetadata != null && snapshotMetadata.getUniqueName() != null) {
+                    Log.i(TAG, "Opening snapshot by metadata: " + snapshotMetadata);
+                    result = Games.Snapshots.open(mGoogleApiClient,snapshotMetadata).await();
+                }
+                else {
+                    Log.i(TAG, "Opening snapshot by name: " + currentSaveName);
+                    result = Games.Snapshots.open(mGoogleApiClient, currentSaveName, true).await();
+                }
 
                 int status = result.getStatus().getStatusCode();
 
@@ -484,8 +488,7 @@ public class MainActivity extends Activity
                 } else if (status == GamesStatusCodes.STATUS_SNAPSHOT_CONFLICT) {
 
                     // if there is a conflict  - then resolve it.
-                    snapshot = processSnapshotOpenResult(RC_LOAD_SNAPSHOT, result,
-                            MAX_SNAPSHOT_RESOLVE_RETRIES);
+                    snapshot = processSnapshotOpenResult(RC_LOAD_SNAPSHOT, result, 0);
 
                     // if it resolved OK, change the status to Ok
                     if (snapshot != null) {
@@ -544,7 +547,10 @@ public class MainActivity extends Activity
     /**
      * Conflict resolution for when Snapshots are opened.
      *
+     * @param requestCode - the request currently being processed.  This is used to forward on the
+     *                    information to another activity, or to send the result intent.
      * @param result The open snapshot result to resolve on open.
+     * @param retryCount - the current iteration of the retry.  The first retry should be 0.
      * @return The opened Snapshot on success; otherwise, returns null.
      */
     Snapshot processSnapshotOpenResult(int requestCode, Snapshots.OpenSnapshotResult result,
@@ -574,6 +580,15 @@ public class MainActivity extends Activity
         return null;
     }
 
+    /**
+     *  Handles resolving the snapshot conflict asynchronously.
+     *
+     * @param requestCode - the request currently being processed.  This is used to forward on the
+     *                    information to another activity, or to send the result intent.
+     * @param conflictId - the id of the conflict being resolved.
+     * @param retryCount - the current iteration of the retry.  The first retry should be 0.
+     * @param snapshotMetadata - the metadata of the snapshot that is selected to resolve the conflict.
+     */
     private void resolveSnapshotConflict(final int requestCode, final String conflictId,
             final int retryCount,
             final SnapshotMetadata snapshotMetadata) {
