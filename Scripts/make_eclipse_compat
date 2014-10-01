@@ -26,7 +26,7 @@ for i in BeGenerous ButtonClicker TypeANumber CollectAllTheStars2 TrivialQuest T
     # copy libs
     rm -rf eclipse_compat/$i/libs
     mkdir -p eclipse_compat/$i/libs
-    cp -a scripts/eclipse_aux/*.jar eclipse_compat/$i/libs
+    cp -a Scripts/eclipse_aux/*.jar eclipse_compat/$i/libs
 done
 
 echo "Eclipse-compatible folders generated in eclipse_compat/"
