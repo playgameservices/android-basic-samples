@@ -393,7 +393,7 @@ public class MainActivity extends Activity
                 updateUi();
                 break;
             case R.id.button_next_world:
-                if (mGoogleApiClient == null || !mGoogleApiClient.isConnected()) {
+                if (isConnected()) {
                     BaseGameUtils.makeSimpleDialog(this, getString(R.string.please_sign_in)).show();
                     return;
                 }
@@ -403,7 +403,7 @@ public class MainActivity extends Activity
                 }
                 break;
             case R.id.button_prev_world:
-                if (mGoogleApiClient == null || !mGoogleApiClient.isConnected()) {
+                if (isConnected()) {
                     BaseGameUtils.makeSimpleDialog(this, getString(R.string.please_sign_in)).show();
                     return;
                 }
@@ -413,7 +413,7 @@ public class MainActivity extends Activity
                 }
                 break;
             default:
-                if (mGoogleApiClient == null || !mGoogleApiClient.isConnected()) {
+                if (isConnected()) {
                     BaseGameUtils.makeSimpleDialog(this, getString(R.string.please_sign_in)).show();
                     return;
                 }
@@ -424,6 +424,10 @@ public class MainActivity extends Activity
                     }
                 }
         }
+    }
+
+    private boolean isConnected() {
+        return mGoogleApiClient == null || !mGoogleApiClient.isConnected();
     }
 
     /**
@@ -474,8 +478,7 @@ public class MainActivity extends Activity
                 if (snapshotMetadata != null && snapshotMetadata.getUniqueName() != null) {
                     Log.i(TAG, "Opening snapshot by metadata: " + snapshotMetadata);
                     result = Games.Snapshots.open(mGoogleApiClient,snapshotMetadata).await();
-                }
-                else {
+                } else {
                     Log.i(TAG, "Opening snapshot by name: " + currentSaveName);
                     result = Games.Snapshots.open(mGoogleApiClient, currentSaveName, true).await();
                 }
@@ -527,7 +530,7 @@ public class MainActivity extends Activity
                             Toast.LENGTH_SHORT).show();
                 }
 
-                if (mLoadingDialog != null) {
+                if (mLoadingDialog != null && mLoadingDialog.isShowing()) {
                     mLoadingDialog.dismiss();
                     mLoadingDialog = null;
                 }
@@ -800,7 +803,7 @@ public class MainActivity extends Activity
                     @Override
                     protected void onPostExecute(Snapshots.LoadSnapshotsResult snapshotResults) {
 
-                        if (mLoadingDialog != null) {
+                        if (mLoadingDialog != null && mLoadingDialog.isShowing()) {
                             mLoadingDialog.dismiss();
                             mLoadingDialog = null;
                         }
