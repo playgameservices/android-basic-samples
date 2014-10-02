@@ -37,8 +37,6 @@
 
         <meta-data android:name="com.google.android.gms.games.APP_ID"
             android:value="@string/app_id" />
-        <meta-data android:name="com.google.android.gms.appstate.APP_ID"
-            android:value="@string/app_id" />
         <meta-data android:name="com.google.android.gms.version"
                    android:value="@integer/google_play_services_version"/>
 
@@ -52,6 +50,9 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name="com.google.example.games.catt2.SelectSnapshotActivity"
+                  android:label="@string/select_conflicted_game">
         </activity>
     </application>
 
