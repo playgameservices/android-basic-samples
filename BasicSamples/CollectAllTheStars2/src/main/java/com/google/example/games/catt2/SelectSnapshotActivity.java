@@ -94,7 +94,7 @@ public class SelectSnapshotActivity extends Activity implements AdapterView.OnIt
         SnapshotMetadata selected = (SnapshotMetadata) adapterView.getItemAtPosition(position);
         Intent intent = new Intent(Intent.ACTION_DEFAULT);
 
-        intent.putExtra(SNAPSHOT_METADATA, ( selected).freeze());
+        intent.putExtra(SNAPSHOT_METADATA, selected.freeze());
 
         if (mConflictId != null) {
             intent.putExtra(CONFLICT_ID, mConflictId);
