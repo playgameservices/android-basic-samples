@@ -48,6 +48,7 @@ Pick a set of instructions below depending on whether you're using Eclipse or An
 
 <h3>If you're using Eclipse...</h3>
 
+1. From the command line run Scripts/make_eclipse_compat.  This creates the directory structure needed to import the projects correctly.
 1. Start Eclipse
 1. Import the Google Play Services library project (available for download through the SDK manager):
     1. Click **File | Import | Android | Existing Android Code into Workspace**

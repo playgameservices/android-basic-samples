@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              style="@style/ConflictDisplay">
+        <TextView android:text="@string/select_conflicted_game"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:textSize="18sp"
+                  android:textStyle="bold"
+                  android:gravity="center"
+                  android:layout_weight="3"/>
+        <ListView android:id="@+id/snapshot_list"
+                  android:choiceMode="singleChoice"
+                  android:layout_width="fill_parent" android:layout_height="wrap_content"
+                  android:layout_weight="97"/>
+</LinearLayout>

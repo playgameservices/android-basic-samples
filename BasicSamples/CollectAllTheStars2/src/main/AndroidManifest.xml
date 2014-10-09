@@ -53,6 +53,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.google.example.games.catt2.SelectSnapshotActivity"
+                  android:label="@string/select_conflicted_game">
+        </activity>
     </application>
 
 </manifest>
