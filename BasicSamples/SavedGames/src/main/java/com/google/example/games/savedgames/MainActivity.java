@@ -29,7 +29,13 @@ import com.google.android.gms.games.snapshot.Snapshots.*;
 import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
-
+/**
+ * SavedGames.  A sample that demonstrates how to migrate from the Cloud Save (AppState) API to the
+ * newer Saved Games (Snapshots) API.  The app allows load/update to both services as well as an
+ * example of migrating data from AppState to Snapshots.
+ *
+ * @author Sam Stern (samstern@google.com)
+ */
 public class MainActivity extends Activity implements View.OnClickListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -137,7 +143,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                     SnapshotMetadata selected = Games.Snapshots.getSnapshotFromBundle(bundle);
                     if (selected == null) {
                         // No snapshot in the Intent bundle, display error message
-                        displayMessage("Failed to select Saved Game data.", true);
+                        displayMessage(getString(R.string.saved_games_select_failure), true);
                         setData(null);
                         displaySnapshotMetadata(null);
                     } else {
@@ -148,7 +154,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                 }
             } else {
                 // User canceled the select intent or it failed for some other reason
-                displayMessage("No Saved Game selected.", true);
+                displayMessage(getString(R.string.saved_games_select_cancel), true);
                 setData(null);
                 displaySnapshotMetadata(null);
             }
@@ -217,8 +223,19 @@ public class MainActivity extends Activity implements View.OnClickListener,
         }
     }
 
+    /**
+     * Start the sign-in process after the user clicks the sign-in button.
+     */
     private void beginUserInitiatedSignIn() {
         Log.d(TAG, "beginUserInitiatedSignIn");
+        // Check to see the developer who's running this sample code read the instructions :-)
+        // NOTE: this check is here only because this is a sample! Don't include this
+        // check in your actual production app.
+        if (!BaseGameUtils.verifySampleSetup(this, R.string.app_id)) {
+            Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
+        }
+
+        showProgressDialog("Signing in.");
         mSignInClicked = true;
         mGoogleApiClient.connect();
     }
@@ -237,13 +254,13 @@ public class MainActivity extends Activity implements View.OnClickListener,
             public void onResult(StateResult stateResult) {
                 if (stateResult.getStatus().isSuccess()) {
                     // Successfully loaded data from App State
-                    displayMessage("Loaded from Cloud Save", false);
+                    displayMessage(getString(R.string.cloud_save_load_success), false);
                     byte[] data = stateResult.getLoadedResult().getLocalData();
                     setData(new String(data));
                     displayAppStateMetadata(stateResult.getLoadedResult().getStateKey());
                 } else {
                     // Failed to load data from App State
-                    displayMessage("Failed to load from Cloud Save", true);
+                    displayMessage(getString(R.string.cloud_save_load_failure), true);
                     clearDataUI();
                 }
 
@@ -272,9 +289,9 @@ public class MainActivity extends Activity implements View.OnClickListener,
             @Override
             public void onResult(StateResult stateResult) {
                 if (stateResult.getStatus().isSuccess()) {
-                    displayMessage("Saved to Cloud Save", false);
+                    displayMessage(getString(R.string.cloud_save_update_success), false);
                 } else {
-                    displayMessage("Failed to save to Cloud Save", true);
+                    displayMessage(getString(R.string.cloud_save_update_failure), true);
                 }
 
                 dismissProgressDialog();
@@ -301,7 +318,6 @@ public class MainActivity extends Activity implements View.OnClickListener,
         final String snapshotName = makeSnapshotName(APP_STATE_KEY);
         final String description = "Saved game #" + APP_STATE_KEY;
         final long playedTimeMillis = 60 * 60 * 1000;
-        final byte[] data = getData().getBytes();
         final Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
 
         AsyncTask<Void, Void, Boolean> migrateTask = new AsyncTask<Void, Void, Boolean>() {
@@ -312,6 +328,17 @@ public class MainActivity extends Activity implements View.OnClickListener,
 
             @Override
             protected Boolean doInBackground(Void... params) {
+                // Get AppState Data
+                StateResult load = AppStateManager.load(mGoogleApiClient, APP_STATE_KEY).await();
+
+                if (!load.getStatus().isSuccess()) {
+                    Log.w(TAG, "Could not load App State for migration.");
+                    return false;
+                }
+
+                // Get Data from AppState
+                byte[] data = load.getLoadedResult().getLocalData();
+
                 // Open the snapshot, creating if necessary
                 OpenSnapshotResult open = Games.Snapshots.open(
                         mGoogleApiClient, snapshotName, createIfMissing).await();
@@ -341,8 +368,6 @@ public class MainActivity extends Activity implements View.OnClickListener,
                     return false;
                 }
 
-                // TODO(samstern): Delete data from appstate?
-
                 // No failures
                 return true;
             }
@@ -350,9 +375,9 @@ public class MainActivity extends Activity implements View.OnClickListener,
             @Override
             protected void onPostExecute(Boolean result) {
                 if (result) {
-                    displayMessage("Migrated to Saved Games.", false);
+                    displayMessage(getString(R.string.cloud_save_migrate_success), false);
                 } else {
-                    displayMessage("Failed to migrate to Saved Games.", true);
+                    displayMessage(getString(R.string.cloud_save_migrate_failure), true);
                 }
 
                 dismissProgressDialog();
@@ -384,12 +409,12 @@ public class MainActivity extends Activity implements View.OnClickListener,
             @Override
             public void onResult(OpenSnapshotResult openSnapshotResult) {
                 if (openSnapshotResult.getStatus().isSuccess()) {
-                    displayMessage("Loaded from Saved Games", false);
+                    displayMessage(getString(R.string.saved_games_load_success), false);
                     byte[] data = openSnapshotResult.getSnapshot().readFully();
                     setData(new String(data));
                     displaySnapshotMetadata(openSnapshotResult.getSnapshot().getMetadata());
                 } else {
-                    displayMessage("Failed to load from Saved Games", true);
+                    displayMessage(getString(R.string.saved_games_load_failure), true);
                     clearDataUI();
                 }
 
@@ -462,9 +487,9 @@ public class MainActivity extends Activity implements View.OnClickListener,
             @Override
             protected void onPostExecute(Boolean result) {
                 if (result) {
-                    displayMessage("Saved to Saved Games", false);
+                    displayMessage(getString(R.string.saved_games_update_success), false);
                 } else {
-                    displayMessage("Failed to save to Saved Games", true);
+                    displayMessage(getString(R.string.saved_games_update_failure), true);
                 }
 
                 dismissProgressDialog();
@@ -483,12 +508,15 @@ public class MainActivity extends Activity implements View.OnClickListener,
         return "Snapshot-" + String.valueOf(appStateKey);
     }
 
+    /**
+     * Display either the signed-in or signed-out view, depending on the user's state.
+     */
     private void updateUI() {
         // Show signed in or signed out view
         if (isSignedIn()) {
             findViewById(R.id.layout_signed_in).setVisibility(View.VISIBLE);
             findViewById(R.id.layout_signed_out).setVisibility(View.GONE);
-            displayMessage("Signed in.", false);
+            displayMessage(getString(R.string.message_signed_in), false);
         } else {
             findViewById(R.id.layout_signed_in).setVisibility(View.GONE);
             findViewById(R.id.layout_signed_out).setVisibility(View.VISIBLE);
@@ -496,6 +524,10 @@ public class MainActivity extends Activity implements View.OnClickListener,
         }
     }
 
+    /**
+     * Replace the data displaying in the EditText.
+     * @param data the String to display.
+     */
     private void setData(String data) {
         EditText dataEditText = (EditText) findViewById(R.id.edit_game_data);
 
@@ -506,11 +538,20 @@ public class MainActivity extends Activity implements View.OnClickListener,
         }
     }
 
+    /**
+     * Get the data from the EditText.
+     * @return the String in the EditText, or "" if empty.
+     */
     private String getData() {
         EditText dataEditText = (EditText) findViewById(R.id.edit_game_data);
         return dataEditText.getText().toString();
     }
 
+    /**
+     * Display a status message for the last operation at the bottom of the screen.
+     * @param msg the message to display.
+     * @param error true if an error occurred, false otherwise.
+     */
     private void displayMessage(String msg, boolean error) {
         // Set text
         TextView messageView = (TextView) findViewById(R.id.text_message);
@@ -524,6 +565,10 @@ public class MainActivity extends Activity implements View.OnClickListener,
         }
     }
 
+    /**
+     * Display metadata about AppState save data,
+     * @param stateKey the slot stateKey of the AppState.
+     */
     private void displayAppStateMetadata(int stateKey) {
         TextView metaDataView = (TextView) findViewById(R.id.text_metadata);
         metaDataView.setText("");
@@ -533,6 +578,10 @@ public class MainActivity extends Activity implements View.OnClickListener,
         metaDataView.setText(metadataStr);
     }
 
+    /**
+     * Display metadata about Snapshot save data.
+     * @param metadata the SnapshotMetadata associated with the saved game.
+     */
     private void displaySnapshotMetadata(SnapshotMetadata metadata) {
         TextView metaDataView = (TextView) findViewById(R.id.text_metadata);
         metaDataView.setText("");
@@ -550,6 +599,9 @@ public class MainActivity extends Activity implements View.OnClickListener,
         metaDataView.setText(metadataStr);
     }
 
+    /**
+     * Clear the data and metadata displays.
+     */
     private void clearDataUI() {
         // Clear the Game Data field and the Metadata field
         EditText dataEditText = (EditText) findViewById(R.id.edit_game_data);
@@ -559,10 +611,18 @@ public class MainActivity extends Activity implements View.OnClickListener,
         metaDataView.setText("");
     }
 
+    /**
+     * Determine if the Google API Client is signed in and ready to access Games APIs.
+     * @return true if client exits and is signed in, false otherwise.
+     */
     private boolean isSignedIn() {
         return (mGoogleApiClient != null && mGoogleApiClient.isConnected());
     }
 
+    /**
+     * Show a progress dialog for asynchronous operations.
+     * @param msg the message to display.
+     */
     private void showProgressDialog(String msg) {
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(this);
@@ -573,6 +633,9 @@ public class MainActivity extends Activity implements View.OnClickListener,
         mProgressDialog.show();
     }
 
+    /**
+     * Hide the progress dialog, if it was showing.
+     */
     private void dismissProgressDialog() {
         if (mProgressDialog != null && mProgressDialog.isShowing()) {
             mProgressDialog.dismiss();

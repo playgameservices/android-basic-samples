@@ -2,14 +2,25 @@
 <resources>
 
     <string name="app_name">SavedGames</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="message_sign_in">Sign-in to begin.</string>
     <string name="update">Update</string>
     <string name="load">Load</string>
     <string name="migrate">Migrate</string>
+    <string name="select">Select</string>
     <string name="signin_other_error">There was an error during sign in.</string>
     <string name="signin_failure">Unable to sign in.  Please check your connection and try again,</string>
-    <string name="select">Select</string>
+    <string name="message_sign_in">Sign-in to begin.</string>
+    <string name="message_signed_in">Signed in.</string>
+    <string name="saved_games_load_success">Loaded from Saved Games.</string>
+    <string name="saved_games_load_failure">Failed to load from Saved Games.</string>
+    <string name="saved_games_update_success">Saved to Saved Games.</string>
+    <string name="saved_games_update_failure">Failed to save to Saved Games</string>
+    <string name="saved_games_select_failure">Failed to select from Saved Games.</string>
+    <string name="saved_games_select_cancel">No Saved Game selected.</string>
+    <string name="cloud_save_load_success">Loaded from Cloud Save.</string>
+    <string name="cloud_save_load_failure">Failed to load from Cloud Save.</string>
+    <string name="cloud_save_update_success">Saved to Cloud Save.</string>
+    <string name="cloud_save_update_failure">Failed to save to Cloud Save.</string>
+    <string name="cloud_save_migrate_success">Migrated to Saved Games.</string>
+    <string name="cloud_save_migrate_failure">Failed to migrate to Saved Games.</string>
 
 </resources>
