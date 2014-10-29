@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SavedGames</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="message_sign_in">Sign-in to begin.</string>
+    <string name="update">Update</string>
+    <string name="load">Load</string>
+    <string name="migrate">Migrate</string>
+    <string name="signin_other_error">There was an error during sign in.</string>
+    <string name="signin_failure">Unable to sign in.  Please check your connection and try again,</string>
+    <string name="select">Select</string>
+
+</resources>
