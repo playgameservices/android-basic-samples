@@ -50,10 +50,11 @@ limitations under the License.
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Game Data:"/>
+                android:text="@string/label_game_data"/>
 
             <EditText
                 android:id="@+id/edit_game_data"
+                android:hint="@string/hint_save_data"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp" />
@@ -61,7 +62,7 @@ limitations under the License.
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Metadata:"/>
+                android:text="@string/label_metadata"/>
 
             <TextView
                 android:id="@+id/text_metadata"
@@ -79,7 +80,7 @@ limitations under the License.
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cloud Save Actions:" />
+                android:text="@string/label_cloud_save" />
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -109,7 +110,7 @@ limitations under the License.
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Saved Game Actions:"/>
+                android:text="@string/label_saved_games"/>
 
             <LinearLayout
                 android:layout_width="fill_parent"

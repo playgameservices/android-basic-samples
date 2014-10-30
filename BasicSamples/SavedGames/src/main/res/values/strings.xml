@@ -34,5 +34,10 @@ limitations under the License.
     <string name="cloud_save_update_failure">Failed to save to Cloud Save.</string>
     <string name="cloud_save_migrate_success">Migrated to Saved Games.</string>
     <string name="cloud_save_migrate_failure">Failed to migrate to Saved Games.</string>
+    <string name="label_game_data">Game Data:</string>
+    <string name="label_metadata">Metadata:</string>
+    <string name="label_cloud_save">Cloud Save Actions:</string>
+    <string name="label_saved_games">Saved Game Actions:</string>
+    <string name="hint_save_data">save data</string>
 
 </resources>

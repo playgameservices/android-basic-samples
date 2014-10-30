@@ -20,9 +20,7 @@ the developer to build a custom selection UI for each app.
 Follow these steps to set up the sample:
 
 1. Update the package name in `AndroidManifest.xml` to be something other than
-`com.google.example.games.savedgames`.
-1. Modify your app folder structure to match your package name.
-1. Replace the package name in `MainActivity.java`.  The package name must be unique; otherwise,
+`com.google.example.games.savedgames`.  The package name must be unique; otherwise,
 the API console cannot link your app correctly.
 1. Create your project in the Google Play Developer Console.
 1. Enable **Saved Games** on the Game Details page when creating your app in order to enable the

@@ -29,7 +29,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.appstate.AppStateManager;
-import com.google.android.gms.appstate.AppStateManager.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -40,7 +39,6 @@ import com.google.android.gms.games.snapshot.Snapshot;
 import com.google.android.gms.games.snapshot.SnapshotMetadata;
 import com.google.android.gms.games.snapshot.SnapshotMetadataChange;
 import com.google.android.gms.games.snapshot.Snapshots;
-import com.google.android.gms.games.snapshot.Snapshots.*;
 import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
@@ -227,7 +225,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                 cloudSaveMigrate();
                 break;
             case R.id.button_saved_games_load:
-                savedGamesLoad();
+                savedGamesLoad(makeSnapshotName(APP_STATE_KEY));
                 break;
             case R.id.button_saved_games_update:
                 savedGamesUpdate();
@@ -260,13 +258,14 @@ public class MainActivity extends Activity implements View.OnClickListener,
      * the AppState data and metadata will be displayed.
      */
     private void cloudSaveLoad() {
-        PendingResult<StateResult> pendingResult = AppStateManager.load(
+        PendingResult<AppStateManager.StateResult> pendingResult = AppStateManager.load(
                 mGoogleApiClient, APP_STATE_KEY);
 
         showProgressDialog("Loading Cloud Save");
-        ResultCallback<StateResult> callback = new ResultCallback<StateResult>() {
+        ResultCallback<AppStateManager.StateResult> callback =
+                new ResultCallback<AppStateManager.StateResult>() {
             @Override
-            public void onResult(StateResult stateResult) {
+            public void onResult(AppStateManager.StateResult stateResult) {
                 if (stateResult.getStatus().isSuccess()) {
                     // Successfully loaded data from App State
                     displayMessage(getString(R.string.cloud_save_load_success), false);
@@ -296,13 +295,14 @@ public class MainActivity extends Activity implements View.OnClickListener,
         // Use updateImmediate to update the AppState data.  This is used for diagnostic purposes
         // so that the app can display the result of the update, however it is generally recommended
         // to use AppStateManager.update(...) in order to reduce performance and battery impact.
-        PendingResult<StateResult> pendingResult = AppStateManager.updateImmediate(
+        PendingResult<AppStateManager.StateResult> pendingResult = AppStateManager.updateImmediate(
                 mGoogleApiClient, APP_STATE_KEY, data);
 
         showProgressDialog("Updating Cloud Save");
-        ResultCallback<StateResult> callback = new ResultCallback<StateResult>() {
+        ResultCallback<AppStateManager.StateResult> callback =
+                new ResultCallback<AppStateManager.StateResult>() {
             @Override
-            public void onResult(StateResult stateResult) {
+            public void onResult(AppStateManager.StateResult stateResult) {
                 if (stateResult.getStatus().isSuccess()) {
                     displayMessage(getString(R.string.cloud_save_update_success), false);
                 } else {
@@ -344,7 +344,8 @@ public class MainActivity extends Activity implements View.OnClickListener,
             @Override
             protected Boolean doInBackground(Void... params) {
                 // Get AppState Data
-                StateResult load = AppStateManager.load(mGoogleApiClient, APP_STATE_KEY).await();
+                AppStateManager.StateResult load = AppStateManager.load(
+                        mGoogleApiClient, APP_STATE_KEY).await();
 
                 if (!load.getStatus().isSuccess()) {
                     Log.w(TAG, "Could not load App State for migration.");
@@ -355,7 +356,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                 byte[] data = load.getLoadedResult().getLocalData();
 
                 // Open the snapshot, creating if necessary
-                OpenSnapshotResult open = Games.Snapshots.open(
+                Snapshots.OpenSnapshotResult open = Games.Snapshots.open(
                         mGoogleApiClient, snapshotName, createIfMissing).await();
 
                 if (!open.getStatus().isSuccess()) {
@@ -375,7 +376,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                         .setPlayedTimeMillis(playedTimeMillis)
                         .build();
 
-                CommitSnapshotResult commit = Games.Snapshots.commitAndClose(
+                Snapshots.CommitSnapshotResult commit = Games.Snapshots.commitAndClose(
                         mGoogleApiClient, snapshot, metadataChange).await();
 
                 if (!commit.getStatus().isSuccess()) {
@@ -403,14 +404,6 @@ public class MainActivity extends Activity implements View.OnClickListener,
     }
 
     /**
-     * See {@link com.google.example.games.savedgames.MainActivity#savedGamesLoad(String)}.
-     */
-    private void savedGamesLoad() {
-        final String snapshotName = makeSnapshotName(APP_STATE_KEY);
-        savedGamesLoad(snapshotName);
-    }
-
-    /**
      * Load a Snapshot from the Saved Games service based on its unique name.  After load, the UI
      * will update to display the Snapshot data and SnapshotMetadata.
      * @param snapshotName the unique name of the Snapshot.
@@ -420,9 +413,10 @@ public class MainActivity extends Activity implements View.OnClickListener,
                 mGoogleApiClient, snapshotName, false);
 
         showProgressDialog("Loading Saved Game");
-        ResultCallback<OpenSnapshotResult> callback = new ResultCallback<OpenSnapshotResult>() {
+        ResultCallback<Snapshots.OpenSnapshotResult> callback =
+                new ResultCallback<Snapshots.OpenSnapshotResult>() {
             @Override
-            public void onResult(OpenSnapshotResult openSnapshotResult) {
+            public void onResult(Snapshots.OpenSnapshotResult openSnapshotResult) {
                 if (openSnapshotResult.getStatus().isSuccess()) {
                     displayMessage(getString(R.string.saved_games_load_success), false);
                     byte[] data = openSnapshotResult.getSnapshot().readFully();
@@ -475,7 +469,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
 
             @Override
             protected Boolean doInBackground(Void... params) {
-                OpenSnapshotResult open = Games.Snapshots.open(
+                Snapshots.OpenSnapshotResult open = Games.Snapshots.open(
                         mGoogleApiClient, snapshotName, createIfMissing).await();
 
                 if (!open.getStatus().isSuccess()) {
@@ -487,7 +481,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                 Snapshot snapshot = open.getSnapshot();
                 snapshot.writeBytes(data);
 
-                CommitSnapshotResult commit = Games.Snapshots.commitAndClose(
+                Snapshots.CommitSnapshotResult commit = Games.Snapshots.commitAndClose(
                         mGoogleApiClient, snapshot, SnapshotMetadataChange.EMPTY_CHANGE).await();
 
                 if (!commit.getStatus().isSuccess()) {
@@ -586,7 +580,6 @@ public class MainActivity extends Activity implements View.OnClickListener,
      */
     private void displayAppStateMetadata(int stateKey) {
         TextView metaDataView = (TextView) findViewById(R.id.text_metadata);
-        metaDataView.setText("");
 
         String metadataStr = "Source: Cloud Save" + '\n'
                 + "State Key: " + stateKey;
@@ -599,9 +592,9 @@ public class MainActivity extends Activity implements View.OnClickListener,
      */
     private void displaySnapshotMetadata(SnapshotMetadata metadata) {
         TextView metaDataView = (TextView) findViewById(R.id.text_metadata);
-        metaDataView.setText("");
 
         if (metadata == null) {
+            metaDataView.setText("");
             return;
         }
 
