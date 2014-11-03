@@ -12,7 +12,7 @@ if NOT exist eclipse_compat mkdir eclipse_compat
 
 echo "Converting each sample"
 
-for %%i in (BeGenerous ButtonClicker TypeANumber CollectAllTheStars2 TrivialQuest TrivialQuest2 SkeletonTbmp libraries\BaseGameUtils) do (
+for %%i in (BeGenerous ButtonClicker TypeANumber CollectAllTheStars2 TrivialQuest TrivialQuest2 SkeletonTbmp SavedGames libraries\BaseGameUtils) do (
     echo "Preparing %%i..."
     if NOT exist  eclipse_compat\%%i mkdir  eclipse_compat\%%i
     copy BasicSamples\%%i\src\main\AndroidManifest.xml eclipse_compat\%%i
