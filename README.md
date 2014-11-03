@@ -25,6 +25,7 @@ created and sent to Google Play Games to track what the player is doing in game.
 
    * **BeGenerous** Send gifts and game requests to other players of BeGenerous.
 
+   * **SavedGames**. Demonstrates the used of Saved Games (Snapshots) feature and how to migrate data from the older Cloud Save (AppState) service to the newer service.  The sample allows the user to save/load data from both Cloud Save and Saved Games.
 
 **Note:** the samples that have corresponding counterparts for iOS and web (particularly, CollectAllTheStars and TypeANumber) are compatible across the platforms. This means that you can play some levels on CollectAllTheStars on your Android device, and then pick up your iOS device and continue where you left off! For TypeANumber, you will see your achievements and leaderboards on all platforms, and progress obtained on one will be reflected on the others.
 

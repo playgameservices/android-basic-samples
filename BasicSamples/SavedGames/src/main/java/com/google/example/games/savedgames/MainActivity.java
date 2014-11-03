@@ -86,17 +86,16 @@ public class MainActivity extends Activity implements View.OnClickListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Build API client with access to Plus, Games, AppState, and SavedGames.
+        // Build API client with access to Games, AppState, and SavedGames.
         // It is very important to add Drive or the SavedGames API will not work
         // Make sure to also go to console.developers.google.com and enable the Drive API for your
         // project
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
-                .addApi(Games.API).addScope(Games.SCOPE_GAMES)
+                .addApi(Games.API).addScope(Games.SCOPE_GAMES) // Games
                 .addApi(AppStateManager.API).addScope(AppStateManager.SCOPE_APP_STATE) // AppState
-                .addApi(Drive.API).addScope(Drive.SCOPE_APPFOLDER) // SavedGames
+                .addScope(Drive.SCOPE_APPFOLDER) // SavedGames
                 .build();
 
         // Set up button listeners
@@ -326,10 +325,15 @@ public class MainActivity extends Activity implements View.OnClickListener,
     private void cloudSaveMigrate() {
         final boolean createIfMissing = true;
 
+        // Note: when migrating your users from Cloud Save to Saved Games, you will need to perform
+        // the migration process at most once per device.  You should keep track of the migration
+        // status locally for each AppState data slot (using SharedPreferences or similar)
+        // to avoid repeating network calls or migrating the same AppState data multiple times.
+
         // Compute SnapshotMetadata fields based on the information available from AppState.  In
         // this case there is no data available to auto-generate a description, cover image, or
-        // playedTime.  It is strongly recommended that you generate unique values for these
-        // fields based on the data in your app.
+        // playedTime.  It is strongly recommended that you generate unique and meaningful
+        // values for these fields based on the data in your app.
         final String snapshotName = makeSnapshotName(APP_STATE_KEY);
         final String description = "Saved game #" + APP_STATE_KEY;
         final long playedTimeMillis = 60 * 60 * 1000;
@@ -361,6 +365,11 @@ public class MainActivity extends Activity implements View.OnClickListener,
 
                 if (!open.getStatus().isSuccess()) {
                     Log.w(TAG, "Could not open Snapshot for migration.");
+                    // TODO: Handle Snapshot conflicts
+                    // Note: one reason for failure to open a Snapshot is conflicting saved games.
+                    // This is outside the scope of this sample, however you should resolve such
+                    // conflicts in your own app by following the steps outlined here:
+                    // https://developers.google.com/games/services/android/savedgames#handling_saved_game_conflicts
                     return false;
                 }
 
