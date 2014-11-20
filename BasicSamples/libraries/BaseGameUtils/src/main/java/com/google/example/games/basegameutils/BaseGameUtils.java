@@ -3,11 +3,7 @@ package com.google.example.games.basegameutils;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.IntentSender;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
-import android.content.res.Resources;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -15,18 +11,34 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.GamesActivityResultCodes;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 public class BaseGameUtils {
+
+    /**
+     * Show an {@link android.app.AlertDialog} with an 'OK' button and a message.
+     *
+     * @param activity the Activity in which the Dialog should be displayed.
+     * @param message the message to display in the Dialog.
+     */
     public static void showAlert(Activity activity, String message) {
         (new AlertDialog.Builder(activity)).setMessage(message)
                 .setNeutralButton(android.R.string.ok, null).create().show();
     }
 
+    /**
+     * Resolve a connection failure from
+     * {@link com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener#onConnectionFailed(com.google.android.gms.common.ConnectionResult)}
+     *
+     * @param activity the Activity trying to resolve the connection failure.
+     * @param client the GoogleAPIClient instance of the Activity.
+     * @param result the ConnectionResult received by the Activity.
+     * @param requestCode a request code which the calling Activity can use to identify the result
+     *                    of this resolution in onActivityResult.
+     * @param fallbackErrorMessage a generic error message to display if the failure cannot be resolved.
+     * @return true if the connection failure is resolved, false otherwise.
+     */
     public static boolean resolveConnectionFailure(Activity activity,
-                GoogleApiClient client, ConnectionResult result, int requestCode,
-                int fallbackErrorMessageResId) {
+                                                   GoogleApiClient client, ConnectionResult result, int requestCode,
+                                                   String fallbackErrorMessage) {
 
         if (result.hasResolution()) {
             try {
@@ -47,7 +59,7 @@ public class BaseGameUtils {
                 dialog.show();
             } else {
                 // no built-in dialog: show the fallback error message
-                showAlert(activity, activity.getString(fallbackErrorMessageResId));
+                showAlert(activity, fallbackErrorMessage);
             }
             return false;
         }
@@ -67,7 +79,7 @@ public class BaseGameUtils {
         problems.append("The following set up problems were found:\n\n");
 
         // Did the developer forget to change the package name?
-        if (activity.getPackageName().startsWith("com.google.")) {
+        if (activity.getPackageName().startsWith("com.google.example.games")) {
             problemFound = true;
             problems.append("- Package name cannot be com.google.*. You need to change the "
                     + "sample's package name to your own package.").append("\n");
@@ -91,109 +103,82 @@ public class BaseGameUtils {
         return true;
     }
 
-    private static final String APP_MISCONFIGURED_MESSAGE = "ERROR: The application is " +
-            "misconfigured. This is most likely due to a mismatch between your package " +
-            "name, your APP ID and your signing certificate. They must match " +
-            "the Client ID you created in the Developer Console.\n\nPlease refer to the " +
-            "logs for detailed information to help diagnose the problem.";
-
-    public static void showActivityResultError(Activity activity, int resultCode,
-                int signInFailureMessageResId, int fallbackErrorMessageResId) {
-        switch (resultCode) {
-            case Activity.RESULT_CANCELED:
-                // (fall through)
-            case Activity.RESULT_OK:
-                // no error message
-                break;
-            case GamesActivityResultCodes.RESULT_APP_MISCONFIGURED:
-                printMisconfiguredDebugInfo(activity);
-                showAlert(activity, APP_MISCONFIGURED_MESSAGE);
-                break;
-            case GamesActivityResultCodes.RESULT_SIGN_IN_FAILED:
-                showAlert(activity, activity.getString(signInFailureMessageResId));
-                break;
-            default:
-                showAlert(activity, activity.getString(fallbackErrorMessageResId));
-                break;
-        }
-    }
-
-    static void printMisconfiguredDebugInfo(Context ctx) {
-        Log.w("GameHelper", "****");
-        Log.w("GameHelper", "****");
-        Log.w("GameHelper", "**** APP NOT CORRECTLY CONFIGURED TO USE GOOGLE PLAY GAME SERVICES");
-        Log.w("GameHelper", "**** This is usually caused by one of these reasons:");
-        Log.w("GameHelper", "**** (1) Your package name and certificate fingerprint do not match");
-        Log.w("GameHelper", "****     the client ID you registered in Developer Console.");
-        Log.w("GameHelper", "**** (2) Your App ID was incorrectly entered.");
-        Log.w("GameHelper", "**** (3) Your game settings have not been published and you are ");
-        Log.w("GameHelper", "****     trying to log in with an account that is not listed as");
-        Log.w("GameHelper", "****     a test account.");
-        Log.w("GameHelper", "****");
-        if (ctx == null) {
-            Log.w("GameHelper", "*** (no Context, so can't print more debug info)");
+    /**
+     * Show a {@link android.app.Dialog} with the correct message for a connection error.
+     *
+     * @param activity the Activity in which the Dialog should be displayed.
+     * @param requestCode the request code from onActivityResult.
+     * @param actResp the response code from onActivityResult.
+     * @param errorCode the resource id of a String for an 'Unable to sign in' error message,
+     * @param errorDescription the resource id of a String for a generic error message.
+     */
+    public static void showActivityResultError(Activity activity, int requestCode, int actResp,
+                                               int errorCode, int errorDescription) {
+        if (activity == null) {
+            Log.e("BaseGameUtils", "*** No Activity. Can't show failure dialog!");
             return;
         }
+        Dialog errorDialog;
 
-        Log.w("GameHelper", "**** To help you debug, here is the information about this app");
-        Log.w("GameHelper", "**** Package name         : " + ctx.getPackageName());
-        Log.w("GameHelper", "**** Cert SHA1 fingerprint: " + getSHA1CertFingerprint(ctx));
-        Log.w("GameHelper", "**** App ID from          : " + getAppIdFromResource(ctx));
-        Log.w("GameHelper", "****");
-        Log.w("GameHelper", "**** Check that the above information matches your setup in ");
-        Log.w("GameHelper", "**** Developer Console. Also, check that you're logging in with the");
-        Log.w("GameHelper", "**** right account (it should be listed in the Testers section if");
-        Log.w("GameHelper", "**** your project is not yet published).");
-        Log.w("GameHelper", "****");
-        Log.w("GameHelper", "**** For more information, refer to the troubleshooting guide:");
-        Log.w("GameHelper", "****   http://developers.google.com/games/services/android/troubleshooting");
-    }
-
-    static String getAppIdFromResource(Context ctx) {
-        try {
-            Resources res = ctx.getResources();
-            String pkgName = ctx.getPackageName();
-            int res_id = res.getIdentifier("app_id", "string", pkgName);
-            return res.getString(res_id);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return "??? (failed to retrieve APP ID)";
-        }
-    }
-
-    static String getSHA1CertFingerprint(Context ctx) {
-        try {
-            Signature[] sigs = ctx.getPackageManager().getPackageInfo(
-                    ctx.getPackageName(), PackageManager.GET_SIGNATURES).signatures;
-            if (sigs.length == 0) {
-                return "ERROR: NO SIGNATURE.";
-            } else if (sigs.length > 1) {
-                return "ERROR: MULTIPLE SIGNATURES";
-            }
-            byte[] digest = MessageDigest.getInstance("SHA1").digest(sigs[0].toByteArray());
-            StringBuilder hexString = new StringBuilder();
-            for (int i = 0; i < digest.length; ++i) {
-                if (i > 0) {
-                    hexString.append(":");
+        switch (actResp) {
+            case GamesActivityResultCodes.RESULT_APP_MISCONFIGURED:
+                errorDialog = makeSimpleDialog(activity,
+                        activity.getString(R.string.gamehelper_app_misconfigured));
+                break;
+            case GamesActivityResultCodes.RESULT_SIGN_IN_FAILED:
+                errorDialog = makeSimpleDialog(activity,
+                        activity.getString(R.string.gamehelper_sign_in_failed));
+                break;
+            case GamesActivityResultCodes.RESULT_LICENSE_FAILED:
+                errorDialog = makeSimpleDialog(activity,
+                        activity.getString(R.string.gamehelper_license_failed));
+                break;
+            default:
+                // No meaningful Activity response code, so generate default Google
+                // Play services dialog
+                errorDialog = GooglePlayServicesUtil.getErrorDialog(errorCode,
+                        activity, requestCode, null);
+                if (errorDialog == null) {
+                    // get fallback dialog
+                    Log.e("BaseGamesUtils",
+                            "No standard error dialog available. Making fallback dialog.");
+                    errorDialog = makeSimpleDialog(
+                            activity,
+                            activity.getString(errorCode)
+                                    + " "
+                                    + activity.getString(errorDescription));
                 }
-                byteToString(hexString, digest[i]);
-            }
-            return hexString.toString();
-
-        } catch (PackageManager.NameNotFoundException ex) {
-            ex.printStackTrace();
-            return "(ERROR: package not found)";
-        } catch (NoSuchAlgorithmException ex) {
-            ex.printStackTrace();
-            return "(ERROR: SHA1 algorithm not found)";
         }
+
+        errorDialog.show();
     }
 
-    static void byteToString(StringBuilder sb, byte b) {
-        int unsigned_byte = b < 0 ? b + 256 : b;
-        int hi = unsigned_byte / 16;
-        int lo = unsigned_byte % 16;
-        sb.append("0123456789ABCDEF".substring(hi, hi + 1));
-        sb.append("0123456789ABCDEF".substring(lo, lo + 1));
+    /**
+     * Create a simple {@link Dialog} with an 'OK' button and a message.
+     *
+     * @param activity the Activity in which the Dialog should be displayed.
+     * @param text the message to display on the Dialog.
+     * @return an instance of {@link android.app.AlertDialog}
+     */
+    public static Dialog makeSimpleDialog(Activity activity, String text) {
+        return (new AlertDialog.Builder(activity)).setMessage(text)
+                .setNeutralButton(android.R.string.ok, null).create();
     }
+
+    /**
+     * Create a simple {@link Dialog} with an 'OK' button, a title, and a message.
+     *
+     * @param activity the Activity in which the Dialog should be displayed.
+     * @param title the title to display on the dialog.
+     * @param text the message to display on the Dialog.
+     * @return an instance of {@link android.app.AlertDialog}
+     */
+    public static Dialog makeSimpleDialog(Activity activity, String title, String text) {
+        return (new AlertDialog.Builder(activity))
+                .setTitle(title)
+                .setMessage(text)
+                .setNeutralButton(android.R.string.ok, null)
+                .create();
+    }
+
 }

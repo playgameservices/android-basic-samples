@@ -57,7 +57,7 @@ public class SkeletonTurn {
 
         Log.d(TAG, "==== PERSISTING\n" + st);
 
-        return st.getBytes(Charset.forName("UTF-16"));
+        return st.getBytes(Charset.forName("UTF-8"));
     }
 
     // Creates a new instance of SkeletonTurn.
@@ -70,7 +70,7 @@ public class SkeletonTurn {
 
         String st = null;
         try {
-            st = new String(byteArray, "UTF-16");
+            st = new String(byteArray, "UTF-8");
         } catch (UnsupportedEncodingException e1) {
             e1.printStackTrace();
             return null;

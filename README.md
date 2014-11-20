@@ -25,6 +25,7 @@ created and sent to Google Play Games to track what the player is doing in game.
 
    * **BeGenerous** Send gifts and game requests to other players of BeGenerous.
 
+   * **SavedGames**. Demonstrates the used of Saved Games (Snapshots) feature and how to migrate data from the older Cloud Save (AppState) service to the newer service.  The sample allows the user to save/load data from both Cloud Save and Saved Games.
 
 **Note:** the samples that have corresponding counterparts for iOS and web (particularly, CollectAllTheStars and TypeANumber) are compatible across the platforms. This means that you can play some levels on CollectAllTheStars on your Android device, and then pick up your iOS device and continue where you left off! For TypeANumber, you will see your achievements and leaderboards on all platforms, and progress obtained on one will be reflected on the others.
 
@@ -48,10 +49,11 @@ Pick a set of instructions below depending on whether you're using Eclipse or An
 
 <h3>If you're using Eclipse...</h3>
 
+1. From the command line run Scripts/make_eclipse_compat (or Scripts/make_eclipse_compat.cmd on Windows).  This creates the directory structure needed to import the projects correctly.
 1. Start Eclipse
 1. Import the Google Play Services library project (available for download through the SDK manager):
     1. Click **File | Import | Android | Existing Android Code into Workspace**
-    1. Select `SDK/extras/google/google_play_services/google_play_services_lib` (where `SDK` stands for the path where you installed your Android SDK)
+    1. Select `SDK/extras/google/libproject/google_play_services/google_play_services_lib` (where `SDK` stands for the path where you installed your Android SDK)
     1. Click **Finish**
 1. Import `eclipse_compat/libraries/BaseGameUtils` **as a library**
     1. Click **File | Import | Android | Existing Android Code into Workspace**
