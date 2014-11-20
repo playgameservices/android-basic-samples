@@ -123,15 +123,15 @@ public class BaseGameUtils {
         switch (actResp) {
             case GamesActivityResultCodes.RESULT_APP_MISCONFIGURED:
                 errorDialog = makeSimpleDialog(activity,
-                        activity.getString(R.string.gamehelper_app_misconfigured));
+                        activity.getString(R.string.app_misconfigured));
                 break;
             case GamesActivityResultCodes.RESULT_SIGN_IN_FAILED:
                 errorDialog = makeSimpleDialog(activity,
-                        activity.getString(R.string.gamehelper_sign_in_failed));
+                        activity.getString(R.string.sign_in_failed));
                 break;
             case GamesActivityResultCodes.RESULT_LICENSE_FAILED:
                 errorDialog = makeSimpleDialog(activity,
-                        activity.getString(R.string.gamehelper_license_failed));
+                        activity.getString(R.string.license_failed));
                 break;
             default:
                 // No meaningful Activity response code, so generate default Google
