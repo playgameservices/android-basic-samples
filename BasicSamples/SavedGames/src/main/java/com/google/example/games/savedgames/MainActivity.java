@@ -39,7 +39,6 @@ import com.google.android.gms.games.snapshot.Snapshot;
 import com.google.android.gms.games.snapshot.SnapshotMetadata;
 import com.google.android.gms.games.snapshot.SnapshotMetadataChange;
 import com.google.android.gms.games.snapshot.Snapshots;
-import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
 /**
@@ -143,8 +142,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                 // There was an error during sign-in, display a Dialog with the appropriate message
                 // to the user.
                 Log.d(TAG, "onActivityResult: RC_SIGN_IN (Error)");
-                BaseGameUtils.showActivityResultError(this, requestCode, resultCode,
-                        R.string.signin_failure, R.string.signin_other_error);
+                BaseGameUtils.showActivityResultError(this, requestCode, resultCode, R.string.signin_other_error);
             }
         } else if (requestCode == RC_SELECT_SNAPSHOT) {
             Log.d(TAG, "onActivityResult: RC_SELECT_SNAPSHOT, resultCode = " + resultCode);

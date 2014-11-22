@@ -155,8 +155,7 @@ public class MainActivity extends Activity
             if (resultCode == RESULT_OK) {
                 mGoogleApiClient.connect();
             } else {
-                BaseGameUtils.showActivityResultError(this, requestCode, resultCode,
-                        R.string.signin_failure, R.string.signin_other_error);
+                BaseGameUtils.showActivityResultError(this, requestCode, resultCode, R.string.signin_other_error);
             }
         }
         // the standard snapshot selection intent
