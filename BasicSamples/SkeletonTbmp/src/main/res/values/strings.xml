@@ -20,7 +20,6 @@
     <string name="check_games">Check games</string>
     <string name="start_match">Start Match</string>
     <string name="turn_counter">Turn counter</string>
-    <string name="signin_failure">Unable to sign in. Check your internet connection and try again later.</string>
     <string name="signin_other_error">There was an issue with sign in.  Please try again later.</string>
 
 </resources>

@@ -19,7 +19,6 @@ limitations under the License.
     <string name="migrate">Migrate</string>
     <string name="select">Select</string>
     <string name="signin_other_error">There was an error during sign in.</string>
-    <string name="signin_failure">Unable to sign in.  Please check your connection and try again,</string>
     <string name="message_sign_in">Sign-in to begin.</string>
     <string name="message_signed_in">Signed in.</string>
     <string name="saved_games_load_success">Loaded from Saved Games.</string>

@@ -259,8 +259,7 @@ public class MainActivity extends Activity
                 if (responseCode == RESULT_OK) {
                   mGoogleApiClient.connect();
                 } else {
-                  BaseGameUtils.showActivityResultError(this,requestCode,responseCode,
-                      R.string.signin_failure, R.string.signin_other_error);
+                  BaseGameUtils.showActivityResultError(this,requestCode,responseCode, R.string.signin_other_error);
                 }
                 break;
         }
