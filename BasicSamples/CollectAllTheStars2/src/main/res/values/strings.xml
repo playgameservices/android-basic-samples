@@ -35,7 +35,6 @@
     <string name="menu_sync">Load</string>
     <string name="menu_save">Save</string>
     <string name="menu_select">Select</string>
-    <string name="signin_failure">Unable to sign in. Check your internet connection and try again later.</string>
     <string name="signin_other_error">There was an issue with sign in. Please try again later.</string>
     <string name="title_saved_games">"Saved Games"</string>
     <string name="title_load_game">Select saved game to load</string>
