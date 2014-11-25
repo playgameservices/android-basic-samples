@@ -15,7 +15,9 @@
 
 package com.google.example.games.bg;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -142,8 +144,7 @@ public class BeGenerousActivity extends Activity
 
             // load the image in the background.
             new DownloadImageTask(vw).execute(url);
-            vw.setVisibility(View.VISIBLE);
-        }
+         }
         String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
         TextView emailView = (TextView)findViewById((R.id.playerEmail));
         emailView.setText(email);
@@ -165,15 +166,16 @@ public class BeGenerousActivity extends Activity
             Bitmap mIcon11 = null;
             String url = strings[0];
             try {
-                InputStream in = new java.net.URL(url).openStream();
+                InputStream in = new URL(url).openStream();
                 mIcon11 = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 Log.e(TAG, e.getMessage());
             }
             return mIcon11;
         }
         protected void onPostExecute(Bitmap result) {
             bmImage.setImageBitmap(result);
+            bmImage.setVisibility(View.VISIBLE);
         }
     }
 
