@@ -15,6 +15,9 @@
 
 package com.google.example.games.bg;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -24,9 +27,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +41,7 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesActivityResultCodes;
+import com.google.android.gms.games.Player;
 import com.google.android.gms.games.request.GameRequest;
 import com.google.android.gms.games.request.GameRequestBuffer;
 import com.google.android.gms.games.request.OnRequestReceivedListener;
@@ -115,13 +121,64 @@ public class BeGenerousActivity extends Activity
     private void showSignInBar() {
         findViewById(R.id.sign_in_bar).setVisibility(View.VISIBLE);
         findViewById(R.id.sign_out_bar).setVisibility(View.GONE);
+        ImageView vw = (ImageView) findViewById(R.id.avatar);
+        vw.setImageBitmap(null);
+        TextView name = (TextView)findViewById(R.id.playerName);
+        name.setText("");
+        TextView email = (TextView)findViewById((R.id.playerEmail));
+        email.setText("");
+
     }
 
     // Shows the "sign out" bar (explanation and button).
     private void showSignOutBar() {
         findViewById(R.id.sign_in_bar).setVisibility(View.GONE);
         findViewById(R.id.sign_out_bar).setVisibility(View.VISIBLE);
+
+        Player player = Games.Players.getCurrentPlayer(mGoogleApiClient);
+        String url = player.getIconImageUrl();
+        TextView name = (TextView)findViewById(R.id.playerName);
+        name.setText(player.getDisplayName());
+        if (url != null) {
+            ImageView vw = (ImageView) findViewById(R.id.avatar);
+
+            // load the image in the background.
+            new DownloadImageTask(vw).execute(url);
+         }
+        String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
+        TextView emailView = (TextView)findViewById((R.id.playerEmail));
+        emailView.setText(email);
     }
+
+    /**
+     * AsyncTask to download an image from a URL and set the image to the
+     * ImageView that is passed in on the constructor.
+     */
+    class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... strings) {
+            Bitmap mIcon11 = null;
+            String url = strings[0];
+            try {
+                InputStream in = new URL(url).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (IOException e) {
+                Log.e(TAG, e.getMessage());
+            }
+            return mIcon11;
+        }
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+            bmImage.setVisibility(View.VISIBLE);
+        }
+    }
+
 
     // Called back after you load the current requests
     private final ResultCallback<Requests.LoadRequestsResult> mLoadRequestsCallback =

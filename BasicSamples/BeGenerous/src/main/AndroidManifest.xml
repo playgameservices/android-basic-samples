@@ -34,6 +34,16 @@
         android:minSdkVersion="9"
         android:targetSdkVersion="19" />
 
+    <!-- used to download the player's image.  If you don't need the user's image,
+        this permission can be removed.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- used to get the player's email address (aka accountName).  If you don't need the
+        the user's email, this permission can be removed.
+    -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
