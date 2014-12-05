@@ -17,5 +17,5 @@
 
 <resources>
     <!-- Replace by your app ID -->
-    <string name="app_id">REPLACE_ME</string>
+    <string name="app_id">ReplaceMe</string>
 </resources>

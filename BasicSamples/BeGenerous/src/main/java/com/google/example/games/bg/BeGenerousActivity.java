@@ -39,6 +39,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.games.Game;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.Player;
@@ -179,6 +180,20 @@ public class BeGenerousActivity extends Activity
         }
     }
 
+    // Count GameRequests in a GameRequestBuffer that have not yet expired
+    private int countNotExpired(GameRequestBuffer buf) {
+        if (buf == null) {
+            return 0;
+        }
+
+        int giftCount = 0;
+        for (GameRequest gr : buf) {
+            if (gr.getExpirationTimestamp() > System.currentTimeMillis()) {
+                giftCount++;
+            }
+        }
+        return giftCount;
+    }
 
     // Called back after you load the current requests
     private final ResultCallback<Requests.LoadRequestsResult> mLoadRequestsCallback =
@@ -186,18 +201,9 @@ public class BeGenerousActivity extends Activity
 
                 @Override
                 public void onResult(LoadRequestsResult result) {
-                    int giftCount = 0;
-                    int wishCount = 0;
-                    GameRequestBuffer buf;
-                    buf = result.getRequests(GameRequest.TYPE_GIFT);
-                    if (null != buf) {
-                        giftCount = buf.getCount();
-                    }
-                    buf = result.getRequests(GameRequest.TYPE_WISH);
-                    if (null != buf) {
-                        wishCount = buf.getCount();
-                    }
-                    // Update the counts in the layout
+                    int giftCount = countNotExpired(result.getRequests(GameRequest.TYPE_GIFT));
+                    int wishCount = countNotExpired(result.getRequests(GameRequest.TYPE_WISH));
+
                     ((TextView) findViewById(R.id.tv_gift_count)).setText(String
                             .format(getString(R.string.gift_count), giftCount));
                     ((TextView) findViewById(R.id.tv_request_count)).setText(String
