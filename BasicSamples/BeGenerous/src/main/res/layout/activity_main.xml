@@ -66,9 +66,32 @@
             android:src="@drawable/ic_send_gift" />
 
     </RelativeLayout>
-    
+
+    <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:id="@+id/avatar"
+            android:layout_gravity="center_horizontal"/>
+
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/playerName"
+            android:layout_gravity="center_horizontal"
+           />
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/playerEmail"
+            android:layout_gravity="center_horizontal"
+            />
+
     <!-- MAIN DISPLAY -->
     <RelativeLayout style="@style/MainDisplay">
+
 
         <ImageButton
             android:id="@+id/button_send_gift"
@@ -89,7 +112,7 @@
             android:src="@drawable/ic_open_inbox"
             android:layout_toRightOf="@id/button_send_request" />
 
-        
+
     </RelativeLayout>
 
     <!-- SIGN-IN BAR -->

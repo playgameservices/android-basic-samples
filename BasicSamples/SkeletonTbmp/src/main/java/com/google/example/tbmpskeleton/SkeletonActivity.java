@@ -429,8 +429,7 @@ public class SkeletonActivity extends Activity
             if (response == Activity.RESULT_OK) {
                 mGoogleApiClient.connect();
             } else {
-                BaseGameUtils.showActivityResultError(this, request, response,
-                        R.string.signin_failure, R.string.signin_other_error);
+                BaseGameUtils.showActivityResultError(this, request, response, R.string.signin_other_error);
             }
         } else if (request == RC_LOOK_AT_MATCHES) {
             // Returning from the 'Select Match' dialog

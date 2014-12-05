@@ -105,15 +105,12 @@ public class BaseGameUtils {
 
     /**
      * Show a {@link android.app.Dialog} with the correct message for a connection error.
-     *
-     * @param activity the Activity in which the Dialog should be displayed.
+     *  @param activity the Activity in which the Dialog should be displayed.
      * @param requestCode the request code from onActivityResult.
      * @param actResp the response code from onActivityResult.
-     * @param errorCode the resource id of a String for an 'Unable to sign in' error message,
      * @param errorDescription the resource id of a String for a generic error message.
      */
-    public static void showActivityResultError(Activity activity, int requestCode, int actResp,
-                                               int errorCode, int errorDescription) {
+    public static void showActivityResultError(Activity activity, int requestCode, int actResp, int errorDescription) {
         if (activity == null) {
             Log.e("BaseGameUtils", "*** No Activity. Can't show failure dialog!");
             return;
@@ -136,17 +133,14 @@ public class BaseGameUtils {
             default:
                 // No meaningful Activity response code, so generate default Google
                 // Play services dialog
+                final int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
                 errorDialog = GooglePlayServicesUtil.getErrorDialog(errorCode,
                         activity, requestCode, null);
                 if (errorDialog == null) {
                     // get fallback dialog
                     Log.e("BaseGamesUtils",
                             "No standard error dialog available. Making fallback dialog.");
-                    errorDialog = makeSimpleDialog(
-                            activity,
-                            activity.getString(errorCode)
-                                    + " "
-                                    + activity.getString(errorDescription));
+                    errorDialog = makeSimpleDialog(activity, activity.getString(errorDescription));
                 }
         }
 
