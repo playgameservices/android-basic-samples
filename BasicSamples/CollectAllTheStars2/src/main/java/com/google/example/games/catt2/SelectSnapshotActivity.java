@@ -22,6 +22,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,7 @@ import java.util.ArrayList;
  */
 public class SelectSnapshotActivity extends Activity implements AdapterView.OnItemClickListener {
 
+    private static final String TAG = "CollectAllTheStars2.SelectSnapshotActivity";
     // intent data which is a snapshot metadata
     public static final String SNAPSHOT_METADATA = "snapshotmeta";
 
@@ -101,6 +103,7 @@ public class SelectSnapshotActivity extends Activity implements AdapterView.OnIt
             intent.putExtra(RETRY_COUNT, mRetryCount);
         }
 
+        Log.d(TAG, "Finishing item at position " + position + " clicked");
         setResult(RESULT_OK, intent);
         finish();
     }

@@ -43,6 +43,7 @@ import com.google.android.gms.games.snapshot.Snapshots;
 import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -327,9 +328,9 @@ public class MainActivity extends Activity
 
 
     @Override
-    public void onConnectionSuspended(int i) {
-        Log.d(TAG, "onConnectionSuspended() called. Trying to reconnect.");
-        mGoogleApiClient.connect();
+    public void onConnectionSuspended(int cause) {
+        Log.d(TAG, "onConnectionSuspended() called. Cause: " + cause);
+        // onConnected will automatically be called when the client reconnects.
     }
 
     @Override
@@ -504,7 +505,11 @@ public class MainActivity extends Activity
                 }
 
                 if (snapshot != null) {
-                    readSavedGame(snapshot);
+                    try {
+                        readSavedGame(snapshot);
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error while reading snapshot contents: " + e.getMessage());
+                    }
                 }
                 return status;
             }
@@ -541,8 +546,8 @@ public class MainActivity extends Activity
         task.execute();
     }
 
-    private void readSavedGame(Snapshot snapshot) {
-        mSaveGame = new SaveGame(snapshot.readFully());
+    private void readSavedGame(Snapshot snapshot) throws IOException {
+        mSaveGame = new SaveGame(snapshot.getSnapshotContents().readFully());
         mAlreadyLoadedState = true;
     }
 
@@ -595,7 +600,7 @@ public class MainActivity extends Activity
             final int retryCount,
             final SnapshotMetadata snapshotMetadata) {
 
-        Log.i(TAG,"Resolving conflict retry count = " + retryCount);
+        Log.i(TAG,"Resolving conflict retry count = " + retryCount + " conflictid = " + conflictId);
         AsyncTask<Void, Void, Snapshots.OpenSnapshotResult> task =
                 new AsyncTask<Void, Void, Snapshots.OpenSnapshotResult>() {
                     @Override
@@ -603,18 +608,20 @@ public class MainActivity extends Activity
 
                         Snapshots.OpenSnapshotResult result;
                         if (snapshotMetadata.getUniqueName() != null) {
-
+                            Log.d(TAG,"Opening unique name " + snapshotMetadata.getUniqueName());
                             result = Games.Snapshots.open(mGoogleApiClient, snapshotMetadata)
                                     .await();
                         }
                         else {
+                            Log.d(TAG,"Opening current save name " + currentSaveName);
                             result = Games.Snapshots.open(mGoogleApiClient, currentSaveName, true)
                                     .await();
                         }
 
-                        Log.d(TAG,"opening from metadata - tesult is " + result.getStatus());
+                        Log.d(TAG,"opening from metadata - result is " + result.getStatus() +
+                                " snapshot is " + result.getSnapshot());
 
-                        return Games.Snapshots
+                       return Games.Snapshots
                                 .resolveConflict(mGoogleApiClient, conflictId, result.getSnapshot())
                                 .await();
                     }
@@ -651,10 +658,12 @@ public class MainActivity extends Activity
                     @Override
                     protected Snapshots.OpenSnapshotResult doInBackground(Void... params) {
                         if (snapshotMetadata == null) {
+                            Log.i(TAG, "Calling open with " + currentSaveName);
                             return Games.Snapshots.open(mGoogleApiClient, currentSaveName, true)
                                     .await();
                         }
                         else {
+                            Log.i(TAG, "Calling open with " + snapshotMetadata);
                             return Games.Snapshots.open(mGoogleApiClient, snapshotMetadata)
                                     .await();
                         }
@@ -663,8 +672,12 @@ public class MainActivity extends Activity
                     @Override
                     protected void onPostExecute(Snapshots.OpenSnapshotResult result) {
                         Snapshot toWrite = processSnapshotOpenResult(RC_SAVE_SNAPSHOT, result, 0);
-
-                        Log.i(TAG, writeSnapshot(toWrite));
+                        if (toWrite != null) {
+                            Log.i(TAG, writeSnapshot(toWrite));
+                        }
+                        else {
+                            Log.e(TAG, "Error opening snapshot: " + result.toString());
+                        }
                     }
                 };
 
@@ -677,7 +690,7 @@ public class MainActivity extends Activity
      */
     private String writeSnapshot(Snapshot snapshot) {
         // Set the data payload for the snapshot.
-        snapshot.writeBytes(mSaveGame.toBytes());
+        snapshot.getSnapshotContents().writeBytes(mSaveGame.toBytes());
 
         // Save the snapshot.
         SnapshotMetadataChange metadataChange = new SnapshotMetadataChange.Builder()
@@ -851,6 +864,7 @@ public class MainActivity extends Activity
         intent.putExtra(SelectSnapshotActivity.CONFLICT_ID, conflictId);
         intent.putExtra(SelectSnapshotActivity.RETRY_COUNT, retryCount);
 
+        Log.d(TAG, "Starting activity to select snapshot");
         startActivityForResult(intent, requestCode);
     }
 
