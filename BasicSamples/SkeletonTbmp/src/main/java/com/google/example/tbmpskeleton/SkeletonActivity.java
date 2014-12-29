@@ -43,7 +43,7 @@ import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMultiplayer;
 import com.google.android.gms.games.multiplayer.Multiplayer;
 import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
-import com.google.example.games.tbmpskel.R;
+
 
 /**
  * TBMPSkeleton: A minimalistic "game" that shows turn-based

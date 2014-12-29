@@ -41,6 +41,8 @@ import com.google.android.gms.games.snapshot.SnapshotMetadataChange;
 import com.google.android.gms.games.snapshot.Snapshots;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
+import java.io.IOException;
+
 /**
  * SavedGames.  A sample that demonstrates how to migrate from the Cloud Save (AppState) API to the
  * newer Saved Games (Snapshots) API.  The app allows load/update to both services as well as an
@@ -373,7 +375,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
 
                 // Write the new data to the snapshot
                 Snapshot snapshot = open.getSnapshot();
-                snapshot.writeBytes(data);
+                snapshot.getSnapshotContents().writeBytes(data);
 
                 // Change metadata
                 SnapshotMetadataChange metadataChange = new SnapshotMetadataChange.Builder()
@@ -426,7 +428,12 @@ public class MainActivity extends Activity implements View.OnClickListener,
             public void onResult(Snapshots.OpenSnapshotResult openSnapshotResult) {
                 if (openSnapshotResult.getStatus().isSuccess()) {
                     displayMessage(getString(R.string.saved_games_load_success), false);
-                    byte[] data = openSnapshotResult.getSnapshot().readFully();
+                    byte[] data = new byte[0];
+                    try {
+                        data = openSnapshotResult.getSnapshot().getSnapshotContents().readFully();
+                    } catch (IOException e) {
+                        displayMessage("Exception reading snapshot: " + e.getMessage(), true);
+                    }
                     setData(new String(data));
                     displaySnapshotMetadata(openSnapshotResult.getSnapshot().getMetadata());
                 } else {
@@ -486,7 +493,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
 
                 // Change data but leave existing metadata
                 Snapshot snapshot = open.getSnapshot();
-                snapshot.writeBytes(data);
+                snapshot.getSnapshotContents().writeBytes(data);
 
                 Snapshots.CommitSnapshotResult commit = Games.Snapshots.commitAndClose(
                         mGoogleApiClient, snapshot, SnapshotMetadataChange.EMPTY_CHANGE).await();

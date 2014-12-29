@@ -1,11 +1,10 @@
-apply plugin: 'com.android.application'
+apply plugin: 'android'
 
 android {
     compileSdkVersion 20
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "com.google.example.games.savedgames"
         minSdkVersion 9
         targetSdkVersion 20
         versionCode 1
