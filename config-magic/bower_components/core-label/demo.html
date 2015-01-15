@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<!--
+    @license
+    Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Core Label</title>
+  <script src="../webcomponentsjs/webcomponents.js"></script>
+  <link rel="import" href="core-label.html">
+  <link rel="import" href="../paper-checkbox/paper-checkbox.html">
+  <link rel="import" href="../paper-slider/paper-slider.html">
+  <link rel="import" href="../paper-button/paper-button.html">
+</head>
+<body>
+
+  <label>regular label<input type="checkbox"></label>
+
+  <br>
+
+  <label>regular label 2<input></label>
+
+  <br>
+
+  <label>
+    a
+    <input>
+    b
+  </label>
+
+  <br>
+
+  <label for="native">
+    hi
+  </label>
+
+  <button id="native">hello</button>
+
+  <br>
+
+  <label>
+    a
+    <button>b</button>
+    c
+  </label>
+
+  <hr>
+
+  <core-label>
+    label next to checkbox
+    <input for type="checkbox">
+    something
+  </core-label>
+
+  <br>
+
+  <core-label for="#quux">
+    label for checkbox
+  </core-label>
+  <input id="quux" type="checkbox">
+
+  <br>
+
+  <core-label for="#foo">
+    <img src="http://placehold.it/200x200" alt="200x200 placeholder image">
+    image (with alt attribute) label
+  </core-label>
+
+  <input id="foo" type="checkbox">
+
+  <br>
+
+  <core-label for=".bar">
+    label for a class .bar
+  </core-label>
+  <input class="bar" type="checkbox">
+
+  <br>
+
+  <core-label>
+    input label
+    <input for>
+  </core-label>
+
+  <br>
+
+  <core-label>
+    paper checkbox
+    <paper-checkbox for></paper-checkbox>
+  </core-label>
+
+  <br>
+
+  <core-label>
+    paper slider
+    <paper-slider min="0" max="100" value="50" for></paper-slider>
+  </core-label>
+
+  <br>
+
+  <core-label>
+    input type range
+    <input type="range" for>
+  </core-label>
+
+  <br>
+
+  <core-label>
+    a
+    <input type="text" for>
+    b
+  </core-label>
+
+  <br>
+
+  <core-label>
+    c
+    <button for>hi</button>
+    d
+  </core-label>
+
+
+  <br>
+
+  <core-label>
+    label this button
+    <paper-button for>labelled by parent</paper-button>
+  </core-label>
+
+  <br>
+
+  <core-label for=".two">
+    Hi!
+  </core-label>
+
+  <button class="one">sup</button>
+  <button class="two">whazzup</button>
+
+</body>
+</html>
