@@ -1,0 +1,22 @@
+{
+  "name": "games-magic-button",
+  "version": "0.1.0",
+  "authors": [
+    "Sam Stern <samstern@google.com>"
+  ],
+  "description": "Automatically configure Play Game services samples",
+  "main": "index.html",
+  "moduleType": [
+    "globals",
+    "node"
+  ],
+  "license": "Apache-2.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components"
+  ],
+  "dependencies": {
+    "paper-elements": "Polymer/paper-elements#^0.5.0"
+  }
+}

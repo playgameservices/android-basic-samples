@@ -1,0 +1,11 @@
+{
+  "name": "paper-radio-group",
+  "private": true,
+  "dependencies": {
+    "core-a11y-keys": "Polymer/core-a11y-keys#^0.5.0",
+    "core-selector": "Polymer/core-selector#^0.5.0",
+    "font-roboto": "Polymer/font-roboto#^0.5.0",
+    "paper-radio-button": "Polymer/paper-radio-button#^0.5.0"
+  },
+  "version": "0.5.2"
+}

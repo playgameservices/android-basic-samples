@@ -1,0 +1,121 @@
+<!--
+   Copyright (C) 2015 Google Inc.
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+        http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<html>
+  <head>
+    <title>Config Magic</title>
+
+    <!-- jQuery -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+    <!-- Configuration Logic -->
+    <script src="index.js"></script>
+
+    <!-- Google APIs Javascript Client -->
+    <script src="https://apis.google.com/js/client.js?onload=onClientLoad"></script>
+
+    <!-- CSS Styling -->
+    <link rel="stylesheet" href="index.css">
+
+    <!-- Polymer -->
+    <script src="bower_components/platform/platform.js">
+    </script>
+    <link rel="import" href="bower_components/polymer/polymer.html">
+
+    <!-- Custom Elements -->
+    <link rel="import" href="config-form.html">
+
+    <!-- Polymer Elements -->
+    <link rel="import"
+      href="bower_components/font-roboto/roboto.html">
+    <link rel="import"
+      href="bower_components/core-header-panel/core-header-panel.html">
+    <link rel="import"
+      href="bower_components/core-toolbar/core-toolbar.html">
+    <link rel="import"
+      href="bower_components/core-menu/core-menu.html">
+    <link rel="import"
+      href="bower_components/core-icon-button/core-icon-button.html">
+    <link rel="import"
+      href="bower_components/core-range/core-range.html">
+    <link rel="import"
+      href="bower_components/paper-menu-button/paper-menu-button.html">
+    <link rel="import"
+      href="bower_components/paper-tabs/paper-tabs.html">
+    <link rel="import"
+      href="bower_components/paper-button/paper-button.html">
+    <link rel="import"
+      href="bower_components/paper-progress/paper-progress.html">
+    <link rel="import"
+      href="bower_components/paper-slider/paper-slider.html">
+  </head>
+  <body fullbleed unresolved>
+    <core-toolbar class="medium shadow">
+      <paper-menu-button icon="menu">
+      </paper-menu-button>
+      <span flex id="title" class="top">
+        Play Games Sample Configuration
+        <span id="sample"></span>
+      </span>
+
+      <core-icon-button
+        class="signed-in"
+        style="display: none;"
+        onclick="auth.signOut()"
+        icon="cancel">
+        Sign out
+      </core-icon-button>
+
+    </core-toolbar>
+
+    <div class="card shadow">
+      <h4 class="label">Instructions</h4>
+      <p>
+        Welcome to the Play Game Services sample configuration tool.
+
+        This tool uses the <a href="https://developers.google.com/games/services/management/api/">Management API</a> to automatically configure Achievements and Leaderboards for Play Game Services sample applications for Android.
+      </p>
+      <p>
+        Before using this tool, you will need to create a Play Game Services project in the Google Play Developer's Console. Follow <a href="https://developers.google.com/games/services/android/quickstart#step_2_set_up_the_game_in_the_dev_console">the instructions here</a> but skip steps 5 and 6 where you would normally configure Achievements and Leaderboards.  This tool will automate those steps for you.
+      </p>
+      <p>
+        To get started, sign-in and then paste your App ID into the input field below.  Click 'Configure' to add all of the required Achievements and Leaderboards to your project and then copy the output at the bottom of the page into your <tt>res/ids.xml</tt> file.
+      </p>
+    </div>
+
+    <div class="card shadow">
+      <h4 class="label">Actions</h4>
+      <div class="signed-out">
+        <paper-button onclick="auth.signIn(false)">
+          Sign In
+        </paper-button>
+      </div>
+
+      <div class="signed-in" style="display: none;">
+        <!-- Configuration form, defined in config-form.html -->
+        <config-form infofile="info.js">
+        </config-form>
+      </div>
+    </div>
+
+    <div class="card shadow">
+      <h4 class="label">res/ids.xml</h4>
+      <paper-progress
+        id="progress"
+        indeterminate="true"
+        class="blue"
+        style="display: none;"></paper-progress>
+      <pre id="ids">
+      </pre>
+    </div>
+  </body>
+</html>
