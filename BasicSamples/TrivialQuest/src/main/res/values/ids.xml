@@ -20,5 +20,5 @@
     <string name="app_id">ReplaceMe</string>
 
     <!-- Replace by your "Trivial Victory" achievement ID -->
-    <string name="trivial_victory_achievement_id">ReplaceMe</string>
+    <string name="achievement_trivial_victory">ReplaceMe</string>
 </resources>
