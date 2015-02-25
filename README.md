@@ -42,8 +42,9 @@ take a look at [our FAQ](https://github.com/playgameservices/android-samples/blo
 
    Note your package name and the APP ID of the project.
 
-1. Create leaderboards/achievements as appropriate for the sample
-   (see the ones that the sample needs in its res/values/ids.xml)
+1. Create leaderboards/achievements as appropriate for the sample (see the ones that the sample needs in its res/values/ids.xml).  You can do this automatically by clicking the link below for the sample you want to configure:
+   1. [Type a Number](http://playgameservices.github.io/android-basic-samples/config-magic/index.html?sample=typeanumber)
+   1. [Trivial Quest](http://playgameservices.github.io/android-basic-samples/config-magic/index.html?sample=trivialquest)
 
 Pick a set of instructions below depending on whether you're using Eclipse or Android Studio.
 
