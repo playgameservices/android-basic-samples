@@ -1,8 +1,5 @@
 apply plugin: 'android-library'
 
-repositories {
-    mavenCentral()
-}
 
 buildscript {
     repositories {
@@ -10,18 +7,18 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'com.android.tools.build:gradle:1.1.0'
     }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:20.0.+'
-    compile 'com.android.support:support-v4:20.0.+'
-    compile 'com.google.android.gms:play-services:+'
+    compile android_appcompat_library
+    compile android_support_library
+    compile android_gms_library
 }
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion '20'
+    compileSdkVersion android_compile_version
+    buildToolsVersion android_version
 }
 
