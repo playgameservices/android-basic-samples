@@ -1,12 +1,13 @@
 apply plugin: 'android'
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion "20.0.0"
+    compileSdkVersion android_compile_version
+    buildToolsVersion android_version
+
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 20
+        minSdkVersion android_min_sdk_version
+        targetSdkVersion android_compile_version
         versionCode 1
         versionName "1.0"
     }
@@ -20,9 +21,9 @@ android {
 
 dependencies {
     compile project(':libraries:BaseGameUtils')
-    compile 'com.android.support:appcompat-v7:20.0.+'
-    compile 'com.android.support:support-v4:20.0.+'
-    compile 'com.google.android.gms:play-services:+'
+    compile android_appcompat_library
+    compile android_support_library
+    compile android_gms_library
 }
 
 buildscript {
