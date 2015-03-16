@@ -19,9 +19,9 @@ allprojects {
         android_version = '20'
         android_min_sdk_version = 9
 
-        android_appcompat_library =  'com.android.support:appcompat-v7:20.0.+'
-        android_support_library =  'com.android.support:support-v4:20.0.+'
-        android_gms_library =  'com.google.android.gms:play-services:6.5+'
+        appcompat_library_version = '20.0.+'
+        support_library_version = '20.0.+'
+        gms_library_version = '6.5+'
     }
 }
 

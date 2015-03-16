@@ -1,4 +1,4 @@
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 android {
     enforceUniquePackageName=false
@@ -22,10 +22,10 @@ android {
 }
 
 dependencies {
+    compile "com.android.support:appcompat-v7:${appcompat_library_version}"
+    compile "com.android.support:support-v4:${support_library_version}"
+    compile "com.google.android.gms:play-services:${gms_library_version}"
     compile project(':libraries:BaseGameUtils')
-    compile android_appcompat_library
-    compile android_support_library
-    compile android_gms_library
 }
 
 buildscript {

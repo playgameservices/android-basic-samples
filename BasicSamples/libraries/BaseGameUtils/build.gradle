@@ -1,4 +1,4 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 
 
 buildscript {
@@ -12,9 +12,18 @@ buildscript {
 }
 
 dependencies {
-    compile android_appcompat_library
-    compile android_support_library
-    compile android_gms_library
+    android_compile_version = 20
+    android_version = '20'
+    android_min_sdk_version = 9
+
+    // Set defaults so that BaseGameUtils can be used outside of BasicSamples
+    appcompat_library_version = appcompat_library_version ?: '20.0.+'
+    support_library_version = support_library_version ?: '20.0.+'
+    gms_library_version = gms_library_version ?: '6.5+'
+
+    compile "com.android.support:appcompat-v7:${appcompat_library_version}"
+    compile "com.android.support:support-v4:${support_library_version}"
+    compile "com.google.android.gms:play-services:${gms_library_version}"
 }
 
 android {
