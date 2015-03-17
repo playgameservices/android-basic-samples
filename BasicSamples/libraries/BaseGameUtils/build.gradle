@@ -17,9 +17,9 @@ dependencies {
     android_min_sdk_version = 9
 
     // Set defaults so that BaseGameUtils can be used outside of BasicSamples
-    appcompat_library_version = appcompat_library_version ?: '20.0.+'
-    support_library_version = support_library_version ?: '20.0.+'
-    gms_library_version = gms_library_version ?: '6.5+'
+    appcompat_library_version = '20.0.+'
+    support_library_version = '20.0.+'
+    gms_library_version = '6.5+'
 
     compile "com.android.support:appcompat-v7:${appcompat_library_version}"
     compile "com.android.support:support-v4:${support_library_version}"
