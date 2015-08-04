@@ -493,8 +493,7 @@ public class MainActivity extends Activity
     public void onConnectedToRoom(Room room) {
         Log.d(TAG, "onConnectedToRoom.");
 
-        // get room ID, participants and my ID:
-        mRoomId = room.getRoomId();
+        //get participants and my ID:
         mParticipants = room.getParticipants();
         mMyId = room.getParticipantId(Games.Players.getCurrentPlayerId(mGoogleApiClient));
 
@@ -535,6 +534,9 @@ public class MainActivity extends Activity
             showGameError();
             return;
         }
+
+        // save room ID so we can leave cleanly before the game starts.
+        mRoomId = room.getRoomId();
 
         // show the waiting room UI
         showWaitingRoom(room);
