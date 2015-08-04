@@ -2,6 +2,8 @@
 This sample demonstrates how to migrate data from the Cloud Save (AppState) service to the Saved
 Games (Snapshot) service.
 
+**Note**: this sample requires the Cloud Save (AppState) API to work correctly.  However, the Cloud Save API was recently deprecated and can no longer be enabled for new projects.  This means that if you do not have an older project with Cloud Save enabled, you will not be able to properly configure this sample.  In that case, you should use the sample as a code reference only, rather than a runnable demonstration.
+
 ## Background
 All developers should use the Saved Games API in place of the old Cloud Save API.  Here is a
 feature comparison of the two services:
