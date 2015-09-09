@@ -4,13 +4,17 @@ android {
     compileSdkVersion android_compile_version
     buildToolsVersion android_version
 
-
     defaultConfig {
         minSdkVersion android_min_sdk_version
         targetSdkVersion android_compile_version
         versionCode 1
         versionName "1.0"
     }
+
+    lintOptions {
+        abortOnError false
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -22,12 +26,11 @@ android {
 dependencies {
     compile "com.android.support:appcompat-v7:${appcompat_library_version}"
     compile "com.android.support:support-v4:${support_library_version}"
-    compile "com.google.android.gms:play-services:${gms_library_version}"
     compile project(':libraries:BaseGameUtils')
 }
 
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
 }
