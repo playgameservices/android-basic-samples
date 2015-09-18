@@ -358,7 +358,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                 // Check to see the developer who's running this sample code read the instructions :-)
                 // NOTE: this check is here only because this is a sample! Don't include this
                 // check in your actual production app.
-                if(!BaseGameUtils.verifySampleSetup(this, R.string.app_id, R.string.red_event_id)) {
+                if(!BaseGameUtils.verifySampleSetup(this, R.string.app_id, R.string.event_red)) {
                     Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
                 }
 
@@ -380,28 +380,28 @@ public class MainActivity extends Activity implements View.OnClickListener,
                 break;
             case R.id.button_red:
                 if (mGoogleApiClient.isConnected()) {
-                    Games.Events.increment(mGoogleApiClient, getString(R.string.red_event_id), 1);
+                    Games.Events.increment(mGoogleApiClient, getString(R.string.event_red), 1);
                 }
                 BaseGameUtils.makeSimpleDialog(this,
                         getString(R.string.victory), getString(R.string.defeat_red_monster)).show();
                 break;
             case R.id.button_blue:
                 if (mGoogleApiClient.isConnected()) {
-                    Games.Events.increment(mGoogleApiClient, getString(R.string.blue_event_id), 1);
+                    Games.Events.increment(mGoogleApiClient, getString(R.string.event_blue), 1);
                 }
                 BaseGameUtils.makeSimpleDialog(this,
                         getString(R.string.victory), getString(R.string.defeat_blue_monster)).show();
                 break;
             case R.id.button_green:
                 if (mGoogleApiClient.isConnected()) {
-                    Games.Events.increment(mGoogleApiClient, getString(R.string.green_event_id), 1);
+                    Games.Events.increment(mGoogleApiClient, getString(R.string.event_green), 1);
                 }
                 BaseGameUtils.makeSimpleDialog(this,
                         getString(R.string.victory), getString(R.string.defeat_green_monster)).show();
                 break;
             case R.id.button_yellow:
                 if (mGoogleApiClient.isConnected()) {
-                    Games.Events.increment(mGoogleApiClient, getString(R.string.yellow_event_id), 1);
+                    Games.Events.increment(mGoogleApiClient, getString(R.string.event_yellow), 1);
                 }
                 BaseGameUtils.makeSimpleDialog(this,
                         getString(R.string.victory), getString(R.string.defeat_yellow_monster)).show();
