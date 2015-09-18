@@ -14,13 +14,16 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
+
+<!--  Copy the resources from the Play Games Console  by clicking "Get resources"
+on the Events tab into this file -->
+
+
 <resources>
-    <!-- Step 1: Replace by your app ID from the Play Games Console. -->
     <string name="app_id">ReplaceMe</string>
 
-    <!-- Step 2: Replace with your events the Play Games Console. -->
-    <string name="red_event_id">ReplaceMe</string>
-    <string name="green_event_id">ReplaceMe</string>
-    <string name="blue_event_id">ReplaceMe</string>
-    <string name="yellow_event_id">ReplaceMe</string>
+  <string name="event_red">ReplaceMe</string>
+  <string name="event_green">ReplaceMe</string>
+  <string name="event_blue">ReplaceMe</string>
+  <string name="event_yellow">ReplaceMe</string>
 </resources>
