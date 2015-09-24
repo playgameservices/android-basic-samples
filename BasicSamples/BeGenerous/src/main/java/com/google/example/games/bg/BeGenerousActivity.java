@@ -39,7 +39,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.games.Game;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.Player;
@@ -49,6 +48,8 @@ import com.google.android.gms.games.request.OnRequestReceivedListener;
 import com.google.android.gms.games.request.Requests;
 import com.google.android.gms.games.request.Requests.LoadRequestsResult;
 import com.google.android.gms.games.request.Requests.UpdateRequestsResult;
+import com.google.android.gms.games.stats.PlayerStats;
+import com.google.android.gms.games.stats.Stats;
 import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
@@ -268,12 +269,13 @@ public class BeGenerousActivity extends Activity
     public void onConnected(Bundle connectionHint) {
         Log.d(TAG, "onConnected() called. Sign in successful!");
         showSignOutBar();
+        checkPlayerStats();
+
         // This is *NOT* required; if you do not register a handler for
         // request events, you will get standard notifications instead.
         Games.Requests.registerRequestListener(mGoogleApiClient, mRequestListener);
 
         if (connectionHint != null) {
-
             ArrayList<GameRequest> requests;
             // Do we have any requests pending? (getGameRequestsFromBundle never returns null
             requests = Games.Requests.getGameRequestsFromBundle(connectionHint);
@@ -469,7 +471,30 @@ public class BeGenerousActivity extends Activity
                         });
         // Create the AlertDialog object and return it
         builder.create().show();
+    }
 
+    public void checkPlayerStats() {
+        PendingResult<Stats.LoadPlayerStatsResult> result = Games.Stats.loadPlayerStats(
+                mGoogleApiClient, false /* forceReload */);
+        result.setResultCallback(new ResultCallback<Stats.LoadPlayerStatsResult>() {
+            public void onResult(Stats.LoadPlayerStatsResult result) {
+                Status status = result.getStatus();
+                if (status.isSuccess()) {
+                    PlayerStats stats = result.getPlayerStats();
+                    if (stats != null) {
+                        Log.d(TAG, "Player stats loaded");
+                        if (stats.getDaysSinceLastPlayed() > 7) {
+                            Log.d(TAG, "It's been longer than a week");
+                        }
+                        if (stats.getNumberOfSessions() > 1000) {
+                            Log.d(TAG, "Veteran player");
+                        }
+                    }
+                } else {
+                    Log.d(TAG, "Failed to fetch Stats Data status: " + status.getStatusMessage());
+                }
+            }
+        });
     }
 
     // Response to inbox check
