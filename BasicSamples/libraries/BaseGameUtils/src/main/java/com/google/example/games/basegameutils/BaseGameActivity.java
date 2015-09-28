@@ -49,7 +49,6 @@ public abstract class BaseGameActivity extends FragmentActivity implements
     // We expose these constants here because we don't want users of this class
     // to have to know about GameHelper at all.
     public static final int CLIENT_GAMES = GameHelper.CLIENT_GAMES;
-    public static final int CLIENT_APPSTATE = GameHelper.CLIENT_APPSTATE;
     public static final int CLIENT_PLUS = GameHelper.CLIENT_PLUS;
     public static final int CLIENT_ALL = GameHelper.CLIENT_ALL;
 
