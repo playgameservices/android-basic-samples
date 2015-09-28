@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) 2014 Google Inc.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<resources>
+
+    <string name="app_name">SavedGames</string>
+    <string name="update">Update</string>
+    <string name="load">Load</string>
+    <string name="migrate">Migrate</string>
+    <string name="select">Select</string>
+    <string name="signin_other_error">There was an error during sign in.</string>
+    <string name="message_sign_in">Sign-in to begin.</string>
+    <string name="message_signed_in">Signed in.</string>
+    <string name="saved_games_load_success">Loaded from Saved Games.</string>
+    <string name="saved_games_load_failure">Failed to load from Saved Games.</string>
+    <string name="saved_games_update_success">Saved to Saved Games.</string>
+    <string name="saved_games_update_failure">Failed to save to Saved Games</string>
+    <string name="saved_games_select_failure">Failed to select from Saved Games.</string>
+    <string name="saved_games_select_cancel">No Saved Game selected.</string>
+    <string name="cloud_save_load_success">Loaded from Cloud Save.</string>
+    <string name="cloud_save_load_failure">Failed to load from Cloud Save.</string>
+    <string name="cloud_save_update_success">Saved to Cloud Save.</string>
+    <string name="cloud_save_update_failure">Failed to save to Cloud Save.</string>
+    <string name="cloud_save_migrate_success">Migrated to Saved Games.</string>
+    <string name="cloud_save_migrate_failure">Failed to migrate to Saved Games.</string>
+    <string name="label_game_data">Game Data:</string>
+    <string name="label_metadata">Metadata:</string>
+    <string name="label_cloud_save">Cloud Save Actions:</string>
+    <string name="label_saved_games">Saved Game Actions:</string>
+    <string name="hint_save_data">save data</string>
+    <string name="sign_in_failed">Failed to sign in. Please check your network connection and try again.</string>
+    <string name="app_misconfigured">The application is incorrectly configured. Check that the package name and signing certificate match the client ID created in Developer Console. Also, if the application is not yet published, check that the account you are trying to sign in with is listed as a tester account. See logs for more information.</string>
+    <string name="license_failed">License check failed.</string>
+    <string name="unknown_error">Unknown error.</string>
+</resources>
