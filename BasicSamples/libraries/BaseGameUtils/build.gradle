@@ -13,13 +13,13 @@ buildscript {
 
 dependencies {
     // Set defaults so that BaseGameUtils can be used outside of BasicSamples
-    if (!hasProperty('appcompat_library_version')) {
+    if (!project.hasProperty('appcompat_library_version')) {
         ext.appcompat_library_version = '20.0.+'
     }
-    if (!hasProperty('support_library_version')) {
+    if (!project.hasProperty('support_library_version')) {
         ext.support_library_version = '20.0.+'
     }
-    if (!hasProperty('gms_library_version')) {
+    if (!project.hasProperty('gms_library_version')) {
         ext.gms_library_version = '8.1.0'
     }
 
@@ -31,10 +31,10 @@ dependencies {
 
 android {
     // Set defaults so that BaseGameUtils can be used outside of BasicSamples
-    if (!hasProperty('android_compile_version')) {
+    if (!project.hasProperty('android_compile_version')) {
         ext.android_compile_version = 23
     }
-    if (!hasProperty('android_version')) {
+    if (!project.hasProperty('android_version')) {
         ext.android_version = '23'
     }
 
