@@ -426,10 +426,12 @@ public class MainActivity extends Activity
 
     @Override
     public void onInvitationRemoved(String invitationId) {
-        if (mIncomingInvitationId.equals(invitationId)) {
+        if( mIncomingInvitationId!=null)
+      {  if (mIncomingInvitationId.equals(invitationId)) {
             mIncomingInvitationId = null;
             switchToScreen(mCurScreen); // This will hide the invitation popup
         }
+      }
     }
 
     /*
