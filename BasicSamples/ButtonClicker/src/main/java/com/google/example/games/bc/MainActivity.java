@@ -426,12 +426,12 @@ public class MainActivity extends Activity
 
     @Override
     public void onInvitationRemoved(String invitationId) {
-        if( mIncomingInvitationId!=null)
-      {  if (mIncomingInvitationId.equals(invitationId)) {
+       
+        if (mIncomingInvitationId.equals(invitationId)&&mIncomingInvitationId!=null) {
             mIncomingInvitationId = null;
             switchToScreen(mCurScreen); // This will hide the invitation popup
         }
-      }
+      
     }
 
     /*
@@ -499,8 +499,9 @@ public class MainActivity extends Activity
         mParticipants = room.getParticipants();
         mMyId = room.getParticipantId(Games.Players.getCurrentPlayerId(mGoogleApiClient));
         
-         // save room ID so we can leave cleanly before the game starts.
-        mRoomId = room.getRoomId();
+         // save room ID if its not initialized in onRoomCreated() so we can leave cleanly before the game starts.
+         if(mRoomId==null)
+          mRoomId = room.getRoomId();
 
         // print out the list of participants (for debug purposes)
         Log.d(TAG, "Room ID: " + mRoomId);
@@ -540,7 +541,8 @@ public class MainActivity extends Activity
             return;
         }
 
-       
+       // save room ID so we can leave cleanly before the game starts.
+        mRoomId = room.getRoomId();
 
         // show the waiting room UI
         showWaitingRoom(room);
