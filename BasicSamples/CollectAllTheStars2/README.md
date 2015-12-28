@@ -5,14 +5,14 @@ her data from a named Snapshot, and then updates the UI to reflect the game
 state saved in the Snapshot.
 
 ## Setup ##
-Follow these steps to set up the sample:
 1. Update the package name in `AndroidManifest.xml` to be something other
    than `com.google.example.games.catt2`.
 2. Modify your app folder structure to match your package name.
 3. Replace the package name in `MainActivity.java`. Note that the package name
    must be unique; otherwise, the API console cannot link your app correctly.
-4. Create your project in the Google Play Developer Console (console).
-5. Link your app; make sure to enable Saved Games in the console.
+4. Create your project in the Google Play Developer Console and
+   set **Saved Games** to **ON**.
+5. Link your app.
 6. Copy the `APP ID` from the console into `CollectAllTheStars/values/ids.xml`.
 
 ## Running ##
