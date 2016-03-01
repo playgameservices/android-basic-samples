@@ -4,8 +4,12 @@ android {
     compileSdkVersion 23
     buildToolsVersion '23.0.1'
 
-
     defaultConfig {
+        /*
+          REPLACE THIS VALUE WITH YOUR APPLICATION ID
+        */
+        applicationId "com.google.example.games.replace.me"
+
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 1

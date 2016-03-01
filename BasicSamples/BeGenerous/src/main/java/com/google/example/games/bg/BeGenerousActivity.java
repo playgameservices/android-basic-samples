@@ -15,12 +15,6 @@
 
 package com.google.example.games.bg;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -53,6 +47,12 @@ import com.google.android.gms.games.stats.PlayerStats;
 import com.google.android.gms.games.stats.Stats;
 import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Be Generous. A sample game that sets up the Google Play game services API and
@@ -100,12 +100,15 @@ public class BeGenerousActivity extends Activity
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate()");
 
+        // Require Google + so we can use it to look at our circles.
+        Games.GamesOptions gamesOptions = Games.GamesOptions.builder().setRequireGooglePlus(true).build();
+
         // Create the Google Api Client with access to Plus and Games
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
-                .addApi(Games.API).addScope(Games.SCOPE_GAMES)
+                .addApi(Games.API, gamesOptions).addScope(Games.SCOPE_GAMES)
                 .build();
 
         // Set up click listeners

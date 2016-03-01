@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 
-
 buildscript {
     repositories {
         jcenter()

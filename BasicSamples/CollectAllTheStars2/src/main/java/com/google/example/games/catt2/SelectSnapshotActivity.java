@@ -46,7 +46,7 @@ import java.util.ArrayList;
  */
 public class SelectSnapshotActivity extends Activity implements AdapterView.OnItemClickListener {
 
-    private static final String TAG = "CollectAllTheStars2.SelectSnapshotActivity";
+    private static final String TAG = "SelSnapshotActivity";
     // intent data which is a snapshot metadata
     public static final String SNAPSHOT_METADATA = "snapshotmeta";
 
@@ -131,7 +131,7 @@ public class SelectSnapshotActivity extends Activity implements AdapterView.OnIt
             // get the elements of the view which display the specific data for the snapshot.
             TextView textView = (TextView) rowView.findViewById(R.id.label);
             TextView ageView = (TextView) rowView.findViewById(R.id.age);
-            ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
+            ImageView imageView = (ImageView) rowView.findViewById(R.id.snapshot_icon);
 
             SnapshotMetadata snapshotMetadata;
             T item = getItem(position);

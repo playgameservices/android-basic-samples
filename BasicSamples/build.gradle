@@ -23,9 +23,9 @@ allprojects {
         android_version = '23.0.1'
         android_min_sdk_version = 9
 
-        appcompat_library_version = '23.0.1'
-        support_library_version = '23.0.1'
-        gms_library_version = '8.1.0'
+        appcompat_library_version = '23.2.0'
+        support_library_version = '23.2.0'
+        gms_library_version = '8.4.0'
     }
 }
 

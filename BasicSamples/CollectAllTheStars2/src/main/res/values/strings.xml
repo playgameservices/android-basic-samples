@@ -16,8 +16,6 @@
 -->
 
 <resources>
-    <string name="signing_in">Signing in with Google</string>
-    <string name="signing_out">Signing out</string>
     <string name="app_name">Collect All The Stars 2</string>
     <string name="sign_in_explanation">Sign to save your progress and keep it synchronized across all your devices."</string>
     <string name="you_are_signed_in">You are signed in with Google. Your progress will be automatically saved online.</string>
@@ -28,10 +26,6 @@
     <string name="world">World</string>
     <string name="level">Level</string>
     <string name="loading_from_cloud">Loading your progress.</string>
-    <string name="warning">Warning</string>
-    <string name="no_data_warning">Could not reach servers. Your existing game progress is not available right now, but will be synchronized later.</string>
-    <string name="stale_data_warning">Could not reach servers. Your game progress may be out of date and will be synchronized later.</string>
-    <string name="load_error_warning">Your game progress could not be loaded due to an error. Try again later.</string>
     <string name="menu_sync">Load</string>
     <string name="menu_save">Save</string>
     <string name="menu_select">Select</string>
@@ -45,4 +39,5 @@
     <string name="format_minutes_ago">%d minutes ago</string>
     <string name="format_seconds_ago">%d seconds ago</string>
     <string name="moments_ago">moments ago</string>
+    <string name="snapshotimage_description">Saved image for snapshot</string>
 </resources>

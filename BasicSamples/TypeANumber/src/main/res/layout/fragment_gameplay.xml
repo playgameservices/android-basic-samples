@@ -59,7 +59,6 @@
                 android:text="@string/digit9"
                 android:textSize="20sp"
                 android:padding="5dp"
-                android:onClick="onDigitClicked"
                 android:id="@+id/digit_button_9"
                  />
         </LinearLayout>
@@ -73,7 +72,6 @@
                 android:text="@string/digit4"
                 android:textSize="20sp"
                 android:padding="5dp"
-                android:onClick="onDigitClicked"
                 android:id="@+id/digit_button_4"
                 />
             <Button android:layout_width="wrap_content"
@@ -81,7 +79,6 @@
                 android:text="@string/digit5"
                 android:textSize="20sp"
                 android:padding="5dp"
-                android:onClick="onDigitClicked"
                 android:id="@+id/digit_button_5"
                 />
             <Button android:layout_width="wrap_content"
@@ -89,7 +86,6 @@
                 android:text="@string/digit6"
                 android:textSize="20sp"
                 android:padding="5dp"
-                android:onClick="onDigitClicked"
                 android:id="@+id/digit_button_6"
                 />
         </LinearLayout>
@@ -103,7 +99,6 @@
                 android:text="@string/digit1"
                 android:textSize="20sp"
                 android:padding="5dp"
-                android:onClick="onDigitClicked"
                 android:id="@+id/digit_button_1"
                 />
             <Button android:layout_width="wrap_content"
@@ -111,7 +106,6 @@
                 android:text="@string/digit2"
                 android:textSize="20sp"
                 android:padding="5dp"
-                android:onClick="onDigitClicked"
                 android:id="@+id/digit_button_2"
                 />
             <Button android:layout_width="wrap_content"
@@ -119,7 +113,6 @@
                 android:text="@string/digit3"
                 android:textSize="20sp"
                 android:padding="5dp"
-                android:onClick="onDigitClicked"
                 android:id="@+id/digit_button_3"
                 />
         </LinearLayout>
@@ -133,7 +126,6 @@
                 android:text="@string/digit0"
                 android:textSize="20sp"
                 android:padding="5dp"
-                android:onClick="onDigitClicked"
                 android:id="@+id/digit_button_0" />
 
             <Button android:layout_width="wrap_content"

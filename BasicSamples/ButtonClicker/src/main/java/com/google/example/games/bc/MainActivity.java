@@ -40,7 +40,6 @@ import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
-import com.google.android.gms.plus.Plus;
 
 import com.google.example.games.basegameutils.BaseGameUtils;
 
@@ -128,11 +127,10 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-    // Create the Google Api Client with access to Plus and Games
+    // Create the Google Api Client with access to Games
     mGoogleApiClient = new GoogleApiClient.Builder(this)
         .addConnectionCallbacks(this)
         .addOnConnectionFailedListener(this)
-        .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
         .addApi(Games.API).addScope(Games.SCOPE_GAMES)
         .build();
 

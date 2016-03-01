@@ -71,6 +71,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/sign_in_to_upload_this_score"
+            android:layout_marginStart="10dp"
             android:layout_marginLeft="10dp"
             android:textColor="#808080"
             />
@@ -84,7 +85,7 @@
         android:orientation="horizontal"
         android:padding="10dp"
         android:visibility="gone"
-        android:gravity="center|left"
+        android:gravity="center|start"
         android:textColor="#808080"
         android:text="@string/you_are_signed_in" />
 </LinearLayout>

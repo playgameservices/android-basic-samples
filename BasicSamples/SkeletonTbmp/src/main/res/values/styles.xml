@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.App" parent="@android:style/Theme.Holo.Light">
+    <style name="Theme.App" parent="@android:style/Theme.Light">
         <item
             name="android:windowBackground">@drawable/grey_background_pattern</item>
         <item name="android:buttonStyle">@style/Button</item>
@@ -26,27 +26,21 @@
         <item name="android:textAppearanceMedium">@style/SubHeading</item>
     </style>
 
-
     <style name="DefaultText" parent="@android:style/TextAppearance">
-        <item name="android:fontFamily">sans-serif-light</item>
         <item name="android:textSize">15sp</item>
     </style>
-    
+
     <style name="GuessWordText" parent="@android:style/TextAppearance">
-        <item name="android:fontFamily">sans-serif-bold</item>
         <item name="android:textSize">20sp</item>
     </style>
-    
 
     <style name="Heading" parent="@android:style/TextAppearance.Large">
-        <item name="android:fontFamily">sans-serif</item>
         <item name="android:textSize">30sp</item>
         <item name="android:paddingLeft">10dp</item>
         <item name="android:textStyle">italic</item>
     </style>
 
     <style name="SubHeading" parent="@android:style/TextAppearance.Medium">
-        <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="HelpText">
@@ -56,7 +50,6 @@
 
     <style name="HelpText.Heading">
         <item name="android:textStyle">bold</item>
-        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textSize">@dimen/font_size_large</item>
         <item name="android:lineSpacingMultiplier">1.0</item>
     </style>
@@ -73,6 +66,5 @@
         <item name="android:clickable">true</item>
         <item name="android:textSize">24sp</item>
         <item name="android:padding">12dp</item>
-        <item name="android:fontFamily">sans-serif</item>
     </style>
 </resources>

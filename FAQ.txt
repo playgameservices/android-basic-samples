@@ -2,15 +2,6 @@ GOOGLE PLAY GAMES - ANDROID SAMPLES
 FREQUENTLY ASKED QUESTIONS
 
 
-[0] Why should I use BaseGameActivity/GameHelper instead of the regular API?
-
-    BaseGameActivity and GameHelper are not a substitute for the regular
-    Google Play Games API. Rather, they are sample helper classes intended to
-    implement the boilerplate code that typical games use to implement the
-    sign-in and connection management process. You are not required to use
-    these sample helpers, but doing so might save you some work.
-
-
 [1] How should I compile BaseGameUtils into my project?
 
     Include BaseGameUtils as a library project. Consult your build system's
@@ -31,51 +22,6 @@ FREQUENTLY ASKED QUESTIONS
     the BaseGameUtil java files into your project; if you do, remember to
     also copy the BaseGameUtil resources into your project's res/
     directory.
-
-
-[2] I already have an Activity base class! Can I use BaseGameActivity?
-
-    No (but read on). Java does not support multiple inheritance, so you can't
-    simultaneously derive from BaseGameActivity and another Activity class.
-    However, you will notice that BaseGameActivity is actually a thin shell
-    over the piece that does the real work, which is GameHelper. If you can't
-    subclass BaseGameActivity, all you have to do is use the GameHelper
-    in your code and call its lifecycle methods when your Activity gets
-    the corresponding lifecycle events.
-
-
-[3] If I'm using other Google APIs, should I still use BaseGameActivity
-and/or GameHelper?
-
-    Yes. If you are using other Google APIs in addition to games, you can
-    integrate those into the same client
-
-
-[4] Why is GameHelper/BaseGameActivity attempting to sign in on 
-application startup?
-
-    The default behavior of BaseGameActivity and GameHelper is to show the user
-    the sign-in flow (consent dialogs, etc) as soon as your application starts.
-    Naturally, once the user signs in for the first time, they won't see the
-    consent flow again, so it will be a seamless experience. It is important
-    for the user to sign in as early as possible so your application can take
-    advantage of the Google Play Games API right away (for example, saving the
-    user's progress using Cloud Save, unlocking achievements, etc). If the user
-    cancels the sign-in flow, BaseGameAcitivity/GameHelper will remember that
-    cancellation. If the total number of cancellations reaches a predefined
-    maximum (by default, 3), the user will no longer be prompted to sign in on
-    application startup. If that happens, they can still sign in by clicking
-    your application's Sign In button, if you provide one.
-
-
-[5] I don't like the new "auto sign in" feature of GameHelper. How can
-I disable it?
-
-    To disable this feature and return to the old behavior, you can edit
-    GameHelper.java and set the DEFAULT_MAX_SIGN_IN_ATTEMPTS constant to 0, or
-    call GameHelper.setMaxAutoSignInAttempts(0) at runtime, before calling
-    GameHelper.setup() (or, correspondingly, from your Activity's onCreate
-    method).
 
 
 [6] I think the default error dialogs are ugly. I want to make my own.

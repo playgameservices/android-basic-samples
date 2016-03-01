@@ -31,7 +31,6 @@ import com.google.android.gms.games.quest.Quest;
 import com.google.android.gms.games.quest.QuestBuffer;
 import com.google.android.gms.games.quest.QuestUpdateListener;
 import com.google.android.gms.games.quest.Quests;
-import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
 import java.io.UnsupportedEncodingException;
@@ -77,7 +76,6 @@ public class MainActivity extends Activity implements View.OnClickListener,
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
                 .addApi(Games.API).addScope(Games.SCOPE_GAMES)
                 .build();
 

@@ -28,7 +28,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.Player;
-import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
 /**
@@ -89,11 +88,10 @@ public class MainActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Create the Google API Client with access to Plus and Games
+        // Create the Google API Client with access to Games
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
                 .addApi(Games.API).addScope(Games.SCOPE_GAMES)
                 .build();
 

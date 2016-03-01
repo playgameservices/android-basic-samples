@@ -16,15 +16,10 @@
 -->
 
 <resources>
-    <string name="signing_in">Signing in with Google</string>
-    <string name="signing_out">Signing out</string>
     <string name="app_name">Be Generous</string>
     <string name="sign_in_explanation">Sign with Google to send and receive gifts!</string>
     <string name="you_are_signed_in">You are signed in with Google.</string>
     <string name="sign_out">Sign Out</string>
-    <string name="click_me">Click me!</string>
-    <string name="victory">Victory</string>
-    <string name="you_won">OK! You won!</string>
     <string name="open_inbox">Open Inbox</string>
     <string name="send_gift">Send Gift</string>
     <string name="send_gift_description">A Generous Gift</string>
@@ -33,12 +28,10 @@
     <string name="gift_toast">Gifts Received: %d</string>
     <string name="new_gift_received">New Gift Received</string>
     <string name="new_request_received">New Request Received</string>
-    <string name="inbox_counts">Incoming Gifts/Requests</string>
     <string name="loading_ellipsis">&#8230;</string>
     <string name="gift_icon_description">Gift Icon</string>
     <string name="request_icon_description">Request Icon</string>
     <string name="gift_count">Incoming: %d</string>
     <string name="request_count">Incoming: %d</string>
     <string name="signin_other_error">There was an issue with sign in. Please try again later.</string>
-    
 </resources>

@@ -16,8 +16,6 @@
 
 package com.google.example.tbmpskeleton;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -34,15 +32,16 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesStatusCodes;
 import com.google.android.gms.games.multiplayer.Invitation;
+import com.google.android.gms.games.multiplayer.Multiplayer;
 import com.google.android.gms.games.multiplayer.OnInvitationReceivedListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.android.gms.games.multiplayer.turnbased.OnTurnBasedMatchUpdateReceivedListener;
 import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMatch;
 import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMatchConfig;
 import com.google.android.gms.games.multiplayer.turnbased.TurnBasedMultiplayer;
-import com.google.android.gms.games.multiplayer.Multiplayer;
-import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
+
+import java.util.ArrayList;
 
 
 /**
@@ -95,9 +94,6 @@ public class SkeletonActivity extends Activity
     final static int RC_SELECT_PLAYERS = 10000;
     final static int RC_LOOK_AT_MATCHES = 10001;
 
-    // How long to show toasts.
-    final static int TOAST_DELAY = Toast.LENGTH_SHORT;
-
     // Should I be showing the turn API?
     public boolean isDoingTurn = false;
 
@@ -118,7 +114,6 @@ public class SkeletonActivity extends Activity
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
                 .addApi(Games.API).addScope(Games.SCOPE_GAMES)
                 .build();
 
@@ -690,23 +685,23 @@ public class SkeletonActivity extends Activity
         Toast.makeText(
                 this,
                 "An invitation has arrived from "
-                        + invitation.getInviter().getDisplayName(), TOAST_DELAY)
+                        + invitation.getInviter().getDisplayName(), Toast.LENGTH_SHORT)
                 .show();
     }
 
     @Override
     public void onInvitationRemoved(String invitationId) {
-        Toast.makeText(this, "An invitation was removed.", TOAST_DELAY).show();
+        Toast.makeText(this, "An invitation was removed.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onTurnBasedMatchReceived(TurnBasedMatch match) {
-        Toast.makeText(this, "A match was updated.", TOAST_DELAY).show();
+        Toast.makeText(this, "A match was updated.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onTurnBasedMatchRemoved(String matchId) {
-        Toast.makeText(this, "A match was removed.", TOAST_DELAY).show();
+        Toast.makeText(this, "A match was removed.", Toast.LENGTH_SHORT).show();
 
     }
 
@@ -728,7 +723,7 @@ public class SkeletonActivity extends Activity
                 Toast.makeText(
                         this,
                         "Stored action for later.  (Please remove this toast before release.)",
-                        TOAST_DELAY).show();
+                        Toast.LENGTH_SHORT).show();
                 // NOTE: This toast is for informative reasons only; please remove
                 // it from your final application.
                 return true;
