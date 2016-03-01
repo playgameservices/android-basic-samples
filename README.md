@@ -87,15 +87,15 @@ Now jump to the *Modify IDs, compile and run* section and continue to follow the
 
 To set up a sample:
 
-1. Change the package name from com.google.example.games.\* to your own package name
-   (the same one you registered in Developer Console!). To do that, open **AndroidManifest.xml** and put
-   your package name in the "package" attribute of the **manifest** tag. You will need to
-   fix some of the references (particularly to the generated R class) because of the package name
-   change. Ctrl+Shift+O in Eclipse (and Alt+Enter in Android Studio) should take care of most of the work.
+1. Change the application id in the build.gradle file to your own package name
+   (the same one you registered in Developer Console!).  You will have to update
+   the build.gradle file for each sample you want to run.  There is no need to
+   edit the AndroidManifest.xml file.
 1. Modify res/values/ids.xml and place your IDs there, as given by the
    Developer Console (create the leaderboards and achievements necessary for
-   the sample, if any). Remember that the App ID is only the *numerical* portion
-   of your client ID, so use `123456789012` and not `123456789012.apps.gooogleusercontent.com`.
+   the sample, if any). In the Developer console, select a resource type
+   (Achievements, Events, Leaderboards) and click "Get Resources".  Copy the
+    contents from the console and replace the contents of res/values/ids.xml.
 1. Compile and run.
 
 IMPORTANT: make sure to sign your apk with the same certificate

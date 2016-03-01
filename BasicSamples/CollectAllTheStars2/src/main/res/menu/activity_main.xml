@@ -15,21 +15,22 @@
    limitations under the License.
 -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_sync"
         android:orderInCategory="100"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:title="@string/menu_sync"/>
     <item
         android:id="@+id/menu_save"
         android:orderInCategory="100"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:title="@string/menu_save"/>
 
     <item
         android:id="@+id/menu_select"
         android:orderInCategory="100"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:title="@string/menu_select"/>
 </menu>

@@ -40,7 +40,6 @@ import com.google.android.gms.games.snapshot.Snapshot;
 import com.google.android.gms.games.snapshot.SnapshotMetadata;
 import com.google.android.gms.games.snapshot.SnapshotMetadataChange;
 import com.google.android.gms.games.snapshot.Snapshots;
-import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
 import java.io.IOException;
@@ -249,9 +248,12 @@ public class MainActivity extends Activity
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
+
+                // Add the games API and scope.  Since we are using SavedGames, we need
+                // to add the SCOPE_APPFOLDER also.
+
                 .addApi(Games.API).addScope(Games.SCOPE_GAMES)
-                .addApi(Drive.API).addScope(Drive.SCOPE_APPFOLDER)
+                .addScope(Drive.SCOPE_APPFOLDER)
                 .build();
 
         for (int id : LEVEL_BUTTON_IDS) {

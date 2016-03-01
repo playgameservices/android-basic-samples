@@ -20,12 +20,9 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk
-        android:minSdkVersion="9"
-        android:targetSdkVersion="19" />
 
-    <application android:allowBackup="true">
+    <application>
+        <meta-data android:name="unityplayer.ForwardNativeEventsToDalvik" android:value="true" />
     </application>
-    <meta-data android:name="unityplayer.ForwardNativeEventsToDalvik" android:value="true" />
 
 </manifest>

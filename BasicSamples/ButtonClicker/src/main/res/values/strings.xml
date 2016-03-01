@@ -16,8 +16,6 @@
 -->
 
 <resources>
-    <string name="signing_in">Signing in with Google</string>
-    <string name="signing_out">Signing out</string>
     <string name="app_name">Button Clicker</string>
     <string name="game_title">Button Clicker 2000!</string>
     <string name="game_blurb">A sample game that tests your ability to click a button. Can you click faster than your friends? Only one way to find out! To play this game with friends, you must sign in with Google.</string>
@@ -32,11 +30,8 @@
     <string name="inv_popup_text">Incoming invitation!</string>
     <string name="accept_popup_invite">Accept!</string>
     <string name="sign_out">Sign Out</string>
-    <string name="please_wait">Please wait...</string>
+    <string name="please_wait">Please wait&#8230;</string>
     <string name="instructions">Click the button as fast as you can!</string>
-    <string name="dismiss">Dismiss</string>
-    <string name="your_score">Your score:</string>
-    <string name="error">Error</string>
     <string name="game_problem">An error occurred while starting the game. Please try again.</string>
     <string name="click_me">Click me!</string>
     <string name="is_inviting_you">is challenging you to a game!</string>

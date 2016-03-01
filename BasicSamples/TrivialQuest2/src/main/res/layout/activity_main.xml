@@ -28,7 +28,7 @@
 
         <Button android:id="@+id/button_blue" android:text="@string/click_blue"
             style="@style/Button"
-            android:layout_gravity="left|center_vertical"
+            android:layout_gravity="start|center_vertical"
             android:textColor="#ffffffff"
             android:background="#ff0073ff"
             android:layout_width="139dp"
@@ -36,7 +36,7 @@
 
         <Button android:id="@+id/button_green" android:text="@string/click_green"
             style="@style/Button"
-            android:layout_gravity="center_vertical|right"
+            android:layout_gravity="center_vertical|end"
             android:singleLine="false"
             android:background="#ff20ff35"
             android:layout_width="139dp"
@@ -44,7 +44,7 @@
 
         <Button android:id="@+id/button_red" android:text="@string/click_red"
             style="@style/Button"
-            android:layout_gravity="right|bottom"
+            android:layout_gravity="end|bottom"
             android:layout_height="139dp"
             android:layout_width="139dp"
             android:background="#ffff0100"
@@ -53,7 +53,7 @@
 
         <Button android:id="@+id/button_yellow" android:text="@string/click_yellow"
             style="@style/Button"
-            android:layout_gravity="left|bottom"
+            android:layout_gravity="start|bottom"
             android:layout_height="139dp"
             android:layout_width="139dp"
             android:background="#fffff80a" />

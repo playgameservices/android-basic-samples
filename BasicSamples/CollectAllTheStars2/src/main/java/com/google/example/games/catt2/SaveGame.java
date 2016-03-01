@@ -15,20 +15,15 @@
 
 package com.google.example.games.catt2;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.SharedPreferences;
-import android.os.Parcel;
-
-import com.google.android.gms.drive.Contents;
-import com.google.android.gms.games.snapshot.Snapshot;
-import com.google.android.gms.games.snapshot.SnapshotMetadata;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Represents the player's progress in the game. The player's progress is how many stars
@@ -178,7 +173,7 @@ public class SaveGame{
     public void save(SharedPreferences sp, String key) {
         SharedPreferences.Editor spe = sp.edit();
         spe.putString(key, toString());
-        spe.commit();
+        spe.apply();
     }
 
     /**
@@ -187,7 +182,7 @@ public class SaveGame{
      */
     public int getLevelStars(String levelName) {
         Integer r = mLevelStars.get(levelName);
-        return r == null ? 0 : r.intValue();
+        return r == null ? 0 : r;
     }
 
     /**

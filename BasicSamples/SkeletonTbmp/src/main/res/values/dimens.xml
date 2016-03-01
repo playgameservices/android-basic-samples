@@ -23,7 +23,5 @@
     <dimen name="font_size_large">32sp</dimen>
 
     <dimen name="margin_small">8dp</dimen>
-    <dimen name="margin_medium">16dp</dimen>
     <dimen name="margin_large">32dp</dimen>
-    <dimen name="margin_huge">64dp</dimen>
 </resources>

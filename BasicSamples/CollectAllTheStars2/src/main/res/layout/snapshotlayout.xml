@@ -13,9 +13,10 @@
             android:textSize="25sp" >
     </TextView>
     <ImageView
-            android:id="@+id/icon"
+            android:id="@+id/snapshot_icon"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/snapshotimage_description"
             >
     </ImageView>
     <TextView

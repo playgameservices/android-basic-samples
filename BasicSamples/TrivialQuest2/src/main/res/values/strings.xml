@@ -16,8 +16,6 @@
 -->
 
 <resources>
-    <string name="signing_in">Signing in with Google</string>
-    <string name="signing_out">Signing out</string>
     <string name="app_name">Trivial Quest 2</string>
     <string name="sign_in_explanation">Sign with Google to upload your achievements and share with friends.</string>
     <string name="you_are_signed_in">You are signed in with Google.</string>
@@ -32,6 +30,5 @@
     <string name="defeat_green_monster">You defeated a green monster!</string>
     <string name="defeat_red_monster">You defeated a red monster!</string>
     <string name="defeat_yellow_monster">You defeated a yellow monster.</string>
-    <string name="you_won">OK! You won!</string>
     <string name="signin_other_error">There was an issue with sign in.  Please try again later.</string>
 </resources>

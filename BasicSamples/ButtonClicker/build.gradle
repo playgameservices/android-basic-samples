@@ -6,14 +6,15 @@ android {
 
 
     defaultConfig {
+        /*
+          REPLACE THIS VALUE WITH YOUR APPLICATION ID
+        */
+        applicationId "com.google.example.games.replace.me"
+
         minSdkVersion android_min_sdk_version
         targetSdkVersion android_compile_version
         versionCode 1
         versionName "1.0"
-    }
-
-    lintOptions {
-        abortOnError false
     }
 
     buildTypes {

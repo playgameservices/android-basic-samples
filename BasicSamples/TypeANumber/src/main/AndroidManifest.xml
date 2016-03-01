@@ -27,15 +27,13 @@
 
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.example.games.tanc"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    package="com.google.example.games.tanc">
 
-    <uses-sdk
-        android:minSdkVersion="13"
-        android:targetSdkVersion="19" />
 
     <application
+        android:supportsRtl="true"
+        android:allowBackup="true"
+        android:fullBackupContent="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >

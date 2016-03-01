@@ -16,8 +16,6 @@
 -->
 
 <resources>
-    <string name="signing_in">Signing in with Google</string>
-    <string name="signing_out">Signing out</string>
     <string name="app_name">Type-a-Number Challenge</string>
     <string name="title_activity_main">Type-a-Number Challenge</string>
     <string name="signed_out_greeting">Hello, anonymous user (not signed in)!</string>

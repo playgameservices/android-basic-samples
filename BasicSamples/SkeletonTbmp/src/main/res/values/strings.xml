@@ -2,16 +2,10 @@
 <resources>
 
     <string name="app_name">Tbmp Skeleton</string>
-    <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
-    <string name="next_turn_">Next turn</string>
-    <string name="welcome">Welcome to the Skeleton, the game!  This is network-only, so you&amp;apos;ll need to log in to play!</string>
     <string name="sign_out">Sign Out</string>
     <string name="match_instructions">Type in a new word for the data in this game, then hit done.</string>
     <string name="quick_match">Quick match</string>
-    <string name="continue_str">Continue</string>
-    <string name="guesser_prompt">This has not been set.</string>
-    <string name="clear">Clear</string>
     <string name="done">Done</string>
     <string name="leave">Leave</string>
     <string name="cancel">Cancel</string>
