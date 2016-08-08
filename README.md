@@ -46,39 +46,15 @@ take a look at [our FAQ](https://github.com/playgameservices/android-samples/blo
    1. [Type a Number](http://playgameservices.github.io/android-basic-samples/config-magic/index.html?sample=typeanumber)
    1. [Trivial Quest](http://playgameservices.github.io/android-basic-samples/config-magic/index.html?sample=trivialquest)
 
-Pick a set of instructions below depending on whether you're using Eclipse or Android Studio.
-
-<h3>If you're using Eclipse...</h3>
-
-1. From the command line run Scripts/make_eclipse_compat (or Scripts/make_eclipse_compat.cmd on Windows).  This creates the directory structure needed to import the projects correctly.
-1. Start Eclipse
-1. Import the Google Play Services library project (available for download through the SDK manager):
-    1. Click **File | Import | Android | Existing Android Code into Workspace**
-    1. Select `SDK/extras/google/libproject/google_play_services/google_play_services_lib` (where `SDK` stands for the path where you installed your Android SDK)
-    1. Click **Finish**
-1. Import `eclipse_compat/libraries/BaseGameUtils` **as a library**
-    1. Click **File | Import | Android | Existing Android Code into Workspace**
-    1. Select the `eclipse_compat/libraries/BaseGameUtils` project
-    1. Click **Finish**
-    1. Right-click on `BaseGameUtils`, then click **Properties**
-    1. In the project properties window, click the **Android** section
-    1. Check the **Is Library** checkbox
-    1. Add a reference to the `google_play_services_lib` project (click **Remove** to remove any broken references, then click **Add** to add the correct one)
-1. Import the desired sample from the `eclipse_compat` directory (Project | Import | Android | Existing Android Source)
-1. Go into the project properties window for that project (right-click, **Properties**) and check that this project has a reference to the `BaseGameUtils` project.
-
-Your project should now compile. However, don't run it yet, since you still need to adjust your game's IDs
-in order for the sample(s) to work.
-
-Now jump to the *Modify IDs, compile and run* section and continue to follow the instructions there.
-
-<h3>If you're using Android Studio...</h3>
+<h3>Building using Android Studio...</h3>
 
 1. Open Android Studio and launch the Android SDK manager from it (Tools | Android | SDK Manager)
 1. Check that these two components are installed and updated to the latest version. Install or upgrade
    them if necessary.
-   1. *Google Play Services*
-   1. *Google Repository*
+   1. *Android SDK Platform Tools*
+   2. *Android Support Library*
+   2. *Google Play Services*
+   3. *Google Repository*
 1. Return to Android Studio and select *Import Project*
 1. Select the **BasicSamples** directory
 1. Select "Import from existing model - Gradle"
