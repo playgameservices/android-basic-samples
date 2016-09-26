@@ -39,5 +39,10 @@ android {
 
     compileSdkVersion android_compile_version
     buildToolsVersion android_version
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 23
+    }
 }
 
