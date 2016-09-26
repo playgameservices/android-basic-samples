@@ -19,7 +19,7 @@ dependencies {
         ext.support_library_version = '20.0.+'
     }
     if (!project.hasProperty('gms_library_version')) {
-        ext.gms_library_version = '8.1.0'
+        ext.gms_library_version = '8.4.0'
     }
 
     compile "com.android.support:appcompat-v7:${appcompat_library_version}"
@@ -33,11 +33,19 @@ android {
     if (!project.hasProperty('android_compile_version')) {
         ext.android_compile_version = 23
     }
+    if (!project.hasProperty('android_min_version')) {
+        ext.android_min_version = 15
+    }
     if (!project.hasProperty('android_version')) {
-        ext.android_version = '23'
+        ext.build_tools_version = "23.0.2"
     }
 
     compileSdkVersion android_compile_version
-    buildToolsVersion android_version
+    buildToolsVersion build_tools_version
+
+    defaultConfig {
+        minSdkVersion android_min_version
+        targetSdkVersion android_compile_version
+    }
 }
 
