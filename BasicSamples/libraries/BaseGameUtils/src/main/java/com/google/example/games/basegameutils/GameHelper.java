@@ -493,7 +493,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
         if (!mGoogleApiClient.isConnected()) {
             Log.w(TAG, "Warning: getRequests() should only be called "
                     + "when signed in, "
-                    + "that is, after getting onSignInSuceeded()");
+                    + "that is, after getting onSignInSucceeded()");
         }
         return mRequests;
     }
