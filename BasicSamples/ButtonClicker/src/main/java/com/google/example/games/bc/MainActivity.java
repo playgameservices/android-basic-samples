@@ -346,11 +346,10 @@ public class MainActivity extends Activity
         // stop trying to keep the screen on
         stopKeepingScreenOn();
 
-        if (mGoogleApiClient == null || !mGoogleApiClient.isConnected()){
-          switchToScreen(R.id.screen_sign_in);
-        }
-        else {
-          switchToScreen(R.id.screen_wait);
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            switchToMainScreen();
+        } else {
+            switchToScreen(R.id.screen_sign_in);
         }
         super.onStop();
       }
@@ -361,13 +360,15 @@ public class MainActivity extends Activity
     // this flow simply succeeds and is imperceptible).
     @Override
     public void onStart() {
-        switchToScreen(R.id.screen_wait);
-        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-          Log.w(TAG,
-              "GameHelper: client was already connected on onStart()");
+        if (mGoogleApiClient == null) {
+            switchToScreen(R.id.screen_sign_in);
+        } else if (!mGoogleApiClient.isConnected()) {
+            Log.d(TAG,"Connecting client.");
+            switchToScreen(R.id.screen_wait);
+            mGoogleApiClient.connect();
         } else {
-          Log.d(TAG,"Connecting client.");
-          mGoogleApiClient.connect();
+            Log.w(TAG,
+              "GameHelper: client was already connected on onStart()");
         }
         super.onStart();
     }
