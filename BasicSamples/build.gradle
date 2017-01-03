@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.3'
+        classpath 'com.android.tools.build:gradle:2.2.3'
     }
 }
 
@@ -19,13 +19,13 @@ allprojects {
     }
 
     ext {
-        android_compile_version = 23
-        android_version = '23.0.1'
+        android_compile_version = 25
+        android_version = '25.0.1'
         android_min_sdk_version = 15
 
-        appcompat_library_version = '23.2.0'
-        support_library_version = '23.2.0'
-        gms_library_version = '8.4.0'
+        appcompat_library_version = '25.1.0'
+        support_library_version = '25.1.0'
+        gms_library_version = '10.0.1'
     }
 }
 
