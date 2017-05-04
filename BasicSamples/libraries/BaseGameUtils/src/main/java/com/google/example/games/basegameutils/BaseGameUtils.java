@@ -38,7 +38,7 @@ public class BaseGameUtils {
      */
     public static boolean resolveConnectionFailure(Activity activity,
                                                    GoogleApiClient client, ConnectionResult result, int requestCode,
-                                                   String fallbackErrorMessage) {
+                                                   int fallbackErrorMessage) {
 
         if (result.hasResolution()) {
             try {
@@ -59,7 +59,7 @@ public class BaseGameUtils {
                 dialog.show();
             } else {
                 // no built-in dialog: show the fallback error message
-                showAlert(activity, fallbackErrorMessage);
+                showAlert(activity, activity.getString(fallbackErrorMessage));
             }
             return false;
         }
