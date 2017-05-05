@@ -574,7 +574,7 @@ public class GameHelper implements GoogleApiClient.ConnectionCallbacks,
             connect();
         } else if (responseCode == GamesActivityResultCodes.RESULT_RECONNECT_REQUIRED) {
             debugLog("onAR: Resolution was RECONNECT_REQUIRED, so reconnecting.");
-            connect();
+            reconnectClient();
         } else if (responseCode == Activity.RESULT_CANCELED) {
             // User cancelled.
             debugLog("onAR: Got a cancellation result, so disconnecting.");
