@@ -198,7 +198,7 @@ public class SkeletonActivity extends Activity
 
             mResolvingConnectionFailure = BaseGameUtils.resolveConnectionFailure(this,
                     mGoogleApiClient, connectionResult, RC_SIGN_IN,
-                    getString(R.string.signin_other_error));
+                    R.string.signin_other_error);
         }
 
         setViewVisibility();
