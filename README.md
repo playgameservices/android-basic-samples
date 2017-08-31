@@ -49,53 +49,38 @@ take a look at [our FAQ](https://github.com/playgameservices/android-samples/blo
 <h3>Building using Android Studio...</h3>
 
 1. Open Android Studio and launch the Android SDK manager from it (Tools | Android | SDK Manager)
-1. Check that these two components are installed and updated to the latest version. Install or upgrade
-   them if necessary.
-   1. *Android SDK Platform Tools*
-   2. *Android Support Library*
-   2. *Google Play Services*
-   3. *Google Repository*
-1. Return to Android Studio and select *Import Project*
+1. Ensure the following components are installed and updated to the latest version.
+   1. *Android SDK Platform-Tools*
+   1. *Android Support Repository*
+   1. *Google Repository*
+1. Return to Android Studio and select *Open an existing Android Studio project*
 1. Select the **BasicSamples** directory
-1. Select "Import from existing model - Gradle"
 
 <h3>Modify IDs, compile and run</h3>
 
 To set up a sample:
 
-1. Change the application id in the build.gradle file to your own package name
+1. Change the *application id* in the build.gradle file to your own **package name** (ie - com.example.package.name)
    (the same one you registered in Developer Console!).  You will have to update
    the build.gradle file for each sample you want to run.  There is no need to
    edit the AndroidManifest.xml file.
-1. Modify res/values/ids.xml and place your IDs there, as given by the
-   Developer Console (create the leaderboards and achievements necessary for
-   the sample, if any). In the Developer console, select a resource type
+1. In the Developer console, select a resource type
    (Achievements, Events, Leaderboards) and click "Get Resources".  Copy the
     contents from the console and replace the contents of res/values/ids.xml.
 1. Compile and run.
 
-IMPORTANT: make sure to sign your apk with the same certificate
+**IMPORTANT**: make sure to sign your apk with the same certificate
 as the one whose fingerprint you configured on Developer Console, otherwise
 you will see errors.
 
-IMPORTANT: if you are testing an unpublished game, make sure that the account you intend
+**IMPORTANT**: if you are testing an unpublished game, make sure that the account you intend
 to sign in with (the account on the test device) is listed as a tester in the
 project on your Developer Console setup (check the list in the "Testing"
 section), otherwise the server will act as though your project did not exist and
-return errors.
-
-<h3>If you're using another build system...</h3>
-
-If you are using your own build system, here is a summary of what you must do:
-
-1. Configure it to treat **google-play-services_lib** and **BaseGameUtils** as library projects, which means that not only their code but also their resources will also get added to the final build.
-1. Make sure **TrivialQuest** depends on **BaseGameUtils**
-1. Make sure **BaseGameUtils** depends on **google-play-services_lib**.
-1. Make sure the build system is signing the APK with the right certificate (the one whose fingerprint you provided in the Developer Console when creating your client ID)
+return errors like 'Failed to sign in. Please check your network connection and try again.'
 
 <h3>Building</h3>
-To build the samples after you have applied the changes above, you can use the build/run option in
-Eclipse or Android Studio, or build directly from the command line if you prefer:
+To build the samples after you have applied the changes above, you can use the build/run option in Android Studio, or build directly from the command line if you prefer:
 
     cd /path/to/BasicSamples
     ./gradlew build
@@ -113,5 +98,4 @@ If your question is not answered by the troubleshooting guide, we encourage you 
 <h2>Special Thanks</h2>
 
 * To [ligi](http://github.com/ligi) for contributing the initial Gradle build files
-* To [grantkemp](https://github.com/grantkemp) for fixing the Eclipse compat build when we migrated to Gradle
 * To [bechhansen](https://github.com/bechhansen) for fixing a bug in GameHelper where the turn-based match was being lost when a non-Games client connected.
