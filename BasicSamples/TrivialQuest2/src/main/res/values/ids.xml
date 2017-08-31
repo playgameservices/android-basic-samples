@@ -17,13 +17,14 @@
 
 <!--  Copy the resources from the Play Games Console  by clicking "Get resources"
 on the Events tab into this file -->
-
-
 <resources>
-    <string name="app_id">ReplaceMe</string>
+    <!-- TODO: Replace this entire file with the ids.xml provided from the Google Play Console.
+         NOTE: You can find this file by clicking the `Get Resources` link in
+         the Events, Achievements, or Leaderboards menu of the Google Play Console. -->
+    <string name="app_id">YOUR_APP_ID</string>
 
-  <string name="event_red">ReplaceMe</string>
-  <string name="event_green">ReplaceMe</string>
-  <string name="event_blue">ReplaceMe</string>
-  <string name="event_yellow">ReplaceMe</string>
+    <string name="event_red">YOUR_EVENT_RED</string>
+    <string name="event_green">YOUR_EVENT_GREEN</string>
+    <string name="event_blue">YOUR_EVENT_BLUE</string>
+    <string name="event_yellow">YOUR_EVENT_YELLOW</string>
 </resources>

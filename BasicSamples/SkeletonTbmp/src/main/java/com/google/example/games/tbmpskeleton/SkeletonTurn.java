@@ -49,8 +49,7 @@ public class SkeletonTurn {
             retVal.put("turnCounter", turnCounter);
 
         } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Log.e("SkeletonTurn", "There was an issue writing JSON!", e);
         }
 
         String st = retVal.toString();
@@ -91,8 +90,7 @@ public class SkeletonTurn {
             }
 
         } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Log.e("SkeletonTurn", "There was an issue parsing JSON!", e);
         }
 
         return retVal;

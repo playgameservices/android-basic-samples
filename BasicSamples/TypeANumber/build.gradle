@@ -7,7 +7,8 @@ android {
 
     defaultConfig {
         /*
-          REPLACE THIS VALUE WITH YOUR APPLICATION ID
+            TODO: Replace this value with your application's package name
+            You can find this in Linked Apps section of your Game Service in the Google Play Console
         */
         applicationId "com.google.example.games.replace.me"
 

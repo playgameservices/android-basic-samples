@@ -14,8 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-
 <resources>
-    <!-- Replace by your app ID -->
+    <!-- TODO: Replace this entire file with the ids.xml provided from the Google Play Console.
+         NOTE: You can find this file by clicking the `Get Resources` link in
+         the Events, Achievements, or Leaderboards menu of the Google Play Console. -->
     <string name="app_id">YOUR_APP_ID</string>
 </resources>

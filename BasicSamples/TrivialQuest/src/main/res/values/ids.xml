@@ -14,11 +14,11 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-
 <resources>
-    <!-- Replace by your app ID -->
-    <string name="app_id">ReplaceMe</string>
+    <!-- TODO: Replace this entire file with the ids.xml provided from the Google Play Console.
+         NOTE: You can find this file by clicking the `Get Resources` link in
+         the Events, Achievements, or Leaderboards menu of the Google Play Console. -->
+    <string name="app_id">YOUR_APP_ID</string>
 
-    <!-- Replace by your "Trivial Victory" achievement ID -->
-    <string name="achievement_trivial_victory">ReplaceMe</string>
+    <string name="achievement_trivial_victory">YOUR_ACHIEVEMENT_TRIVIAL_VICTORY</string>
 </resources>

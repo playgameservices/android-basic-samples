@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
    Copyright (C) 2013 Google Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,17 +14,18 @@
    limitations under the License.
 -->
 <resources>
-    <!-- TODO: Replace this by your app's app ID! -->
-    <string name="app_id">ReplaceMe</string>
+    <!-- TODO: Replace this entire file with the ids.xml provided from the Google Play Console.
+         NOTE: You can find this file by clicking the `Get Resources` link in
+         the Events, Achievements, or Leaderboards menu of the Google Play Console. -->
+    <string name="app_id">YOUR_APP_ID</string>
 
-    <!-- TODO: Replace these by your achievement/leaderboard IDs! -->
-    <string name="achievement_prime">ReplaceMe</string>
-    <string name="achievement_really_bored">ReplaceMe</string>
-    <string name="achievement_bored">ReplaceMe</string>
-    <string name="achievement_humble">ReplaceMe</string>
-    <string name="achievement_arrogant">ReplaceMe</string>
-    <string name="achievement_leet">ReplaceMe</string>
+    <string name="achievement_prime">YOUR_ACHIEVEMENT_PRIME_ID</string>
+    <string name="achievement_really_bored">YOUR_ACHIEVEMENT_REALLY_BORED_ID</string>
+    <string name="achievement_bored">YOUR_ACHIEVEMENT_BORED_ID</string>
+    <string name="achievement_humble">YOUR_ACHIEVEMENT_HUMBLE_ID</string>
+    <string name="achievement_arrogant">YOUR_ACHIEVEMENT_ARROGANT_ID</string>
+    <string name="achievement_leet">YOUR_ACHIEVEMENT_LEET_ID</string>
 
-    <string name="leaderboard_easy">ReplaceMe</string>
-    <string name="leaderboard_hard">ReplaceMe</string>
+    <string name="leaderboard_easy">YOUR_LEADERBOARD_EASY_ID</string>
+    <string name="leaderboard_hard">YOUR_LEADERBOARD_HARD_ID</string>
 </resources>

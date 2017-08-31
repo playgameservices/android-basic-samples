@@ -92,9 +92,9 @@ public class BaseGameUtils {
         }
 
         for (int i : resIds) {
-            if (activity.getString(i).toLowerCase().contains("replaceme")) {
+            if (activity.getString(i).startsWith("YOUR_")) {
                 problemFound = true;
-                problems.append("- You must replace all " +
+                problems.append("- You must replace `YOUR_*`" +
                         "placeholder IDs in the ids.xml file by your project's IDs.").append("\n");
                 break;
             }
