@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
+        classpath 'com.android.tools.build:gradle:2.3.3'
     }
 }
 
@@ -21,7 +21,8 @@ allprojects {
     ext {
         android_compile_version = 25
         android_version = '25.0.1'
-        android_min_sdk_version = 15
+        // Google Play Services minimum requirements is 14
+        android_min_sdk_version = 14
 
         appcompat_library_version = '25.1.0'
         support_library_version = '25.1.0'

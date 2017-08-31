@@ -3,3 +3,5 @@
 bin/
 build/
 .project
+.DS_Store
+/.idea
