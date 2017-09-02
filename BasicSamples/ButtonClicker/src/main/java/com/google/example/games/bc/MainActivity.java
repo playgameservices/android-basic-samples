@@ -482,7 +482,7 @@ public class MainActivity extends Activity
         mAutoStartSignInFlow = false;
         mSignInClicked = false;
         mResolvingConnectionFailure = BaseGameUtils.resolveConnectionFailure(this, mGoogleApiClient,
-            connectionResult, RC_SIGN_IN, getString(R.string.signin_other_error));
+            connectionResult, RC_SIGN_IN, R.string.signin_other_error);
       }
 
       switchToScreen(R.id.screen_sign_in);

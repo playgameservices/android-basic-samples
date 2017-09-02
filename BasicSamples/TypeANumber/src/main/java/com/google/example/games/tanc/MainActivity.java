@@ -383,7 +383,7 @@ public class MainActivity extends FragmentActivity
             mSignInClicked = false;
             mResolvingConnectionFailure = true;
             if (!BaseGameUtils.resolveConnectionFailure(this, mGoogleApiClient, connectionResult,
-                    RC_SIGN_IN, getString(R.string.signin_other_error))) {
+                    RC_SIGN_IN, R.string.signin_other_error)) {
                 mResolvingConnectionFailure = false;
             }
         }
