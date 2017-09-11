@@ -16,9 +16,9 @@
 
 package com.google.example.games.tanc;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -32,12 +32,12 @@ import com.google.example.games.basegameutils.BaseGameUtils;
 
 /**
  * Our main activity for the game.
- *
+ * <p>
  * IMPORTANT: Before attempting to run this sample, please change
  * the package name to your own package name (not com.android.*) and
  * replace the IDs on res/values/ids.xml by your own IDs (you must
  * create a game in the developer console to get those IDs).
- *
+ * <p>
  * This is a very simple game where the user selects "easy mode" or
  * "hard mode" and then the "gameplay" consists of inputting the
  * desired score (0 to 9999). In easy mode, you get the score you
@@ -45,15 +45,17 @@ import com.google.example.games.basegameutils.BaseGameUtils;
  *
  * @author Bruno Oliveira
  */
-public class MainActivity extends FragmentActivity
-        implements MainMenuFragment.Listener,
-        GameplayFragment.Listener, WinFragment.Listener,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends FragmentActivity implements
+        MainMenuFragment.Listener,
+        GameplayFragment.Callback,
+        WinFragment.Listener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     // Fragments
-    MainMenuFragment mMainMenuFragment;
-    GameplayFragment mGameplayFragment;
-    WinFragment mWinFragment;
+    private MainMenuFragment mMainMenuFragment;
+    private GameplayFragment mGameplayFragment;
+    private WinFragment mWinFragment;
 
     // Client used to interact with Google APIs
     private GoogleApiClient mGoogleApiClient;
@@ -68,20 +70,18 @@ public class MainActivity extends FragmentActivity
     private boolean mAutoStartSignInFlow = true;
 
     // request codes we use when invoking an external activity
-    private static final int RC_RESOLVE = 5000;
     private static final int RC_UNUSED = 5001;
     private static final int RC_SIGN_IN = 9001;
 
     // tag for debug logging
-    final boolean ENABLE_DEBUG = true;
-    final String TAG = "TanC";
+    private static final String TAG = "TanC";
 
     // playing on hard mode?
-    boolean mHardMode = false;
+    private boolean mHardMode = false;
 
     // achievements and scores we're pending to push to the cloud
     // (waiting for the user to sign in, for instance)
-    AccomplishmentsOutbox mOutbox = new AccomplishmentsOutbox();
+    private final AccomplishmentsOutbox mOutbox = new AccomplishmentsOutbox();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -102,7 +102,7 @@ public class MainActivity extends FragmentActivity
 
         // listen to fragment events
         mMainMenuFragment.setListener(this);
-        mGameplayFragment.setListener(this);
+        mGameplayFragment.setCallback(this);
         mWinFragment.setListener(this);
 
         // add initial fragment (welcome fragment)
@@ -114,13 +114,10 @@ public class MainActivity extends FragmentActivity
         // already be there after rotation and trying to add it again would
         // result in overlapping fragments. But since we don't support rotation,
         // we don't deal with that for code simplicity.
-
-        // load outbox from file
-        mOutbox.loadLocal(this);
     }
 
     // Switch UI to the given fragment
-    void switchToFragment(Fragment newFrag) {
+    private void switchToFragment(Fragment newFrag) {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, newFrag)
                 .commit();
     }
@@ -176,7 +173,7 @@ public class MainActivity extends FragmentActivity
      *
      * @param hardMode whether to start gameplay in "hard mode".
      */
-    void startGame(boolean hardMode) {
+    private void startGame(boolean hardMode) {
         mHardMode = hardMode;
         switchToFragment(mGameplayFragment);
     }
@@ -186,7 +183,7 @@ public class MainActivity extends FragmentActivity
         // Compute final score (in easy mode, it's the requested score; in hard mode, it's half)
         int finalScore = mHardMode ? requestedScore / 2 : requestedScore;
 
-        mWinFragment.setFinalScore(finalScore);
+        mWinFragment.setScore(finalScore);
         mWinFragment.setExplanation(mHardMode ? getString(R.string.hard_mode_explanation) :
                 getString(R.string.easy_mode_explanation));
 
@@ -205,9 +202,11 @@ public class MainActivity extends FragmentActivity
 
     // Checks if n is prime. We don't consider 0 and 1 to be prime.
     // This is not an implementation we are mathematically proud of, but it gets the job done.
-    boolean isPrime(int n) {
+    private boolean isPrime(int n) {
         int i;
-        if (n == 0 || n == 1) return false;
+        if (n == 0 || n == 1) {
+            return false;
+        }
         for (i = 2; i <= n / 2; i++) {
             if (n % i == 0) {
                 return false;
@@ -220,9 +219,9 @@ public class MainActivity extends FragmentActivity
      * Check for achievements and unlock the appropriate ones.
      *
      * @param requestedScore the score the user requested.
-     * @param finalScore the score the user got.
+     * @param finalScore     the score the user got.
      */
-    void checkForAchievements(int requestedScore, int finalScore) {
+    private void checkForAchievements(int requestedScore, int finalScore) {
         // Check if each condition is met; if so, unlock the corresponding
         // achievement.
         if (isPrime(finalScore)) {
@@ -244,16 +243,7 @@ public class MainActivity extends FragmentActivity
         mOutbox.mBoredSteps++;
     }
 
-    void unlockAchievement(int achievementId, String fallbackString) {
-        if (isSignedIn()) {
-            Games.Achievements.unlock(mGoogleApiClient, getString(achievementId));
-        } else {
-            Toast.makeText(this, getString(R.string.achievement) + ": " + fallbackString,
-                    Toast.LENGTH_LONG).show();
-        }
-    }
-
-    void achievementToast(String achievement) {
+    private void achievementToast(String achievement) {
         // Only show toast if not signed in. If signed in, the standard Google Play
         // toasts will appear, so we don't need to show our own.
         if (!isSignedIn()) {
@@ -262,10 +252,9 @@ public class MainActivity extends FragmentActivity
         }
     }
 
-    void pushAccomplishments() {
+    private void pushAccomplishments() {
         if (!isSignedIn()) {
-            // can't push to the cloud, so save locally
-            mOutbox.saveLocal(this);
+            // can't push to the cloud, try again later
             return;
         }
         if (mOutbox.mPrimeAchievement) {
@@ -300,7 +289,6 @@ public class MainActivity extends FragmentActivity
                     mOutbox.mHardModeScore);
             mOutbox.mHardModeScore = -1;
         }
-        mOutbox.saveLocal(this);
     }
 
     /**
@@ -308,7 +296,7 @@ public class MainActivity extends FragmentActivity
      *
      * @param finalScore The score the user got.
      */
-    void updateLeaderboards(int finalScore) {
+    private void updateLeaderboards(int finalScore) {
         if (mHardMode && mOutbox.mHardModeScore < finalScore) {
             mOutbox.mHardModeScore = finalScore;
         } else if (!mHardMode && mOutbox.mEasyModeScore < finalScore) {
@@ -371,7 +359,7 @@ public class MainActivity extends FragmentActivity
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d(TAG, "onConnectionFailed(): attempting to resolve");
         if (mResolvingConnectionFailure) {
             Log.d(TAG, "onConnectionFailed(): already resolving");
@@ -381,11 +369,12 @@ public class MainActivity extends FragmentActivity
         if (mSignInClicked || mAutoStartSignInFlow) {
             mAutoStartSignInFlow = false;
             mSignInClicked = false;
-            mResolvingConnectionFailure = true;
-            if (!BaseGameUtils.resolveConnectionFailure(this, mGoogleApiClient, connectionResult,
-                    RC_SIGN_IN, getString(R.string.signin_other_error))) {
-                mResolvingConnectionFailure = false;
-            }
+            mResolvingConnectionFailure = BaseGameUtils.
+                    resolveConnectionFailure(this,
+                            mGoogleApiClient,
+                            connectionResult,
+                            RC_SIGN_IN,
+                            getString(R.string.signin_other_error));
         }
 
         // Sign-in failed, so show sign-in button on main menu
@@ -399,7 +388,7 @@ public class MainActivity extends FragmentActivity
         // Check to see the developer who's running this sample code read the instructions :-)
         // NOTE: this check is here only because this is a sample! Don't include this
         // check in your actual production app.
-        if(!BaseGameUtils.verifySampleSetup(this, R.string.app_id,
+        if (!BaseGameUtils.verifySampleSetup(this, R.string.app_id,
                 R.string.achievement_prime, R.string.leaderboard_easy)) {
             Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
         }
@@ -422,7 +411,7 @@ public class MainActivity extends FragmentActivity
         mWinFragment.setShowSignInButton(true);
     }
 
-    class AccomplishmentsOutbox {
+    private class AccomplishmentsOutbox {
         boolean mPrimeAchievement = false;
         boolean mHumbleAchievement = false;
         boolean mLeetAchievement = false;
@@ -437,17 +426,6 @@ public class MainActivity extends FragmentActivity
                     mHardModeScore < 0;
         }
 
-        public void saveLocal(Context ctx) {
-            /* TODO: This is left as an exercise. To make it more difficult to cheat,
-             * this data should be stored in an encrypted file! And remember not to
-             * expose your encryption key (obfuscate it by building it from bits and
-             * pieces and/or XORing with another string, for instance). */
-        }
-
-        public void loadLocal(Context ctx) {
-            /* TODO: This is left as an exercise. Write code here that loads data
-             * from the file you wrote in saveLocal(). */
-        }
     }
 
     @Override

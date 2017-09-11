@@ -29,89 +29,105 @@ import android.widget.TextView;
  * show view achievements/leaderboards.
  *
  * @author Bruno Oliveira (Google)
- *
  */
 public class MainMenuFragment extends Fragment implements OnClickListener {
-    String mGreeting = "Hello, anonymous user (not signed in)";
+    private String mGreeting = "Hello, anonymous user (not signed in)";
+    private TextView mGreetingTextView;
+    private View mSignInBarView;
+    private View mSignOutBarView;
 
-    public interface Listener {
-        public void onStartGameRequested(boolean hardMode);
-        public void onShowAchievementsRequested();
-        public void onShowLeaderboardsRequested();
-        public void onSignInButtonClicked();
-        public void onSignOutButtonClicked();
+    interface Listener {
+        // called when the user presses the `Easy` or `Okay` button; will pass in which via `hardMode`
+        void onStartGameRequested(boolean hardMode);
+
+        // called when the user presses the `Show Achievements` button
+        void onShowAchievementsRequested();
+
+        // called when the user presses the `Show Leaderboards` button
+        void onShowLeaderboardsRequested();
+
+        // called when the user presses the `Sign In` button
+        void onSignInButtonClicked();
+
+        // called when the user presses the `Sign Out` button
+        void onSignOutButtonClicked();
     }
 
-    Listener mListener = null;
-    boolean mShowSignIn = true;
+    private Listener mListener = null;
+    private boolean mShowSignInButton = true;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_mainmenu, container, false);
-        final int[] CLICKABLES = new int[] {
-                R.id.easy_mode_button, R.id.hard_mode_button,
-                R.id.show_achievements_button, R.id.show_leaderboards_button,
-                R.id.sign_in_button, R.id.sign_out_button
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.fragment_mainmenu, container, false);
+
+        final int[] clickableIds = new int[]{
+                R.id.easy_mode_button,
+                R.id.hard_mode_button,
+                R.id.show_achievements_button,
+                R.id.show_leaderboards_button,
+                R.id.sign_in_button,
+                R.id.sign_out_button
         };
-        for (int i : CLICKABLES) {
-            v.findViewById(i).setOnClickListener(this);
+
+        for (int clickableId : clickableIds) {
+            view.findViewById(clickableId).setOnClickListener(this);
         }
-        return v;
+
+        // cache views
+        mGreetingTextView = view.findViewById(R.id.text_greeting);
+        mSignInBarView = view.findViewById(R.id.sign_in_bar);
+        mSignOutBarView = view.findViewById(R.id.sign_out_bar);
+
+        updateUI();
+
+        return view;
     }
 
-    public void setListener(Listener l) {
-        mListener = l;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        updateUi();
+    public void setListener(Listener listener) {
+        mListener = listener;
     }
 
     public void setGreeting(String greeting) {
         mGreeting = greeting;
-        updateUi();
+        updateUI();
     }
 
-    void updateUi() {
-        if (getActivity() == null) return;
-        TextView tv = (TextView) getActivity().findViewById(R.id.hello);
-        if (tv != null) tv.setText(mGreeting);
+    private void updateUI() {
+        mGreetingTextView.setText(mGreeting);
 
-        getActivity().findViewById(R.id.sign_in_bar).setVisibility(mShowSignIn ?
-                View.VISIBLE : View.GONE);
-        getActivity().findViewById(R.id.sign_out_bar).setVisibility(mShowSignIn ?
-                View.GONE : View.VISIBLE);
+        mSignInBarView.setVisibility(mShowSignInButton ? View.VISIBLE : View.GONE);
+        mSignOutBarView.setVisibility(mShowSignInButton ? View.GONE : View.VISIBLE);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-        case R.id.easy_mode_button:
-            mListener.onStartGameRequested(false);
-            break;
-        case R.id.hard_mode_button:
-            mListener.onStartGameRequested(true);
-            break;
-        case R.id.show_achievements_button:
-            mListener.onShowAchievementsRequested();
-            break;
-        case R.id.show_leaderboards_button:
-            mListener.onShowLeaderboardsRequested();
-            break;
-        case R.id.sign_in_button:
-            mListener.onSignInButtonClicked();
-            break;
-        case R.id.sign_out_button:
-            mListener.onSignOutButtonClicked();
-            break;
+            case R.id.easy_mode_button:
+                mListener.onStartGameRequested(false);
+                break;
+            case R.id.hard_mode_button:
+                mListener.onStartGameRequested(true);
+                break;
+            case R.id.show_achievements_button:
+                mListener.onShowAchievementsRequested();
+                break;
+            case R.id.show_leaderboards_button:
+                mListener.onShowLeaderboardsRequested();
+                break;
+            case R.id.sign_in_button:
+                mListener.onSignInButtonClicked();
+                break;
+            case R.id.sign_out_button:
+                mListener.onSignOutButtonClicked();
+                break;
         }
     }
 
-    public void setShowSignInButton(boolean showSignIn) {
-        mShowSignIn = showSignIn;
-        updateUi();
+    public void setShowSignInButton(boolean showSignInButton) {
+        mShowSignInButton = showSignInButton;
+        updateUI();
     }
 }
