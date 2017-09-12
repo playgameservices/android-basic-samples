@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:textSize="18sp"
             android:layout_marginBottom="10dp"
-            android:id="@+id/hello" />
+            android:id="@+id/text_greeting" />
 
         <TextView android:layout_width="wrap_content"
             android:layout_height="wrap_content"

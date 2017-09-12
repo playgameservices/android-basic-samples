@@ -38,12 +38,12 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="40dp"
             android:textSize="40sp"
-            android:id="@+id/score_display"/>
+            android:id="@+id/text_win_score"/>
 
         <TextView android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="40dp"
-            android:id="@+id/scoreblurb" />
+            android:id="@+id/text_explanation" />
 
         <Button android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
             android:layout_marginTop="20dp" />
     </LinearLayout>
 
-    <LinearLayout android:id="@+id/win_screen_sign_in_bar"
+    <LinearLayout android:id="@+id/win_sign_in_bar"
         android:layout_height="120dp"
         android:layout_width="match_parent"
         android:background="#f0f0f0"
@@ -77,7 +77,7 @@
             />
     </LinearLayout>
 
-    <TextView android:id="@+id/win_screen_signed_in_bar"
+    <TextView android:id="@+id/signed_in_bar"
         android:layout_height="120dp"
         android:layout_width="match_parent"
         android:background="#f0f0f0"

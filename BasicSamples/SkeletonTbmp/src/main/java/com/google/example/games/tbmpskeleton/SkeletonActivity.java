@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.example.tbmpskeleton;
+package com.google.example.games.tbmpskeleton;
 
 import android.app.Activity;
 import android.app.AlertDialog;

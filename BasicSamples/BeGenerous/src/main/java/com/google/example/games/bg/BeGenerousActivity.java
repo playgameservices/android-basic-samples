@@ -45,7 +45,6 @@ import com.google.android.gms.games.request.Requests.LoadRequestsResult;
 import com.google.android.gms.games.request.Requests.UpdateRequestsResult;
 import com.google.android.gms.games.stats.PlayerStats;
 import com.google.android.gms.games.stats.Stats;
-import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
 import java.io.IOException;
@@ -101,13 +100,12 @@ public class BeGenerousActivity extends Activity
         Log.d(TAG, "onCreate()");
 
         // Require Google + so we can use it to look at our circles.
-        Games.GamesOptions gamesOptions = Games.GamesOptions.builder().setRequireGooglePlus(true).build();
+        Games.GamesOptions gamesOptions = Games.GamesOptions.builder().build();
 
         // Create the Google Api Client with access to Plus and Games
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
                 .addApi(Games.API, gamesOptions).addScope(Games.SCOPE_GAMES)
                 .build();
 
@@ -131,9 +129,6 @@ public class BeGenerousActivity extends Activity
         vw.setImageBitmap(null);
         TextView name = (TextView)findViewById(R.id.playerName);
         name.setText("");
-        TextView email = (TextView)findViewById((R.id.playerEmail));
-        email.setText("");
-
     }
 
     // Shows the "sign out" bar (explanation and button).
@@ -151,9 +146,6 @@ public class BeGenerousActivity extends Activity
             // load the image in the background.
             new DownloadImageTask(vw).execute(url);
          }
-        String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
-        TextView emailView = (TextView)findViewById((R.id.playerEmail));
-        emailView.setText(email);
     }
 
     /**

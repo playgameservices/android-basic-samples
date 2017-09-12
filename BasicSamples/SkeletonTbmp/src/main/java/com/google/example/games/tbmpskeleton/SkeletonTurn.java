@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.example.tbmpskeleton;
+package com.google.example.games.tbmpskeleton;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -26,9 +26,9 @@ import android.util.Log;
 
 /**
  * Basic turn data. It's just a blank data string and a turn number counter.
- * 
+ *
  * @author wolff
- * 
+ *
  */
 public class SkeletonTurn {
 

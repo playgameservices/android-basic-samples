@@ -18,7 +18,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" style="@style/MainLayout"
     tools:context=".BeGenerousActivity">
-    
+
     <!-- GIFT REQUEST STATUS AREA -->
     <RelativeLayout android:id="@+id/status_area" style="@style/SignInOutBar">
         <TextView
@@ -81,13 +81,6 @@
             android:id="@+id/playerName"
             android:layout_gravity="center_horizontal"
            />
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:id="@+id/playerEmail"
-            android:layout_gravity="center_horizontal"
-            />
 
     <!-- MAIN DISPLAY -->
     <RelativeLayout style="@style/MainDisplay">
@@ -98,7 +91,7 @@
             style="@style/Button"
             android:contentDescription="@string/send_gift"
             android:src="@drawable/ic_send_gift" />
-        
+
         <ImageButton
             android:id="@+id/button_send_request"
             style="@style/Button"
