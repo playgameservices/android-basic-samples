@@ -48,7 +48,7 @@ public class WinFragment extends Fragment implements OnClickListener {
         void onWinScreenDismissed();
 
         // called when the user presses the `Sign In` button
-        void onWinScreenSignInClicked();
+        void onSignInButtonClicked();
     }
 
     private Listener mListener = null;
@@ -111,7 +111,7 @@ public class WinFragment extends Fragment implements OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.win_screen_sign_in_button:
-                mListener.onWinScreenSignInClicked();
+                mListener.onSignInButtonClicked();
                 break;
             case R.id.win_ok_button:
                 mListener.onWinScreenDismissed();

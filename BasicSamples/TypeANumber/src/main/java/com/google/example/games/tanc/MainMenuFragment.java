@@ -35,6 +35,8 @@ public class MainMenuFragment extends Fragment implements OnClickListener {
     private TextView mGreetingTextView;
     private View mSignInBarView;
     private View mSignOutBarView;
+    private View mShowAchievementsButton;
+    private View mShowLeaderboardsButton;
 
     interface Listener {
         // called when the user presses the `Easy` or `Okay` button; will pass in which via `hardMode`
@@ -77,6 +79,9 @@ public class MainMenuFragment extends Fragment implements OnClickListener {
         }
 
         // cache views
+        mShowAchievementsButton = view.findViewById(R.id.show_achievements_button);
+        mShowLeaderboardsButton = view.findViewById(R.id.show_leaderboards_button);
+
         mGreetingTextView = view.findViewById(R.id.text_greeting);
         mSignInBarView = view.findViewById(R.id.sign_in_bar);
         mSignOutBarView = view.findViewById(R.id.sign_out_bar);
@@ -97,7 +102,8 @@ public class MainMenuFragment extends Fragment implements OnClickListener {
 
     private void updateUI() {
         mGreetingTextView.setText(mGreeting);
-
+        mShowAchievementsButton.setEnabled(!mShowSignInButton);
+        mShowLeaderboardsButton.setEnabled(!mShowSignInButton);
         mSignInBarView.setVisibility(mShowSignInButton ? View.VISIBLE : View.GONE);
         mSignOutBarView.setVisibility(mShowSignInButton ? View.GONE : View.VISIBLE);
     }

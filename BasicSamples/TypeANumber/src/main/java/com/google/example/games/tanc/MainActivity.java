@@ -16,6 +16,7 @@
 
 package com.google.example.games.tanc;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,10 +25,22 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.games.AchievementsClient;
 import com.google.android.gms.games.Games;
+import com.google.android.gms.games.LeaderboardsClient;
 import com.google.android.gms.games.Player;
+import com.google.android.gms.games.PlayersClient;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
 /**
@@ -48,26 +61,23 @@ import com.google.example.games.basegameutils.BaseGameUtils;
 public class MainActivity extends FragmentActivity implements
         MainMenuFragment.Listener,
         GameplayFragment.Callback,
-        WinFragment.Listener,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+        WinFragment.Listener {
 
     // Fragments
     private MainMenuFragment mMainMenuFragment;
     private GameplayFragment mGameplayFragment;
     private WinFragment mWinFragment;
 
-    // Client used to interact with Google APIs
-    private GoogleApiClient mGoogleApiClient;
+    // Client used to sign in with Google APIs
+    private GoogleSignInClient mGoogleSignInClient;
 
-    // Are we currently resolving a connection failure?
-    private boolean mResolvingConnectionFailure = false;
+    // Account used to interact with Google APIs
+    private GoogleSignInAccount mGoogleSignInAccount;
 
-    // Has the user clicked the sign-in button?
-    private boolean mSignInClicked = false;
-
-    // Automatically start the sign-in flow when the Activity starts
-    private boolean mAutoStartSignInFlow = true;
+    // Client variables
+    private AchievementsClient mAchievementsClient;
+    private LeaderboardsClient mLeaderboardsClient;
+    private PlayersClient mPlayersClient;
 
     // request codes we use when invoking an external activity
     private static final int RC_UNUSED = 5001;
@@ -86,34 +96,34 @@ public class MainActivity extends FragmentActivity implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
-        // Create the Google API Client with access to Games
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(Games.API).addScope(Games.SCOPE_GAMES)
-                .build();
+        // Create the client used to sign in to Google services.
+        mGoogleSignInClient = GoogleSignIn.getClient(this,
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN).build());
 
-        // create fragments
+        // mGoogleSignInAccount will be null until the user signs in.
+        mGoogleSignInAccount = null;
+
+        // Create the fragments used by the UI.
         mMainMenuFragment = new MainMenuFragment();
         mGameplayFragment = new GameplayFragment();
         mWinFragment = new WinFragment();
 
-        // listen to fragment events
+        // Set the listeners and callbacks of fragment events.
         mMainMenuFragment.setListener(this);
         mGameplayFragment.setCallback(this);
         mWinFragment.setListener(this);
 
-        // add initial fragment (welcome fragment)
-        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,
-                mMainMenuFragment).commit();
-
+        // Add initial Main Menu fragment.
         // IMPORTANT: if this Activity supported rotation, we'd have to be
         // more careful about adding the fragment, since the fragment would
         // already be there after rotation and trying to add it again would
         // result in overlapping fragments. But since we don't support rotation,
         // we don't deal with that for code simplicity.
+        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,
+                mMainMenuFragment).commit();
     }
 
     // Switch UI to the given fragment
@@ -123,23 +133,76 @@ public class MainActivity extends FragmentActivity implements
     }
 
     private boolean isSignedIn() {
-        return (mGoogleApiClient != null && mGoogleApiClient.isConnected());
+        return mGoogleSignInAccount != null;
+    }
+
+    private void signInSilently() {
+        Log.d(TAG, "signInSilently()");
+
+        mGoogleSignInClient.silentSignIn().addOnCompleteListener(this,
+                new OnCompleteListener<GoogleSignInAccount>() {
+                    @Override
+                    public void onComplete(@NonNull Task<GoogleSignInAccount> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "signInSilently(): success");
+                            onConnected(task.getResult());
+                        } else {
+                            Log.d(TAG, "signInSilently(): failure");
+                            onDisconnected();
+                        }
+                    }
+                });
+    }
+
+    private void startSignInIntent() {
+        startActivityForResult(mGoogleSignInClient.getSignInIntent(), RC_SIGN_IN);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d(TAG, "onStart(): connecting");
-        mGoogleApiClient.connect();
+
+        Log.d(TAG, "onStart()");
+
+        // Check to see the developer who's running this sample code read the instructions :-)
+        // NOTE: this check is here only because this is a sample! Don't include this
+        // check in your actual production app.
+        if (!BaseGameUtils.verifySampleSetup(this, R.string.app_id,
+                R.string.achievement_prime, R.string.leaderboard_easy)) {
+            Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
+        }
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(TAG, "onStop(): disconnecting");
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume()");
+
+        // Since the state of the signed in user can change when the activity is not active
+        // it is recommended to try and sign in silently from when the app resumes.
+        if (!isSignedIn()) {
+            signInSilently();
         }
+    }
+
+    private void signOut() {
+        Log.d(TAG, "signOut()");
+
+        if (!isSignedIn()) {
+            Log.w(TAG, "signOut() called, but was not signed in!");
+            return;
+        }
+
+        mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        boolean successful = task.isSuccessful();
+                        Log.d(TAG, "signOut(): " + (successful ? "success" : "failed"));
+
+                        onDisconnected();
+                    }
+                });
     }
 
     @Override
@@ -149,22 +212,52 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     public void onShowAchievementsRequested() {
-        if (isSignedIn()) {
-            startActivityForResult(Games.Achievements.getAchievementsIntent(mGoogleApiClient),
-                    RC_UNUSED);
-        } else {
-            BaseGameUtils.makeSimpleDialog(this, getString(R.string.achievements_not_available)).show();
-        }
+        mAchievementsClient.getAchievementsIntent()
+                .addOnSuccessListener(new OnSuccessListener<Intent>() {
+                    @Override
+                    public void onSuccess(Intent intent) {
+                        startActivityForResult(intent, RC_UNUSED);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        handleException(e, getString(R.string.achievements_exception));
+                    }
+                });
     }
 
     @Override
     public void onShowLeaderboardsRequested() {
-        if (isSignedIn()) {
-            startActivityForResult(Games.Leaderboards.getAllLeaderboardsIntent(mGoogleApiClient),
-                    RC_UNUSED);
-        } else {
-            BaseGameUtils.makeSimpleDialog(this, getString(R.string.leaderboards_not_available)).show();
+        mLeaderboardsClient.getAllLeaderboardsIntent()
+                .addOnSuccessListener(new OnSuccessListener<Intent>() {
+                    @Override
+                    public void onSuccess(Intent intent) {
+                        startActivityForResult(intent, RC_UNUSED);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        handleException(e, getString(R.string.leaderboards_exception));
+                    }
+                });
+    }
+
+    private void handleException(Exception e, String details) {
+        int status = 0;
+
+        if (e instanceof ApiException) {
+            ApiException apiException = (ApiException) e;
+            status = apiException.getStatusCode();
         }
+
+        String message = getString(R.string.status_exception_error, details, status, e);
+
+        new AlertDialog.Builder(MainActivity.this)
+                .setMessage(message)
+                .setNeutralButton(android.R.string.ok, null)
+                .show();
     }
 
     /**
@@ -258,34 +351,34 @@ public class MainActivity extends FragmentActivity implements
             return;
         }
         if (mOutbox.mPrimeAchievement) {
-            Games.Achievements.unlock(mGoogleApiClient, getString(R.string.achievement_prime));
+            mAchievementsClient.unlock(getString(R.string.achievement_prime));
             mOutbox.mPrimeAchievement = false;
         }
         if (mOutbox.mArrogantAchievement) {
-            Games.Achievements.unlock(mGoogleApiClient, getString(R.string.achievement_arrogant));
+            mAchievementsClient.unlock(getString(R.string.achievement_arrogant));
             mOutbox.mArrogantAchievement = false;
         }
         if (mOutbox.mHumbleAchievement) {
-            Games.Achievements.unlock(mGoogleApiClient, getString(R.string.achievement_humble));
+            mAchievementsClient.unlock(getString(R.string.achievement_humble));
             mOutbox.mHumbleAchievement = false;
         }
         if (mOutbox.mLeetAchievement) {
-            Games.Achievements.unlock(mGoogleApiClient, getString(R.string.achievement_leet));
+            mAchievementsClient.unlock(getString(R.string.achievement_leet));
             mOutbox.mLeetAchievement = false;
         }
         if (mOutbox.mBoredSteps > 0) {
-            Games.Achievements.increment(mGoogleApiClient, getString(R.string.achievement_really_bored),
+            mAchievementsClient.increment(getString(R.string.achievement_really_bored),
                     mOutbox.mBoredSteps);
-            Games.Achievements.increment(mGoogleApiClient, getString(R.string.achievement_bored),
+            mAchievementsClient.increment(getString(R.string.achievement_bored),
                     mOutbox.mBoredSteps);
         }
         if (mOutbox.mEasyModeScore >= 0) {
-            Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_easy),
+            mLeaderboardsClient.submitScore(getString(R.string.leaderboard_easy),
                     mOutbox.mEasyModeScore);
             mOutbox.mEasyModeScore = -1;
         }
         if (mOutbox.mHardModeScore >= 0) {
-            Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_hard),
+            mLeaderboardsClient.submitScore(getString(R.string.leaderboard_hard),
                     mOutbox.mHardModeScore);
             mOutbox.mHardModeScore = -1;
         }
@@ -313,19 +406,34 @@ public class MainActivity extends FragmentActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         if (requestCode == RC_SIGN_IN) {
-            mSignInClicked = false;
-            mResolvingConnectionFailure = false;
-            if (resultCode == RESULT_OK) {
-                mGoogleApiClient.connect();
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(intent);
+            if (result.isSuccess()) {
+                onConnected(result.getSignInAccount());
             } else {
-                BaseGameUtils.showActivityResultError(this, requestCode, resultCode, R.string.signin_other_error);
+                String message = result.getStatus().getStatusMessage();
+                if (message == null || message.isEmpty()) {
+                    message = getString(R.string.signin_other_error);
+                }
+
+                onDisconnected();
+
+                new AlertDialog.Builder(this)
+                        .setMessage(message)
+                        .setNeutralButton(android.R.string.ok, null)
+                        .show();
             }
         }
     }
 
-    @Override
-    public void onConnected(Bundle bundle) {
+    private void onConnected(GoogleSignInAccount googleSignInAccount) {
         Log.d(TAG, "onConnected(): connected to Google APIs");
+
+        mGoogleSignInAccount = googleSignInAccount;
+
+        mAchievementsClient = Games.getAchievementsClient(this, mGoogleSignInAccount);
+        mLeaderboardsClient = Games.getLeaderboardsClient(this, mGoogleSignInAccount);
+        mPlayersClient = Games.getPlayersClient(this, mGoogleSignInAccount);
+
         // Show sign-out button on main menu
         mMainMenuFragment.setShowSignInButton(false);
 
@@ -333,15 +441,21 @@ public class MainActivity extends FragmentActivity implements
         mWinFragment.setShowSignInButton(false);
 
         // Set the greeting appropriately on main menu
-        Player p = Games.Players.getCurrentPlayer(mGoogleApiClient);
-        String displayName;
-        if (p == null) {
-            Log.w(TAG, "mGamesClient.getCurrentPlayer() is NULL!");
-            displayName = "???";
-        } else {
-            displayName = p.getDisplayName();
-        }
-        mMainMenuFragment.setGreeting("Hello, " + displayName);
+        mPlayersClient.getCurrentPlayer()
+                .addOnCompleteListener(new OnCompleteListener<Player>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Player> task) {
+                        String displayName;
+                        if (task.isSuccessful()) {
+                            displayName = task.getResult().getDisplayName();
+                        } else {
+                            Exception e = task.getException();
+                            handleException(e, getString(R.string.players_exception));
+                            displayName = "???";
+                        }
+                        mMainMenuFragment.setGreeting("Hello, " + displayName);
+                    }
+                });
 
 
         // if we have accomplishments to push, push them
@@ -352,63 +466,31 @@ public class MainActivity extends FragmentActivity implements
         }
     }
 
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.d(TAG, "onConnectionSuspended(): attempting to connect");
-        mGoogleApiClient.connect();
-    }
+    private void onDisconnected() {
+        Log.d(TAG, "onDisconnected()");
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d(TAG, "onConnectionFailed(): attempting to resolve");
-        if (mResolvingConnectionFailure) {
-            Log.d(TAG, "onConnectionFailed(): already resolving");
-            return;
-        }
+        mGoogleSignInAccount = null;
+        mAchievementsClient = null;
+        mLeaderboardsClient = null;
+        mPlayersClient = null;
 
-        if (mSignInClicked || mAutoStartSignInFlow) {
-            mAutoStartSignInFlow = false;
-            mSignInClicked = false;
-            mResolvingConnectionFailure = BaseGameUtils.
-                    resolveConnectionFailure(this,
-                            mGoogleApiClient,
-                            connectionResult,
-                            RC_SIGN_IN,
-                            getString(R.string.signin_other_error));
-        }
-
-        // Sign-in failed, so show sign-in button on main menu
-        mMainMenuFragment.setGreeting(getString(R.string.signed_out_greeting));
+        // Show sign-in button on main menu
         mMainMenuFragment.setShowSignInButton(true);
+
+        // Show sign-in button on win screen
         mWinFragment.setShowSignInButton(true);
+
+        mMainMenuFragment.setGreeting(getString(R.string.signed_out_greeting));
     }
 
     @Override
     public void onSignInButtonClicked() {
-        // Check to see the developer who's running this sample code read the instructions :-)
-        // NOTE: this check is here only because this is a sample! Don't include this
-        // check in your actual production app.
-        if (!BaseGameUtils.verifySampleSetup(this, R.string.app_id,
-                R.string.achievement_prime, R.string.leaderboard_easy)) {
-            Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
-        }
-
-        // start the sign-in flow
-        mSignInClicked = true;
-        mGoogleApiClient.connect();
+        startSignInIntent();
     }
 
     @Override
     public void onSignOutButtonClicked() {
-        mSignInClicked = false;
-        Games.signOut(mGoogleApiClient);
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
-
-        mMainMenuFragment.setGreeting(getString(R.string.signed_out_greeting));
-        mMainMenuFragment.setShowSignInButton(true);
-        mWinFragment.setShowSignInButton(true);
+        signOut();
     }
 
     private class AccomplishmentsOutbox {
@@ -426,11 +508,5 @@ public class MainActivity extends FragmentActivity implements
                     mHardModeScore < 0;
         }
 
-    }
-
-    @Override
-    public void onWinScreenSignInClicked() {
-        mSignInClicked = true;
-        mGoogleApiClient.connect();
     }
 }
