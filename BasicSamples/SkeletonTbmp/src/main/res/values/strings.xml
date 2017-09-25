@@ -15,5 +15,9 @@
     <string name="start_match">Start Match</string>
     <string name="turn_counter">Turn counter</string>
     <string name="signin_other_error">There was an issue with sign in.  Please try again later.</string>
+    <string name="status_exception_error">%1$s (status %2$d). %3$s.</string>
+    <string name="error_get_inbox_intent">There was a problem getting the inbox intent!</string>
+    <string name="error_get_select_opponents">There was a problem getting the select opponents intent!</string>
+    <string name="turn_label">Turn %1$d</string>
 
 </resources>
