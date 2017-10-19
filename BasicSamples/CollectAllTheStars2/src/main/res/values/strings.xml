@@ -40,4 +40,11 @@
     <string name="format_seconds_ago">%d seconds ago</string>
     <string name="moments_ago">moments ago</string>
     <string name="snapshotimage_description">Saved image for snapshot</string>
+    <string name="status_exception_error">%1$s (status %2$d). %3$s.</string>
+    <string name="show_snapshots_error">There was a problem getting the select snapshot intent!</string>
+    <string name="write_snapshot_error">There was a problem writing the snapshot!</string>
+    <string name="error_opening_metadata">There was a problem opening the snapshot metadata!</string>
+    <string name="error_opening_filename">There was a problem opening the current save file!</string>
+    <string name="error_closing_metadata">There was a problem waiting for the snapshot metadata to close!</string>
+    <string name="error_closing_filename">There was a problem waiting for the current save file to close!</string>
 </resources>

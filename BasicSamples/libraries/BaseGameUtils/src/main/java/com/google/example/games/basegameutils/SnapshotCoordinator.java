@@ -20,24 +20,25 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Result;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.games.Games;
+import com.google.android.gms.games.AnnotatedData;
+import com.google.android.gms.games.SnapshotsClient;
 import com.google.android.gms.games.snapshot.Snapshot;
 import com.google.android.gms.games.snapshot.SnapshotContents;
 import com.google.android.gms.games.snapshot.SnapshotMetadata;
+import com.google.android.gms.games.snapshot.SnapshotMetadataBuffer;
 import com.google.android.gms.games.snapshot.SnapshotMetadataChange;
-import com.google.android.gms.games.snapshot.Snapshots;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * The SnapshotCoordinator is used to overcome some dangerous behavior when using Saved Game API
@@ -51,19 +52,14 @@ import java.util.concurrent.TimeUnit;
  * <p/>
  * How to use this class
  * <p/>
- * This class can be used as a drop-in replacement for Games.Snapshots.  If the usage of the API
+ * This class can be used as a drop-in replacement for SnapshotsClient.  If the usage of the API
  * is inconsistent with enforced rules (any file can be open only once before closing it, and
  * snapshot data can only be committed once per open), then an IllegalStateException is thrown.
  * <p/>
- * NOTE:  *** The one exception to the drop-in replacement is that each call that returns a
- * PendingResult, that PendingResult MUST be processed by setting the ResultCallback
- * or bycalling await().
- * This is important to make sure the open/closed book-keeping is accurate.
- * <p/>
  * To make it easier to use Snapshots correctly, you should call SnapshotCoordinator.waitForClosed()
- * to obtain a PendingResult which will be resolved when the file is ready to be opened again.
+ * to obtain a Task which will be resolved when the file is ready to be opened again.
  */
-public class SnapshotCoordinator implements Snapshots {
+public class SnapshotCoordinator {
 
     private static final SnapshotCoordinator theInstance = new SnapshotCoordinator();
 
@@ -148,19 +144,37 @@ public class SnapshotCoordinator implements Snapshots {
         opened.put(filename, new CountDownLatch(1));
     }
 
-
     /**
-     * Blocking wait for the given file to be closed.  Returns immediately if the
+     * Returns a task that will complete when given file is closed.  Returns immediately if the
      * file is not open.
      *
      * @param filename - the file name in question.
      */
-    public PendingResult<Result> waitForClosed(String filename) {
-        CountDownLatch l;
+    public Task<Result> waitForClosed(String filename) {
+        final TaskCompletionSource<Result> taskCompletionSource = new TaskCompletionSource<>();
+
+        final CountDownLatch latch;
         synchronized (this) {
-            l = opened.get(filename);
+            latch = opened.get(filename);
         }
-        return new CountDownPendingResult(l);
+
+        if(latch == null) {
+            taskCompletionSource.setResult(null);
+
+            return taskCompletionSource.getTask();
+        }
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                Result result = new CountDownTask(latch).await();
+                taskCompletionSource.setResult(result);
+
+                return null;
+            }
+        }.execute();
+
+        return taskCompletionSource.getTask();
     }
 
     /*
@@ -168,384 +182,255 @@ public class SnapshotCoordinator implements Snapshots {
         passed directly through to the client API.
      */
 
-    @Override
-    public int getMaxDataSize(GoogleApiClient googleApiClient) {
-        return Games.Snapshots.getMaxDataSize(googleApiClient);
+    public Task<Integer> getMaxDataSize(SnapshotsClient snapshotsClient) {
+        return snapshotsClient.getMaxDataSize();
     }
 
-    @Override
-    public int getMaxCoverImageSize(GoogleApiClient googleApiClient) {
-        return Games.Snapshots.getMaxCoverImageSize(googleApiClient);
+    public Task<Integer> getMaxCoverImageSize(SnapshotsClient snapshotsClient) {
+        return snapshotsClient.getMaxCoverImageSize();
     }
 
-    @Override
-    public Intent getSelectSnapshotIntent(GoogleApiClient googleApiClient, String title,
-                                          boolean allowAddButton, boolean allowDelete,
-                                          int maxSnapshots) {
-        return Games.Snapshots.getSelectSnapshotIntent(googleApiClient, title,
+    public Task<Intent> getSelectSnapshotIntent(SnapshotsClient snapshotsClient,
+                                                String title,
+                                                boolean allowAddButton,
+                                                boolean allowDelete,
+                                                int maxSnapshots) {
+        return snapshotsClient.getSelectSnapshotIntent(title,
                 allowAddButton, allowDelete, maxSnapshots);
     }
 
-    @Override
-    public PendingResult<LoadSnapshotsResult> load(GoogleApiClient googleApiClient,
-                                                   boolean forceReload) {
-        return Games.Snapshots.load(googleApiClient, forceReload);
+    public Task<AnnotatedData<SnapshotMetadataBuffer>> load(SnapshotsClient snapshotsClient,
+                                                            boolean forceReload) {
+        return snapshotsClient.load(forceReload);
     }
 
-    @Override
     public SnapshotMetadata getSnapshotFromBundle(Bundle bundle) {
-        return Games.Snapshots.getSnapshotFromBundle(bundle);
+        return SnapshotsClient.getSnapshotFromBundle(bundle);
     }
 
-    @Override
-    public PendingResult<OpenSnapshotResult> resolveConflict(GoogleApiClient googleApiClient,
-                                                             String conflictId, String snapshotId,
-                                                             SnapshotMetadataChange snapshotMetadataChange,
-                                                             SnapshotContents snapshotContents) {
-
+    public Task<SnapshotsClient.DataOrConflict<Snapshot>> resolveConflict(SnapshotsClient snapshotsClient,
+                                                                          String conflictId, String snapshotId,
+                                                                          SnapshotMetadataChange snapshotMetadataChange,
+                                                                          SnapshotContents snapshotContents) {
         // Since the unique name of the snapshot is unknown, this resolution method cannot be safely
         // used.  Please use another method of resolution.
         throw new IllegalStateException("resolving conflicts with ids is not supported.");
     }
 
-    @Override
-    public void discardAndClose(GoogleApiClient googleApiClient, Snapshot snapshot) {
-        if (isAlreadyOpen(snapshot.getMetadata().getUniqueName()) &&
-                !isAlreadyClosing(snapshot.getMetadata().getUniqueName())) {
-            Games.Snapshots.discardAndClose(googleApiClient, snapshot);
-            Log.d(TAG, "Closed " + snapshot.getMetadata().getUniqueName());
-            setClosed(snapshot.getMetadata().getUniqueName());
-        } else {
-            throw new IllegalStateException(snapshot.getMetadata().getUniqueName() +
-                    " is not open or is busy");
-        }
-    }
+    public Task<Void> discardAndClose(final SnapshotsClient snapshotsClient, final Snapshot snapshot) {
 
-    @Override
-    public PendingResult<OpenSnapshotResult> open(GoogleApiClient googleApiClient,
-                                                  final String filename, boolean createIfNotFound) {
-        // check if the file is already open
-        if (!isAlreadyOpen(filename)) {
-            setIsOpening(filename);
-            try {
-                return new CoordinatedPendingResult<>(
-                        Games.Snapshots.open(googleApiClient, filename, createIfNotFound),
-                        new ResultListener() {
-                            @Override
-                            public void onResult(Result result) {
-                                // if open failed, set the file to closed, otherwise, keep it open.
-                                if (!result.getStatus().isSuccess()) {
-                                    Log.d(TAG, "Open was not a success: " +
-                                            result.getStatus() + " for filename " + filename);
-                                    setClosed(filename);
-                                } else {
-                                    Log.d(TAG, "Open successful: " + filename);
-                                }
-                            }
-                        });
-            } catch (RuntimeException e) {
-                // catch runtime exceptions here - they should not happen, but they do.
-                // mark the file as closed so it can be attempted to be opened again.
-                setClosed(filename);
-                throw e;
-            }
-        } else {
-            // a more sophisticated solution could attach this operation to a future
-            // that would be triggered by closing the file, but this will at least avoid
-            // corrupting the data with non-resolvable conflicts.
-            throw new IllegalStateException(filename + " is already open");
-        }
-    }
+        final String filename = snapshot.getMetadata().getUniqueName();
 
-    @Override
-    public PendingResult<OpenSnapshotResult> open(GoogleApiClient googleApiClient,
-                                                  final String filename, boolean createIfNotFound,
-                                                  int conflictPolicy) {
-        // check if the file is already open
-        if (!isAlreadyOpen(filename)) {
-            setIsOpening(filename);
-            try {
-                return new CoordinatedPendingResult<>(
-                        Games.Snapshots.open(googleApiClient, filename, createIfNotFound,
-                                conflictPolicy),
-                        new ResultListener() {
+        return setIsClosingTask(filename).continueWithTask(new Continuation<Void, Task<Void>>() {
+            @Override
+            public Task<Void> then(@NonNull Task<Void> task) throws Exception {
+                return snapshotsClient.discardAndClose(snapshot)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
-                            public void onResult(Result result) {
-                                // if open failed, set the file to closed, otherwise, keep it open.
-                                if (!result.getStatus().isSuccess()) {
-                                    Log.d(TAG, "Open was not a success: " +
-                                            result.getStatus() + " for filename " + filename);
-                                    setClosed(filename);
-                                } else {
-                                    Log.d(TAG, "Open successful: " + filename);
-                                }
-                            }
-                        });
-            } catch (RuntimeException e) {
-                setClosed(filename);
-                throw e;
-            }
-        } else {
-            throw new IllegalStateException(filename + " is already open");
-        }
-    }
-
-    @Override
-    public PendingResult<OpenSnapshotResult> open(GoogleApiClient googleApiClient,
-                                                  final SnapshotMetadata snapshotMetadata) {
-        // check if the file is already open
-        if (!isAlreadyOpen(snapshotMetadata.getUniqueName())) {
-            setIsOpening(snapshotMetadata.getUniqueName());
-            try {
-                return new CoordinatedPendingResult<>(
-                        Games.Snapshots.open(googleApiClient, snapshotMetadata),
-                        new ResultListener() {
-                            @Override
-                            public void onResult(Result result) {
-                                // if open failed, set the file to closed, otherwise, keep it open.
-                                if (!result.getStatus().isSuccess()) {
-                                    Log.d(TAG, "Open was not a success: " +
-                                            result.getStatus() + " for filename " +
-                                            snapshotMetadata.getUniqueName());
-                                    setClosed(snapshotMetadata.getUniqueName());
-                                } else {
-                                    Log.d(TAG, "Open was successful: " +
-                                            snapshotMetadata.getUniqueName());
-                                }
-                            }
-                        });
-            } catch (RuntimeException e) {
-                setClosed(snapshotMetadata.getUniqueName());
-                throw e;
-            }
-        } else {
-            throw new IllegalStateException(snapshotMetadata.getUniqueName() + " is already open");
-        }
-    }
-
-    @Override
-    public PendingResult<OpenSnapshotResult> open(GoogleApiClient googleApiClient,
-                                                  final SnapshotMetadata snapshotMetadata,
-                                                  int conflictPolicy) {
-        // check if the file is already open
-        if (!isAlreadyOpen(snapshotMetadata.getUniqueName())) {
-            setIsOpening(snapshotMetadata.getUniqueName());
-            try {
-                return new CoordinatedPendingResult<>(Games.Snapshots.open(
-                        googleApiClient, snapshotMetadata, conflictPolicy),
-                        new ResultListener() {
-                            @Override
-                            public void onResult(Result result) {
-                                // if open failed, set the file to closed, otherwise, keep it open.
-                                if (!result.getStatus().isSuccess()) {
-                                    Log.d(TAG, "Open was not a success: " +
-                                            result.getStatus() + " for filename " +
-                                            snapshotMetadata.getUniqueName());
-                                    setClosed(snapshotMetadata.getUniqueName());
-                                } else {
-                                    Log.d(TAG, "Open was successful: " +
-                                            snapshotMetadata.getUniqueName());
-                                }
-                            }
-                        });
-            } catch (RuntimeException e) {
-                setClosed(snapshotMetadata.getUniqueName());
-                throw e;
-            }
-        } else {
-            throw new IllegalStateException(snapshotMetadata.getUniqueName() + " is already open");
-        }
-    }
-
-    @Override
-    public PendingResult<CommitSnapshotResult> commitAndClose(GoogleApiClient googleApiClient,
-                                                              final Snapshot snapshot,
-                                                              SnapshotMetadataChange
-                                                                      snapshotMetadataChange) {
-        if (isAlreadyOpen(snapshot.getMetadata().getUniqueName()) &&
-                !isAlreadyClosing(snapshot.getMetadata().getUniqueName())) {
-            setIsClosing(snapshot.getMetadata().getUniqueName());
-            try {
-                return new CoordinatedPendingResult<>(
-                        Games.Snapshots.commitAndClose(googleApiClient, snapshot,
-                                snapshotMetadataChange),
-                        new ResultListener() {
-                            @Override
-                            public void onResult(Result result) {
-                                // even if commit and close fails, the file is closed.
-                                Log.d(TAG, "CommitAndClose complete, closing " +
-                                        snapshot.getMetadata().getUniqueName());
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Log.d(TAG, "Closed " + snapshot.getMetadata().getUniqueName());
                                 setClosed(snapshot.getMetadata().getUniqueName());
                             }
                         });
-            } catch (RuntimeException e) {
-                setClosed(snapshot.getMetadata().getUniqueName());
-                throw e;
             }
-        } else {
-            throw new IllegalStateException(snapshot.getMetadata().getUniqueName() +
-                    " is either closed or is closing");
-        }
+        });
     }
 
-    @Override
-    public PendingResult<DeleteSnapshotResult> delete(GoogleApiClient googleApiClient,
-                                                      final SnapshotMetadata snapshotMetadata) {
-        if (!isAlreadyOpen(snapshotMetadata.getUniqueName()) &&
-                !isAlreadyClosing(snapshotMetadata.getUniqueName())) {
-            setIsClosing(snapshotMetadata.getUniqueName());
-            try {
-                return new CoordinatedPendingResult<>(
-                        Games.Snapshots.delete(googleApiClient, snapshotMetadata),
-                        new ResultListener() {
+    @NonNull
+    private OnCompleteListener<SnapshotsClient.DataOrConflict<Snapshot>> createOpenListener(final String filename) {
+        return new OnCompleteListener<SnapshotsClient.DataOrConflict<Snapshot>>() {
+            @Override
+            public void onComplete(@NonNull Task<SnapshotsClient.DataOrConflict<Snapshot>> task) {
+                // if open failed, set the file to closed, otherwise, keep it open.
+                if (!task.isSuccessful()) {
+                    Exception e = task.getException();
+                    Log.e(TAG, "Open was not a success for filename " + filename, e);
+                    setClosed(filename);
+                } else {
+                    SnapshotsClient.DataOrConflict<Snapshot> result
+                            = task.getResult();
+                    if (result.isConflict()) {
+                        Log.d(TAG, "Open successful: " + filename + ", but with a conflict");
+                    } else {
+                        Log.d(TAG, "Open successful: " + filename);
+                    }
+                }
+            }
+        };
+    }
+
+    @NonNull
+    private Task<Void> setIsOpeningTask(String filename) {
+        TaskCompletionSource<Void> source = new TaskCompletionSource<>();
+
+        if (isAlreadyOpen(filename)) {
+            source.setException(new IllegalStateException(filename + " is already open!"));
+        } else if (isAlreadyClosing(filename)) {
+            source.setException(new IllegalStateException(filename + " is current closing!"));
+        } else {
+            setIsOpening(filename);
+            source.setResult(null);
+        }
+        return source.getTask();
+    }
+
+    @NonNull
+    private Task<Void> setIsClosingTask(String filename) {
+        TaskCompletionSource<Void> source = new TaskCompletionSource<>();
+
+        if (!isAlreadyOpen(filename)) {
+            source.setException(new IllegalStateException(filename + " is already closed!"));
+        } else if (isAlreadyClosing(filename)) {
+            source.setException(new IllegalStateException(filename + " is current closing!"));
+        } else {
+            setIsClosing(filename);
+            source.setResult(null);
+        }
+        return source.getTask();
+    }
+
+    public Task<SnapshotsClient.DataOrConflict<Snapshot>> open(final SnapshotsClient snapshotsClient,
+                                                               final String filename,
+                                                               final boolean createIfNotFound) {
+
+        return setIsOpeningTask(filename).continueWithTask(new Continuation<Void, Task<SnapshotsClient.DataOrConflict<Snapshot>>>() {
+            @Override
+            public Task<SnapshotsClient.DataOrConflict<Snapshot>> then(@NonNull Task<Void> task) throws Exception {
+                return snapshotsClient.open(filename, createIfNotFound)
+                        .addOnCompleteListener(createOpenListener(filename));
+            }
+        });
+    }
+
+    public Task<SnapshotsClient.DataOrConflict<Snapshot>> open(final SnapshotsClient snapshotsClient,
+                                                               final String filename,
+                                                               final boolean createIfNotFound,
+                                                               final int conflictPolicy) {
+
+        return setIsOpeningTask(filename).continueWithTask(new Continuation<Void, Task<SnapshotsClient.DataOrConflict<Snapshot>>>() {
+            @Override
+            public Task<SnapshotsClient.DataOrConflict<Snapshot>> then(@NonNull Task<Void> task) throws Exception {
+                return snapshotsClient.open(filename, createIfNotFound, conflictPolicy)
+                        .addOnCompleteListener(createOpenListener(filename));
+            }
+        });
+    }
+
+    public Task<SnapshotsClient.DataOrConflict<Snapshot>> open(final SnapshotsClient snapshotsClient,
+                                                               final SnapshotMetadata snapshotMetadata) {
+        final String filename = snapshotMetadata.getUniqueName();
+
+        return setIsOpeningTask(filename).continueWithTask(new Continuation<Void, Task<SnapshotsClient.DataOrConflict<Snapshot>>>() {
+            @Override
+            public Task<SnapshotsClient.DataOrConflict<Snapshot>> then(@NonNull Task<Void> task) throws Exception {
+                return snapshotsClient.open(snapshotMetadata)
+                        .addOnCompleteListener(createOpenListener(filename));
+            }
+        });
+    }
+
+    public Task<SnapshotsClient.DataOrConflict<Snapshot>> open(final SnapshotsClient snapshotsClient,
+                                                               final SnapshotMetadata snapshotMetadata,
+                                                               final int conflictPolicy) {
+        final String filename = snapshotMetadata.getUniqueName();
+
+        return setIsOpeningTask(filename).continueWithTask(new Continuation<Void, Task<SnapshotsClient.DataOrConflict<Snapshot>>>() {
+            @Override
+            public Task<SnapshotsClient.DataOrConflict<Snapshot>> then(@NonNull Task<Void> task) throws Exception {
+                return snapshotsClient.open(snapshotMetadata, conflictPolicy)
+                        .addOnCompleteListener(createOpenListener(filename));
+            }
+        });
+    }
+
+    public Task<SnapshotMetadata> commitAndClose(final SnapshotsClient snapshotsClient,
+                                                 final Snapshot snapshot,
+                                                 final SnapshotMetadataChange snapshotMetadataChange) {
+
+        final String filename = snapshot.getMetadata().getUniqueName();
+
+        return setIsClosingTask(filename).continueWithTask(new Continuation<Void, Task<SnapshotMetadata>>() {
+            @Override
+            public Task<SnapshotMetadata> then(@NonNull Task<Void> task) throws Exception {
+                return snapshotsClient.commitAndClose(snapshot, snapshotMetadataChange)
+                        .addOnCompleteListener(new OnCompleteListener<SnapshotMetadata>() {
                             @Override
-                            public void onResult(Result result) {
-                                // deleted files are closed.
-                                setClosed(snapshotMetadata.getUniqueName());
+                            public void onComplete(@NonNull Task<SnapshotMetadata> task) {
+                                // even if commit and close fails, the file is closed.
+                                Log.d(TAG, "CommitAndClose complete, closing " +
+                                        filename);
+                                setClosed(filename);
                             }
                         });
-            } catch (RuntimeException e) {
-                setClosed(snapshotMetadata.getUniqueName());
-                throw e;
             }
-        } else {
-            throw new IllegalStateException(snapshotMetadata.getUniqueName() +
-                    " is either open or is busy");
-        }
+        });
     }
 
-    @Override
-    public PendingResult<OpenSnapshotResult> resolveConflict(GoogleApiClient googleApiClient,
-                                                             String conflictId,
-                                                             final Snapshot snapshot) {
-        if (!isAlreadyOpen(snapshot.getMetadata().getUniqueName()) &&
-                !isAlreadyClosing(snapshot.getMetadata().getUniqueName())) {
-            setIsOpening(snapshot.getMetadata().getUniqueName());
-            try {
-                return new CoordinatedPendingResult<>(
-                        Games.Snapshots.resolveConflict(googleApiClient, conflictId, snapshot),
-                        new ResultListener() {
+    public Task<String> delete(final SnapshotsClient snapshotsClient,
+                               final SnapshotMetadata snapshotMetadata) {
+
+        final String filename = snapshotMetadata.getUniqueName();
+        TaskCompletionSource<Void> source = new TaskCompletionSource<>();
+
+        if (isAlreadyOpen(filename)) {
+            source.setException(new IllegalStateException(filename + " is still open!"));
+        } else if (isAlreadyClosing(filename)) {
+            source.setException(new IllegalStateException(filename + " is current closing!"));
+        } else {
+            setIsClosing(filename);
+            source.setResult(null);
+        }
+
+        return source.getTask().continueWithTask(new Continuation<Void, Task<String>>() {
+            @Override
+            public Task<String> then(@NonNull Task<Void> task) throws Exception {
+                return snapshotsClient.delete(snapshotMetadata)
+                        .addOnCompleteListener(new OnCompleteListener<String>() {
                             @Override
-                            public void onResult(Result result) {
-                                if (!result.getStatus().isSuccess()) {
-                                    setClosed(snapshot.getMetadata().getUniqueName());
+                            public void onComplete(@NonNull Task<String> task) {
+                                // deleted files are closed.
+                                setClosed(filename);
+                            }
+                        });
+            }
+        });
+    }
+
+    public Task<SnapshotsClient.DataOrConflict<Snapshot>> resolveConflict(final SnapshotsClient snapshotsClient,
+                                                                          final String conflictId,
+                                                                          final Snapshot snapshot) {
+        final String filename = snapshot.getMetadata().getUniqueName();
+
+        return setIsOpeningTask(filename).continueWithTask(new Continuation<Void, Task<SnapshotsClient.DataOrConflict<Snapshot>>>() {
+            @Override
+            public Task<SnapshotsClient.DataOrConflict<Snapshot>> then(@NonNull Task<Void> task) throws Exception {
+                return snapshotsClient.resolveConflict(conflictId, snapshot)
+                        .addOnCompleteListener(new OnCompleteListener<SnapshotsClient.DataOrConflict<Snapshot>>() {
+                            @Override
+                            public void onComplete(@NonNull Task<SnapshotsClient.DataOrConflict<Snapshot>> task) {
+
+                                if (!task.isSuccessful()) {
+                                    setClosed(filename);
                                 }
                             }
                         });
-            } catch (RuntimeException e) {
-                setClosed(snapshot.getMetadata().getUniqueName());
-                throw e;
             }
-        } else {
-            throw new IllegalStateException(snapshot.getMetadata().getUniqueName() +
-                    " is already open or is busy");
-        }
+        });
     }
 
-    /**
-     * Interface to be triggered when a PendingResult is completed.
-     */
-    private interface ResultListener {
-        void onResult(Result result);
-    }
-
-    /**
-     * Wrapper of PendingResult so the coordinator class is notified when an operation completes.
-     *
-     * @param <T>
-     */
-    private class CoordinatedPendingResult<T extends Result> extends PendingResult<T> {
-        PendingResult<T> innerResult;
-        ResultListener listener;
-
-        public CoordinatedPendingResult(PendingResult<T> result, ResultListener listener) {
-            innerResult = result;
-            this.listener = listener;
-        }
-
-        @NonNull
-        @Override
-        public T await() {
-            T retval = innerResult.await();
-            if (listener != null) {
-                listener.onResult(retval);
-            }
-            return retval;
-        }
-
-        @NonNull
-        @Override
-        public T await(long l, @NonNull TimeUnit timeUnit) {
-            T retval = innerResult.await(l, timeUnit);
-            if (listener != null) {
-                listener.onResult(retval);
-            }
-            return retval;
-        }
-
-        @Override
-        public void cancel() {
-            if (listener != null) {
-                listener.onResult(new Result() {
-
-                    @Override
-                    public Status getStatus() {
-                        return new Status(CommonStatusCodes.CANCELED);
-                    }
-                });
-            }
-            innerResult.cancel();
-        }
-
-        @Override
-        public boolean isCanceled() {
-            return innerResult.isCanceled();
-        }
-
-        @Override
-        public void setResultCallback(@NonNull ResultCallback<? super T> resultCallback) {
-            final ResultCallback<? super T> theCallback = resultCallback;
-            innerResult.setResultCallback(new ResultCallback<T>() {
-                @Override
-                public void onResult(@NonNull T t) {
-                    if (listener != null) {
-                        listener.onResult(t);
-                    }
-                    theCallback.onResult(t);
-                }
-            });
-        }
-
-        @Override
-        public void setResultCallback(@NonNull ResultCallback<? super T> resultCallback,
-                                      long l, @NonNull TimeUnit timeUnit) {
-            final ResultCallback<? super T> theCallback = resultCallback;
-            innerResult.setResultCallback(new ResultCallback<T>() {
-                @Override
-                public void onResult(@NonNull T t) {
-                    if (listener != null) {
-                        listener.onResult(t);
-                    }
-                    theCallback.onResult(t);
-                }
-            }, l, timeUnit);
-        }
-    }
-
-    private class CountDownPendingResult extends PendingResult<Result> {
+    private class CountDownTask {
         private final CountDownLatch latch;
         private boolean canceled;
 
         private final Status Success = new Status(CommonStatusCodes.SUCCESS);
         private final Status Canceled = new Status(CommonStatusCodes.CANCELED);
 
-        public CountDownPendingResult(CountDownLatch latch) {
+        public CountDownTask(CountDownLatch latch) {
             this.latch = latch;
             canceled = false;
         }
 
         @NonNull
-        @Override
         public Result await() {
             if (!canceled && latch != null) {
                 try {
@@ -567,141 +452,5 @@ public class SnapshotCoordinator implements Snapshots {
             };
         }
 
-        @NonNull
-        @Override
-        public Result await(long l, @NonNull TimeUnit timeUnit) {
-            if (!canceled && latch != null) {
-                try {
-                    latch.await(l, timeUnit);
-                } catch (InterruptedException e) {
-                    return new Result() {
-                        @Override
-                        public Status getStatus() {
-                            return Canceled;
-                        }
-                    };
-                }
-            }
-            return new Result() {
-                @Override
-                public Status getStatus() {
-                    return canceled ? Canceled : Success;
-                }
-            };
-        }
-
-        @Override
-        public void cancel() {
-            canceled = true;
-        }
-
-        @Override
-        public boolean isCanceled() {
-            return canceled;
-        }
-
-        @Override
-        public void setResultCallback(
-                @NonNull final ResultCallback<? super Result> resultCallback) {
-            if (!canceled && latch != null) {
-                AsyncTask<Object, Object, Void> task = new AsyncTask<Object, Object, Void>() {
-
-                    /**
-                     * Override this method to perform a computation on a background thread. The
-                     * specified parameters are the parameters passed to {@link #execute}
-                     * by the caller of this task.
-                     * <p/>
-                     * This method can call {@link #publishProgress} to publish updates
-                     * on the UI thread.
-                     *
-                     * @param params The parameters of the task.
-                     * @return A result, defined by the subclass of this task.
-                     * @see #onPreExecute()
-                     * @see #onPostExecute
-                     * @see #publishProgress
-                     */
-                    @Override
-                    protected Void doInBackground(Object... params) {
-                        try {
-                            latch.await();
-                            resultCallback.onResult(new Result() {
-                                @Override
-                                public com.google.android.gms.common.api.Status getStatus() {
-                                    return canceled ? Canceled : Success;
-                                }
-                            });
-                        } catch (InterruptedException e) {
-                            resultCallback.onResult(new Result() {
-                                @Override
-                                public com.google.android.gms.common.api.Status getStatus() {
-                                    return Canceled;
-                                }
-                            });
-                        }
-                        return null;
-                    }
-                };
-                task.execute(latch);
-            } else {
-                resultCallback.onResult(new Result() {
-                    @Override
-                    public com.google.android.gms.common.api.Status getStatus() {
-                        return canceled ? Canceled : Success;
-                    }
-                });
-            }
-        }
-
-        @Override
-        public void setResultCallback(@NonNull final ResultCallback<? super Result> resultCallback,
-                                      final long l, @NonNull final TimeUnit timeUnit) {
-            if (!canceled && latch != null) {
-                AsyncTask<Object, Object, Void> task = new AsyncTask<Object, Object, Void>() {
-
-                    /**
-                     * Override this method to perform a computation on a background thread. The
-                     * specified parameters are the parameters passed to {@link #execute}
-                     * by the caller of this task.
-                     * <p/>
-                     * This method can call {@link #publishProgress} to publish updates
-                     * on the UI thread.
-                     *
-                     * @param params The parameters of the task.
-                     * @return A result, defined by the subclass of this task.
-                     * @see #onPreExecute()
-                     * @see #onPostExecute
-                     * @see #publishProgress
-                     */
-                    @Override
-                    protected Void doInBackground(Object... params) {
-                        try {
-                            latch.await(l, timeUnit);
-                            resultCallback.onResult(new Result() {
-                                @Override
-                                public com.google.android.gms.common.api.Status getStatus() {
-                                    return canceled ? Canceled : Success;
-                                }
-                            });
-                        } catch (InterruptedException e) {
-                            resultCallback.onResult(new Result() {
-                                @Override
-                                public com.google.android.gms.common.api.Status getStatus() {
-                                    return Canceled;
-                                }
-                            });
-                        }
-                        return null;
-                    }
-                };
-                task.execute(latch);
-            } else {
-                resultCallback.onResult(new Result() {
-                    @Override
-                    public com.google.android.gms.common.api.Status getStatus() {
-                        return canceled ? Canceled : Success;
-                    }
-                });
-            }
-        }
     }
 }
