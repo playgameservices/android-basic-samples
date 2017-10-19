@@ -29,7 +29,7 @@ allprojects {
 
         appcompat_library_version = '26.0.2'
         support_library_version = '26.0.2'
-        gms_library_version = '11.8.0-SNAPSHOT'
+        gms_library_version = '11.6.0'
     }
 }
 
