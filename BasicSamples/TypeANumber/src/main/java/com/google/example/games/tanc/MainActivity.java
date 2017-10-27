@@ -71,9 +71,6 @@ public class MainActivity extends FragmentActivity implements
     // Client used to sign in with Google APIs
     private GoogleSignInClient mGoogleSignInClient;
 
-    // Account used to interact with Google APIs
-    private GoogleSignInAccount mGoogleSignInAccount;
-
     // Client variables
     private AchievementsClient mAchievementsClient;
     private LeaderboardsClient mLeaderboardsClient;
@@ -103,9 +100,6 @@ public class MainActivity extends FragmentActivity implements
         mGoogleSignInClient = GoogleSignIn.getClient(this,
                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN).build());
 
-        // mGoogleSignInAccount will be null until the user signs in.
-        mGoogleSignInAccount = null;
-
         // Create the fragments used by the UI.
         mMainMenuFragment = new MainMenuFragment();
         mGameplayFragment = new GameplayFragment();
@@ -133,7 +127,7 @@ public class MainActivity extends FragmentActivity implements
     }
 
     private boolean isSignedIn() {
-        return mGoogleSignInAccount != null;
+        return GoogleSignIn.getLastSignedInAccount(this) != null;
     }
 
     private void signInSilently() {
@@ -428,11 +422,9 @@ public class MainActivity extends FragmentActivity implements
     private void onConnected(GoogleSignInAccount googleSignInAccount) {
         Log.d(TAG, "onConnected(): connected to Google APIs");
 
-        mGoogleSignInAccount = googleSignInAccount;
-
-        mAchievementsClient = Games.getAchievementsClient(this, mGoogleSignInAccount);
-        mLeaderboardsClient = Games.getLeaderboardsClient(this, mGoogleSignInAccount);
-        mPlayersClient = Games.getPlayersClient(this, mGoogleSignInAccount);
+        mAchievementsClient = Games.getAchievementsClient(this, googleSignInAccount);
+        mLeaderboardsClient = Games.getLeaderboardsClient(this, googleSignInAccount);
+        mPlayersClient = Games.getPlayersClient(this, googleSignInAccount);
 
         // Show sign-out button on main menu
         mMainMenuFragment.setShowSignInButton(false);
@@ -469,7 +461,6 @@ public class MainActivity extends FragmentActivity implements
     private void onDisconnected() {
         Log.d(TAG, "onDisconnected()");
 
-        mGoogleSignInAccount = null;
         mAchievementsClient = null;
         mLeaderboardsClient = null;
         mPlayersClient = null;
