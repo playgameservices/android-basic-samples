@@ -174,9 +174,7 @@ public class MainActivity extends FragmentActivity implements
 
         // Since the state of the signed in user can change when the activity is not active
         // it is recommended to try and sign in silently from when the app resumes.
-        if (!isSignedIn()) {
-            signInSilently();
-        }
+        signInSilently();
     }
 
     private void signOut() {
