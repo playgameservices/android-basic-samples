@@ -27,12 +27,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesActivityResultCodes;
@@ -284,7 +282,7 @@ public class MainActivity extends Activity implements
                             Log.d(TAG, "signInSilently(): success");
                             onConnected(task.getResult());
                         } else {
-                            handleException(task.getException(), "signInSilently(): failure");
+                            Log.d(TAG, "signInSilently(): failure", task.getException());
                             onDisconnected();
                         }
                     }
@@ -368,18 +366,16 @@ public class MainActivity extends Activity implements
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
-        // It is possible the player could disconnect via the Google Play Games app using Settings -> Sign out.
-        // If that is the case, we must disconnect.
-        if (resultCode == GamesActivityResultCodes.RESULT_RECONNECT_REQUIRED) {
-            onDisconnected();
-        } else if (requestCode == RC_SIGN_IN) {
+        if (requestCode == RC_SIGN_IN) {
 
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(intent);
+            Task<GoogleSignInAccount> task =
+                    GoogleSignIn.getSignedInAccountFromIntent(intent);
 
-            if (result.isSuccess()) {
-                onConnected(result.getSignInAccount());
-            } else {
-                String message = result.getStatus().getStatusMessage();
+            try {
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                onConnected(account);
+            } catch (ApiException apiException) {
+                String message = apiException.getMessage();
                 if (message == null || message.isEmpty()) {
                     message = getString(R.string.signin_other_error);
                 }

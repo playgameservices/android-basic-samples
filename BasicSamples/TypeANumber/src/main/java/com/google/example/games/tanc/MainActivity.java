@@ -25,12 +25,10 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.games.AchievementsClient;
 import com.google.android.gms.games.Games;
@@ -141,7 +139,7 @@ public class MainActivity extends FragmentActivity implements
                             Log.d(TAG, "signInSilently(): success");
                             onConnected(task.getResult());
                         } else {
-                            Log.d(TAG, "signInSilently(): failure");
+                            Log.d(TAG, "signInSilently(): failure", task.getException());
                             onDisconnected();
                         }
                     }
@@ -398,11 +396,14 @@ public class MainActivity extends FragmentActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         if (requestCode == RC_SIGN_IN) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(intent);
-            if (result.isSuccess()) {
-                onConnected(result.getSignInAccount());
-            } else {
-                String message = result.getStatus().getStatusMessage();
+            Task<GoogleSignInAccount> task =
+                    GoogleSignIn.getSignedInAccountFromIntent(intent);
+
+            try {
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                onConnected(account);
+            } catch (ApiException apiException) {
+                String message = apiException.getMessage();
                 if (message == null || message.isEmpty()) {
                     message = getString(R.string.signin_other_error);
                 }
