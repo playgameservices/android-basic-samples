@@ -41,7 +41,6 @@ import com.google.android.gms.common.api.Result;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.games.AnnotatedData;
 import com.google.android.gms.games.Games;
-import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.GamesClientStatusCodes;
 import com.google.android.gms.games.SnapshotsClient;
 import com.google.android.gms.games.snapshot.Snapshot;
@@ -54,7 +53,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.example.games.basegameutils.BaseGameUtils;
-import com.google.example.games.basegameutils.SnapshotCoordinator;
 
 import java.io.IOException;
 import java.util.ArrayList;
