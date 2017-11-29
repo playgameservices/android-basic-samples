@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion android_compile_version
-    buildToolsVersion android_version
 
     defaultConfig {
         /*
@@ -26,9 +25,11 @@ android {
 }
 
 dependencies {
-    compile "com.android.support:appcompat-v7:${appcompat_library_version}"
-    compile "com.android.support:support-v4:${support_library_version}"
-    compile project(':libraries:BaseGameUtils')
+    implementation "com.android.support:appcompat-v7:${appcompat_library_version}"
+    implementation "com.android.support:support-v4:${support_library_version}"
+    implementation "com.google.android.gms:play-services-games:${gms_library_version}"
+    implementation "com.google.android.gms:play-services-auth:${gms_library_version}"
+    implementation project(':libraries:BaseGameUtils')
 }
 
 buildscript {
