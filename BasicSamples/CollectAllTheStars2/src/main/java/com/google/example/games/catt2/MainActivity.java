@@ -52,7 +52,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.example.games.basegameutils.BaseGameUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -320,6 +319,38 @@ public class MainActivity extends Activity implements
         ((RatingBar) findViewById(R.id.gameplay_rating)).setOnRatingBarChangeListener(this);
         mSaveGame = new SaveGame();
         updateUi();
+        checkPlaceholderIds();
+    }
+
+    // Check the sample to ensure all placeholder ids are are updated with real-world values.
+    // This is strictly for the purpose of the samples; you don't need this in a production
+    // application.
+    private void checkPlaceholderIds() {
+        StringBuilder problems = new StringBuilder();
+
+        if (getPackageName().startsWith("com.google.")) {
+            problems.append("- Package name start with com.google.*\n");
+        }
+
+        for (Integer id : new Integer[]{R.string.app_id}) {
+
+            String value = getString(id);
+
+            if (value.startsWith("YOUR_")) {
+                // needs replacing
+                problems.append("- Placeholders(YOUR_*) in ids.xml need updating\n");
+                break;
+            }
+        }
+
+        if (problems.length() > 0) {
+            problems.insert(0, "The following problems were found:\n\n");
+
+            problems.append("\nThese problems may prevent the app from working properly.");
+            problems.append("\n\nSee the TODO window in Android Studio for more information");
+            (new AlertDialog.Builder(this)).setMessage(problems.toString())
+                    .setNeutralButton(android.R.string.ok, null).create().show();
+        }
     }
 
     @Override
@@ -358,8 +389,40 @@ public class MainActivity extends Activity implements
     protected void onStart() {
         updateUi();
         super.onStart();
+
+        checkPlaceholderIds();
     }
 
+    public static boolean verifySampleSetup(Activity activity, int... resIds) {
+        StringBuilder problems = new StringBuilder();
+        boolean problemFound = false;
+        problems.append("The following set up problems were found:\n\n");
+
+        // Did the developer forget to change the package name?
+        if (activity.getPackageName().startsWith("com.google.example.games")) {
+            problemFound = true;
+            problems.append("- Package name cannot be com.google.*. You need to change the "
+                    + "sample's package name to your own package.").append("\n");
+        }
+
+        for (int i : resIds) {
+            if (activity.getString(i).startsWith("YOUR_")) {
+                problemFound = true;
+                problems.append("- You must replace `YOUR_*`" +
+                        "placeholder IDs in the ids.xml file by your project's IDs.").append("\n");
+                break;
+            }
+        }
+
+        if (problemFound) {
+            problems.append("\n\nThese problems may prevent the app from working properly.");
+            (new AlertDialog.Builder(activity)).setMessage(problems.toString())
+                    .setNeutralButton(android.R.string.ok, null).create().show();
+            return false;
+        }
+
+        return true;
+    }
 
     @Override
     protected void onStop() {
@@ -433,49 +496,45 @@ public class MainActivity extends Activity implements
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.button_sign_in:
-                // Check to see the developer who's running this sample code read the instructions :-)
-                // NOTE: this check is here only because this is a sample! Don't include this
-                // check in your actual production app.
-                if (!BaseGameUtils.verifySampleSetup(this, R.string.app_id)) {
-                    Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
-                }
-
                 // start the sign-in flow
                 Log.d(TAG, "Sign-in button clicked");
                 startSignInIntent();
-                break;
+                return;
+
             case R.id.button_sign_out:
                 // sign out.
                 signOut();
                 showSignInBar();
                 mSaveGame = new SaveGame();
                 updateUi();
-                break;
+                return;
+        }
+
+        if (!isSignedIn()) {
+            // All other buttons force the user to sign in.
+            new AlertDialog.Builder(this)
+                    .setMessage(getString(R.string.please_sign_in))
+                    .setNeutralButton(android.R.string.ok, null)
+                    .create()
+                    .show();
+
+            return;
+        }
+
+        switch (view.getId()) {
             case R.id.button_next_world:
-                if (!isSignedIn()) {
-                    BaseGameUtils.makeSimpleDialog(this, getString(R.string.please_sign_in)).show();
-                    return;
-                }
                 if (mWorld < WORLD_MAX) {
                     mWorld++;
                     updateUi();
                 }
                 break;
             case R.id.button_prev_world:
-                if (!isSignedIn()) {
-                    BaseGameUtils.makeSimpleDialog(this, getString(R.string.please_sign_in)).show();
-                    return;
-                }
                 if (mWorld > WORLD_MIN) {
                     mWorld--;
                     updateUi();
                 }
                 break;
             default:
-                if (!isSignedIn()) {
-                    BaseGameUtils.makeSimpleDialog(this, getString(R.string.please_sign_in)).show();
-                    return;
-                }
                 for (int i = 0; i < LEVEL_BUTTON_IDS.length; ++i) {
                     if (view.getId() == LEVEL_BUTTON_IDS[i]) {
                         launchLevel(i + 1);

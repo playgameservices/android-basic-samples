@@ -55,7 +55,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.example.games.basegameutils.BaseGameUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -147,6 +146,38 @@ public class MainActivity extends Activity implements
         }
 
         switchToMainScreen();
+        checkPlaceholderIds();
+    }
+
+    // Check the sample to ensure all placeholder ids are are updated with real-world values.
+    // This is strictly for the purpose of the samples; you don't need this in a production
+    // application.
+    private void checkPlaceholderIds() {
+        StringBuilder problems = new StringBuilder();
+
+        if (getPackageName().startsWith("com.google.")) {
+            problems.append("- Package name start with com.google.*\n");
+        }
+
+        for (Integer id : new Integer[]{R.string.app_id}) {
+
+            String value = getString(id);
+
+            if (value.startsWith("YOUR_")) {
+                // needs replacing
+                problems.append("- Placeholders(YOUR_*) in ids.xml need updating\n");
+                break;
+            }
+        }
+
+        if (problems.length() > 0) {
+            problems.insert(0, "The following problems were found:\n\n");
+
+            problems.append("\nThese problems may prevent the app from working properly.");
+            problems.append("\n\nSee the TODO window in Android Studio for more information");
+            (new AlertDialog.Builder(this)).setMessage(problems.toString())
+                    .setNeutralButton(android.R.string.ok, null).create().show();
+        }
     }
 
     @Override
@@ -179,14 +210,6 @@ public class MainActivity extends Activity implements
                 startGame(false);
                 break;
             case R.id.button_sign_in:
-                // user wants to sign in
-                // Check to see the developer who's running this sample code read the instructions :-)
-                // NOTE: this check is here only because this is a sample! Don't include this
-                // check in your actual production app.
-                if (!BaseGameUtils.verifySampleSetup(this, R.string.app_id)) {
-                    Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
-                }
-
                 // start the sign-in flow
                 Log.d(TAG, "Sign-in button clicked");
                 startSignInIntent();
@@ -750,7 +773,10 @@ public class MainActivity extends Activity implements
 
     // Show error message about game being cancelled and return to main screen.
     void showGameError() {
-        BaseGameUtils.makeSimpleDialog(this, getString(R.string.game_problem));
+        new AlertDialog.Builder(this)
+                .setMessage(getString(R.string.game_problem))
+                .setNeutralButton(android.R.string.ok, null).create();
+
         switchToMainScreen();
     }
 

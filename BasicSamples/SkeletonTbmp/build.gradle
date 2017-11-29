@@ -29,7 +29,6 @@ dependencies {
     implementation "com.android.support:support-v4:${support_library_version}"
     implementation "com.google.android.gms:play-services-games:${gms_library_version}"
     implementation "com.google.android.gms:play-services-auth:${gms_library_version}"
-    implementation project(':libraries:BaseGameUtils')
 }
 
 buildscript {

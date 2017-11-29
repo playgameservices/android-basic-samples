@@ -33,7 +33,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.games.Games;
-import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.GamesCallbackStatusCodes;
 import com.google.android.gms.games.GamesClient;
 import com.google.android.gms.games.GamesClientStatusCodes;
@@ -51,7 +50,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.example.games.basegameutils.BaseGameUtils;
 
 import java.util.ArrayList;
 
@@ -124,6 +122,38 @@ public class SkeletonActivity extends Activity implements
 
     mDataView = findViewById(R.id.data_view);
     mTurnTextView = findViewById(R.id.turn_counter_view);
+    checkPlaceholderIds();
+  }
+
+  // Check the sample to ensure all placeholder ids are are updated with real-world values.
+  // This is strictly for the purpose of the samples; you don't need this in a production
+  // application.
+  private void checkPlaceholderIds() {
+    StringBuilder problems = new StringBuilder();
+
+    if (getPackageName().startsWith("com.google.")) {
+      problems.append("- Package name start with com.google.*\n");
+    }
+
+    for (Integer id : new Integer[]{R.string.app_id}) {
+
+      String value = getString(id);
+
+      if (value.startsWith("YOUR_")) {
+        // needs replacing
+        problems.append("- Placeholders(YOUR_*) in ids.xml need updating\n");
+        break;
+      }
+    }
+
+    if (problems.length() > 0) {
+      problems.insert(0, "The following problems were found:\n\n");
+
+      problems.append("\nThese problems may prevent the app from working properly.");
+      problems.append("\n\nSee the TODO window in Android Studio for more information");
+      (new AlertDialog.Builder(this)).setMessage(problems.toString())
+              .setNeutralButton(android.R.string.ok, null).create().show();
+    }
   }
 
   @Override
@@ -892,12 +922,6 @@ public class SkeletonActivity extends Activity implements
   public void onClick(View v) {
     switch (v.getId()) {
       case R.id.sign_in_button:
-        // Check to see the developer who's running this sample code read the instructions :-)
-        // NOTE: this check is here only because this is a sample! Don't include this
-        // check in your actual production app.
-        if (!BaseGameUtils.verifySampleSetup(this, R.string.app_id)) {
-          Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
-        }
         mMatch = null;
         findViewById(R.id.sign_in_button).setVisibility(View.GONE);
         startSignInIntent();

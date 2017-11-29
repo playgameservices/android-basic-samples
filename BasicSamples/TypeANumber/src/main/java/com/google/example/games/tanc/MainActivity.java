@@ -43,7 +43,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.example.games.basegameutils.BaseGameUtils;
 
 /**
  * Our main activity for the game.
@@ -121,6 +120,50 @@ public class MainActivity extends FragmentActivity implements
         // we don't deal with that for code simplicity.
         getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,
                 mMainMenuFragment).commit();
+
+        checkPlaceholderIds();
+    }
+
+    // Check the sample to ensure all placeholder ids are are updated with real-world values.
+    // This is strictly for the purpose of the samples; you don't need this in a production
+    // application.
+    private void checkPlaceholderIds() {
+        StringBuilder problems = new StringBuilder();
+
+        if (getPackageName().startsWith("com.google.")) {
+            problems.append("- Package name start with com.google.*\n");
+        }
+
+        for (Integer id : new Integer[]{
+                R.string.app_id,
+                R.string.achievement_prime,
+                R.string.achievement_really_bored,
+                R.string.achievement_bored,
+                R.string.achievement_humble,
+                R.string.achievement_arrogant,
+                R.string.achievement_leet,
+                R.string.leaderboard_easy,
+                R.string.leaderboard_hard,
+                R.string.event_start,
+                R.string.event_number_chosen,}) {
+
+            String value = getString(id);
+
+            if (value.startsWith("YOUR_")) {
+                // needs replacing
+                problems.append("- Placeholders(YOUR_*) in ids.xml need updating\n");
+                break;
+            }
+        }
+
+        if (problems.length() > 0) {
+            problems.insert(0, "The following problems were found:\n\n");
+
+            problems.append("\nThese problems may prevent the app from working properly.");
+            problems.append("\n\nSee the TODO window in Android Studio for more information");
+            (new AlertDialog.Builder(this)).setMessage(problems.toString())
+                    .setNeutralButton(android.R.string.ok, null).create().show();
+        }
     }
 
     private void loadAndPrintEvents() {
@@ -187,21 +230,6 @@ public class MainActivity extends FragmentActivity implements
 
     private void startSignInIntent() {
         startActivityForResult(mGoogleSignInClient.getSignInIntent(), RC_SIGN_IN);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        Log.d(TAG, "onStart()");
-
-        // Check to see the developer who's running this sample code read the instructions :-)
-        // NOTE: this check is here only because this is a sample! Don't include this
-        // check in your actual production app.
-        if (!BaseGameUtils.verifySampleSetup(this, R.string.app_id,
-                R.string.achievement_prime, R.string.leaderboard_easy)) {
-            Log.w(TAG, "*** Warning: setup problems detected. Sign in may not work!");
-        }
     }
 
     @Override
