@@ -152,7 +152,7 @@ public class SkeletonActivity extends Activity implements
       problems.append("\nThese problems may prevent the app from working properly.");
       problems.append("\n\nSee the TODO window in Android Studio for more information");
       (new AlertDialog.Builder(this)).setMessage(problems.toString())
-              .setNeutralButton(android.R.string.ok, null).create().show();
+          .setNeutralButton(android.R.string.ok, null).create().show();
     }
   }
 
@@ -593,7 +593,7 @@ public class SkeletonActivity extends Activity implements
     if (requestCode == RC_SIGN_IN) {
 
       Task<GoogleSignInAccount> task =
-              GoogleSignIn.getSignedInAccountFromIntent(intent);
+          GoogleSignIn.getSignedInAccountFromIntent(intent);
 
       try {
         GoogleSignInAccount account = task.getResult(ApiException.class);

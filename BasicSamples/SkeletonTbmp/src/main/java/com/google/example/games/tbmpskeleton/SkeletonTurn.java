@@ -16,83 +16,82 @@
 
 package com.google.example.games.tbmpskeleton;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 /**
  * Basic turn data. It's just a blank data string and a turn number counter.
  *
  * @author wolff
- *
  */
 public class SkeletonTurn {
 
-    public static final String TAG = "EBTurn";
+  public static final String TAG = "EBTurn";
 
-    public String data = "";
-    public int turnCounter;
+  public String data = "";
+  public int turnCounter;
 
-    public SkeletonTurn() {
+  public SkeletonTurn() {
+  }
+
+  // This is the byte array we will write out to the TBMP API.
+  public byte[] persist() {
+    JSONObject retVal = new JSONObject();
+
+    try {
+      retVal.put("data", data);
+      retVal.put("turnCounter", turnCounter);
+
+    } catch (JSONException e) {
+      Log.e("SkeletonTurn", "There was an issue writing JSON!", e);
     }
 
-    // This is the byte array we will write out to the TBMP API.
-    public byte[] persist() {
-        JSONObject retVal = new JSONObject();
+    String st = retVal.toString();
 
-        try {
-            retVal.put("data", data);
-            retVal.put("turnCounter", turnCounter);
+    Log.d(TAG, "==== PERSISTING\n" + st);
 
-        } catch (JSONException e) {
-            Log.e("SkeletonTurn", "There was an issue writing JSON!", e);
-        }
+    return st.getBytes(Charset.forName("UTF-8"));
+  }
 
-        String st = retVal.toString();
+  // Creates a new instance of SkeletonTurn.
+  static public SkeletonTurn unpersist(byte[] byteArray) {
 
-        Log.d(TAG, "==== PERSISTING\n" + st);
-
-        return st.getBytes(Charset.forName("UTF-8"));
+    if (byteArray == null) {
+      Log.d(TAG, "Empty array---possible bug.");
+      return new SkeletonTurn();
     }
 
-    // Creates a new instance of SkeletonTurn.
-    static public SkeletonTurn unpersist(byte[] byteArray) {
-
-        if (byteArray == null) {
-            Log.d(TAG, "Empty array---possible bug.");
-            return new SkeletonTurn();
-        }
-
-        String st = null;
-        try {
-            st = new String(byteArray, "UTF-8");
-        } catch (UnsupportedEncodingException e1) {
-            e1.printStackTrace();
-            return null;
-        }
-
-        Log.d(TAG, "====UNPERSIST \n" + st);
-
-        SkeletonTurn retVal = new SkeletonTurn();
-
-        try {
-            JSONObject obj = new JSONObject(st);
-
-            if (obj.has("data")) {
-                retVal.data = obj.getString("data");
-            }
-            if (obj.has("turnCounter")) {
-                retVal.turnCounter = obj.getInt("turnCounter");
-            }
-
-        } catch (JSONException e) {
-            Log.e("SkeletonTurn", "There was an issue parsing JSON!", e);
-        }
-
-        return retVal;
+    String st = null;
+    try {
+      st = new String(byteArray, "UTF-8");
+    } catch (UnsupportedEncodingException e1) {
+      e1.printStackTrace();
+      return null;
     }
+
+    Log.d(TAG, "====UNPERSIST \n" + st);
+
+    SkeletonTurn retVal = new SkeletonTurn();
+
+    try {
+      JSONObject obj = new JSONObject(st);
+
+      if (obj.has("data")) {
+        retVal.data = obj.getString("data");
+      }
+      if (obj.has("turnCounter")) {
+        retVal.turnCounter = obj.getInt("turnCounter");
+      }
+
+    } catch (JSONException e) {
+      Log.e("SkeletonTurn", "There was an issue parsing JSON!", e);
+    }
+
+    return retVal;
+  }
 }
