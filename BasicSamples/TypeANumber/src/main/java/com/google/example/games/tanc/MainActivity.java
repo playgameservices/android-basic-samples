@@ -31,10 +31,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.games.AchievementsClient;
+import com.google.android.gms.games.AnnotatedData;
+import com.google.android.gms.games.EventsClient;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.LeaderboardsClient;
 import com.google.android.gms.games.Player;
 import com.google.android.gms.games.PlayersClient;
+import com.google.android.gms.games.event.Event;
+import com.google.android.gms.games.event.EventBuffer;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -72,6 +76,7 @@ public class MainActivity extends FragmentActivity implements
     // Client variables
     private AchievementsClient mAchievementsClient;
     private LeaderboardsClient mLeaderboardsClient;
+    private EventsClient mEventsClient;
     private PlayersClient mPlayersClient;
 
     // request codes we use when invoking an external activity
@@ -116,6 +121,40 @@ public class MainActivity extends FragmentActivity implements
         // we don't deal with that for code simplicity.
         getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,
                 mMainMenuFragment).commit();
+    }
+
+    private void loadAndPrintEvents() {
+
+        final MainActivity mainActivity = this;
+
+        mEventsClient.load(true)
+                .addOnSuccessListener(new OnSuccessListener<AnnotatedData<EventBuffer>>() {
+                    @Override
+                    public void onSuccess(AnnotatedData<EventBuffer> eventBufferAnnotatedData) {
+                        EventBuffer eventBuffer = eventBufferAnnotatedData.get();
+
+                        int count = 0;
+                        if (eventBuffer != null) {
+                            count = eventBuffer.getCount();
+                        }
+
+                        Log.i(TAG, "number of events: " + count);
+
+                        for (int i = 0; i < count; i++) {
+                            Event event = eventBuffer.get(i);
+                            Log.i(TAG, "event: "
+                                    + event.getName()
+                                    + " -> "
+                                    + event.getValue());
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        handleException(e, getString(R.string.achievements_exception));
+                    }
+                });
     }
 
     // Switch UI to the given fragment
@@ -259,6 +298,7 @@ public class MainActivity extends FragmentActivity implements
     private void startGame(boolean hardMode) {
         mHardMode = hardMode;
         switchToFragment(mGameplayFragment);
+        mEventsClient.increment(getString(R.string.event_start), 1);
     }
 
     @Override
@@ -281,6 +321,8 @@ public class MainActivity extends FragmentActivity implements
 
         // switch to the exciting "you won" screen
         switchToFragment(mWinFragment);
+
+        mEventsClient.increment(getString(R.string.event_number_chosen), 1);
     }
 
     // Checks if n is prime. We don't consider 0 and 1 to be prime.
@@ -423,6 +465,7 @@ public class MainActivity extends FragmentActivity implements
 
         mAchievementsClient = Games.getAchievementsClient(this, googleSignInAccount);
         mLeaderboardsClient = Games.getLeaderboardsClient(this, googleSignInAccount);
+        mEventsClient = Games.getEventsClient(this, googleSignInAccount);
         mPlayersClient = Games.getPlayersClient(this, googleSignInAccount);
 
         // Show sign-out button on main menu
@@ -455,6 +498,8 @@ public class MainActivity extends FragmentActivity implements
             Toast.makeText(this, getString(R.string.your_progress_will_be_uploaded),
                     Toast.LENGTH_LONG).show();
         }
+
+        loadAndPrintEvents();
     }
 
     private void onDisconnected() {

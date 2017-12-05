@@ -28,4 +28,7 @@
 
     <string name="leaderboard_easy">YOUR_LEADERBOARD_EASY_ID</string>
     <string name="leaderboard_hard">YOUR_LEADERBOARD_HARD_ID</string>
+
+    <string name="event_start">YOUR_EVENT_START</string>
+    <string name="event_number_chosen">YOUR_EVENT_NUMBER_CHOSEN</string>
 </resources>
