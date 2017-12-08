@@ -431,6 +431,7 @@ public class MainActivity extends FragmentActivity implements
           mOutbox.mBoredSteps);
       mAchievementsClient.increment(getString(R.string.achievement_bored),
           mOutbox.mBoredSteps);
+      mOutbox.mBoredSteps = 0;
     }
     if (mOutbox.mEasyModeScore >= 0) {
       mLeaderboardsClient.submitScore(getString(R.string.leaderboard_easy),
