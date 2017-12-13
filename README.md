@@ -80,9 +80,12 @@ section), otherwise the server will act as though your project did not exist and
 return errors like 'Failed to sign in. Please check your network connection and try again.'
 
 <h3>Building</h3>
-To build the samples after you have applied the changes above, you can use the build/run option in Android Studio, or build directly from the command line if you prefer:
+To build the samples after you have applied the changes above, you can use the build/run option in Android Studio, or build directly from the command line if you prefer.  
+
+**IMPORTANT** Ensure you have set the ANDROID_HOME environment variable.
 
     cd /path/to/BasicSamples
+    export ANDROID_HOME = /path/to/android/sdk
     ./gradlew build
 
 <h2>Support</h2>

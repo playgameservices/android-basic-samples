@@ -4,6 +4,7 @@
 
 buildscript {
     repositories {
+        google()
         jcenter()
     }
 
@@ -15,10 +16,8 @@ buildscript {
 // allprojects apply to every project
 allprojects {
     repositories {
+        google()
         jcenter()
-        maven {
-            url "https://maven.google.com"
-        }
     }
 
     ext {
