@@ -1,7 +1,10 @@
-/.gradle/
+.gradle/
 .settings/
 bin/
+gen/
 build/
 .project
 .DS_Store
-/.idea
+.idea/
+*.iml
+local.properties
