@@ -6,46 +6,27 @@ Copyright (C) 2014 Google Inc.
 
 These are the Android samples for Google Play game services.
 
-* **BasicSamples** - a set of basic samples, including a convenience library (BaseGameUtils):
+* **BasicSamples** - a set of basic samples:
 
-    * **BaseGameUtils**. Utilities used on all samples, which you can use in your projects too. This is not a stand-alone sample, it's a library project.
-
-    * **ButtonClicker2000**. Represents the new generation in modern button-clicking excitement. A simple multiplayer game sample that shows how to set up the Google Play real-time multiplayer API, invite friends, automatch, accept invitations, use the waiting room UI, send and receive messages and other multiplayer topics.
+    * **ButtonClicker**. Represents the new generation in modern button-clicking excitement. A simple multiplayer game sample that shows how to set up the Google Play real-time multiplayer API, invite friends, automatch, accept invitations, use the waiting room UI, send and receive messages and other multiplayer topics.
 
     * **CollectAllTheStars2**. Demonstrates how to use the Snapshots feature to save game data. The sample signs the user in, synchronizes their data from a named Snapshot, then updates the UI to reflect the game state saved in the Snapshot.
 
-    * **TrivialQuest2**. Demonstrates how to use the Events and Quests features of Google Play Services. The sample presents a sign in button and four buttons to simulate killing monsters in-game. When you click the buttons, an event is
-created and sent to Google Play Games to track what the player is doing in game.
+    * **TypeANumber**. Demonstrates how to use leaderboards, achievements and events. In this exciting game, you type the score you think you deserve. But wait! There is a twist. If you are playing in easy mode, you get the score you requested. However, if you are playing in hard mode, you only get half! (tough game, we know).
 
-    * **TrivialQuest**. The simplest possible single-player game. Shows how to sign in and how to unlock one achievement. Sign-in and click the button to win the game. Are you ready for this epic adventure?
-
-    * **TypeANumber**. Shows leaderboards and achievements. In this exciting game, you type the score you think you deserve. But wait! There is a twist. If you are playing in easy mode, you get the score you requested. However, if you are playing in hard mode, you only get half! (tough game, we know).
-
-   * **SkeletonTbmp** A trivial turn-based-multiplayer game.  In this thrilling game, you can invite many friends, then send a shared gamestate string back and forth until someone finishes, cancels, or the second-to-last player leaves.
-
-   * **BeGenerous** Send gifts and game requests to other players of BeGenerous.
-
-   * **SavedGames**. Demonstrates the used of Saved Games (Snapshots) feature and how to migrate data from the older Cloud Save (AppState) service to the newer service.  The sample allows the user to save/load data from both Cloud Save and Saved Games.
-
-**Note:** the samples that have corresponding counterparts for iOS and web (particularly, CollectAllTheStars and TypeANumber) are compatible across the platforms. This means that you can play some levels on CollectAllTheStars on your Android device, and then pick up your iOS device and continue where you left off! For TypeANumber, you will see your achievements and leaderboards on all platforms, and progress obtained on one will be reflected on the others.
-
-<h2>Frequently Asked Questions</h2>
-
-If you have questions about the samples (particularly, about *BaseGameActivity* and *GameHelper*), please
-take a look at [our FAQ](https://github.com/playgameservices/android-samples/blob/master/FAQ.txt).
+    * **SkeletonTbmp** A trivial turn-based-multiplayer game.  In this thrilling game, you can invite many friends, then send a shared gamestate string back and forth until someone finishes, cancels, or the second-to-last player leaves.
 
 <h2>How to run a sample</h2>
 
-1. Set up the project in Developer Console. For more info:
+1. Set up the project in the Developer Console by following [these instructions](https://developers.google.com/games/services/console/enabling).
+   Note your **package name** and the **application ID** of the project!
 
-      https://developers.google.com/games/services/console/enabling
-
-   Note your package name and the APP ID of the project.
-
-1. Create leaderboards/achievements as appropriate for the sample (see the ones that the sample needs in its res/values/ids.xml).  You can do this automatically by clicking the link below for the sample you want to configure:
-   1. [Type a Number](http://playgameservices.github.io/android-basic-samples/config-magic/index.html?sample=typeanumber)
-   1. [Trivial Quest](http://playgameservices.github.io/android-basic-samples/config-magic/index.html?sample=trivialquest)
-
+1. For the **Type a Number sample**, you need to create leaderboards/achievements.  
+(You can see the ones that the sample needs in its [res/values/ids.xml](BasicSamples/TypeANumber/src/main/res/values/ids.xml) file.)
+  You can create them two ways:
+   1. Add them via the [Developer console](https://play.google.com/apps/publish/#GameListPlace). 
+   1. Use [this utility](http://playgameservices.github.io/android-basic-samples/config-magic/index.html?sample=typeanumber), which will automatically create them for you.
+   
 <h3>Building using Android Studio...</h3>
 
 1. Open Android Studio and launch the Android SDK manager from it (Tools | Android | SDK Manager)
@@ -60,13 +41,14 @@ take a look at [our FAQ](https://github.com/playgameservices/android-samples/blo
 
 To set up a sample:
 
-1. Change the *application id* in the build.gradle file to your own **package name** (ie - com.example.package.name)
+1. Change the *applicationId* in the build.gradle file to your own **package name** (ie - com.example.package.name)
    (the same one you registered in Developer Console!).  You will have to update
-   the build.gradle file for each sample you want to run.  There is no need to
+   the build.gradle file for *each* sample you want to run.  There is no need to
    edit the AndroidManifest.xml file.
 1. In the Developer console, select a resource type
    (Achievements, Events, Leaderboards) and click "Get Resources".  Copy the
     contents from the console and replace the contents of res/values/ids.xml.
+    1.  If you are running Android Studio, check the TODO window to see if there are any remaining tasks.  
 1. Compile and run.
 
 **IMPORTANT**: make sure to sign your apk with the same certificate
@@ -92,11 +74,9 @@ To build the samples after you have applied the changes above, you can use the b
 
 First of all, take a look at our [troubleshooting guide](https://developers.google.com/games/services/android/troubleshooting). Most setup issues can be solved by following this guide.
 
-If your question is not answered by the troubleshooting guide, we encourage you to post your question to [stackoverflow.com](stackoverflow.com). Our team answers questions there reguarly.
+If your question is not answered by the troubleshooting guide, we encourage you to post your question to [stackoverflow.com](https://stackoverflow.com/questions/tagged/google-play-games). Our team answers questions there regularly.
 
-*Samples written by [Bruno Oliveira](http://plus.google.com/+BrunoOliveira) with contributions from [Wolff](http://plus.google.com/+WolffDobson).* Feel free to add us to your circles on Google Plus and pester us to fix stuff that's broken or answer a question on stackoverflow :-)
-
-*Samples written by [Bruno Oliveira](http://plus.google.com/+BrunoOliveira).* Feel free to add me to your circles on Google Plus and pester me to fix anything that's broken or answer a question on stackoverflow!
+Samples written by [Bruno Oliveira](https://plus.google.com/102451193315916178828) with contributions from [Wolff](http://plus.google.com/+WolffDobson).* Feel free to add us to your circles on Google Plus and pester us to fix stuff that's broken or answer a question on stackoverflow :-)
 
 <h2>Special Thanks</h2>
 
