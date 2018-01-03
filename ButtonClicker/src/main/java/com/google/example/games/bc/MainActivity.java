@@ -631,16 +631,16 @@ public class MainActivity extends Activity implements
 
       // get the playerId from the PlayersClient
       PlayersClient playersClient = Games.getPlayersClient(this, googleSignInAccount);
-      playersClient.getCurrentPlayer().addOnSuccessListener(
-          new OnSuccessListener<Player>() {
+      playersClient.getCurrentPlayer()
+          .addOnSuccessListener(new OnSuccessListener<Player>() {
             @Override
             public void onSuccess(Player player) {
               mPlayerId = player.getPlayerId();
-            }
-          }
-      );
 
-      switchToMainScreen();
+              switchToMainScreen();
+            }
+          })
+          .addOnFailureListener(createFailureListener("There was a problem getting the player id!"));
     }
 
     // register listener so we are notified if we receive an invitation to play
