@@ -639,6 +639,8 @@ public class MainActivity extends Activity implements
             }
           }
       );
+
+      switchToMainScreen();
     }
 
     // register listener so we are notified if we receive an invitation to play
@@ -654,7 +656,7 @@ public class MainActivity extends Activity implements
           public void onSuccess(Bundle hint) {
             if (hint != null) {
               Invitation invitation =
-                  hint.getParcelable(Multiplayer.EXTRA_TURN_BASED_MATCH);
+                  hint.getParcelable(Multiplayer.EXTRA_INVITATION);
 
               if (invitation != null && invitation.getInvitationId() != null) {
                 // retrieve and cache the invitation ID
@@ -665,8 +667,6 @@ public class MainActivity extends Activity implements
           }
         })
         .addOnFailureListener(createFailureListener("There was a problem getting the activation hint!"));
-
-    switchToMainScreen();
   }
 
   private OnFailureListener createFailureListener(final String string) {
