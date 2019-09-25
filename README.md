@@ -14,6 +14,8 @@ These are the Android samples for Google Play game services.
 
 * **SkeletonTbmp** A trivial turn-based-multiplayer game.  In this thrilling game, you can invite many friends, then send a shared gamestate string back and forth until someone finishes, cancels, or the second-to-last player leaves.
 
+> **Warning:** Real-time and turn-based multiplayer services are deprecated as of September 16th, 2019. These services are unavailable for new games. For more information, see [Ending support for multiplayer APIs in Play Games Services](https://support.google.com/googleplay/android-developer/answer/9469745).
+
 <h2>How to run a sample</h2>
 
 1. Set up the project in the Developer Console by following [these instructions](https://developers.google.com/games/services/console/enabling).
