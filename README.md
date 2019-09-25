@@ -10,9 +10,11 @@ These are the Android samples for Google Play game services.
 
 * **CollectAllTheStars2**. Demonstrates how to use the Snapshots feature to save game data. The sample signs the user in, synchronizes their data from a named Snapshot, then updates the UI to reflect the game state saved in the Snapshot.
 
-* **TypeANumber**. Demonstrates how to use leaderboards, achievements and events. In this exciting game, you type the score you think you deserve. But wait! There is a twist. If you are playing in easy mode, you get the score you requested. However, if you are playing in hard mode, you only get half! (tough game, we know).
+* **TypeANumber**. Demonstrates how to use leaderboards, achievements, events, and friends. In this exciting game, you type the score you think you deserve. But wait! There is a twist. If you are playing in easy mode, you get the score you requested. However, if you are playing in hard mode, you only get half! (tough game, we know). You can also check how your friends perform in this game by checking out social leaderboards.
 
 * **SkeletonTbmp** A trivial turn-based-multiplayer game.  In this thrilling game, you can invite many friends, then send a shared gamestate string back and forth until someone finishes, cancels, or the second-to-last player leaves.
+
+> **Warning:** Real-time and turn-based multiplayer services are deprecated as of September 16th, 2019. These services are unavailable for new games. For more information, see [Ending support for multiplayer APIs in Play Games Services](https://support.google.com/googleplay/android-developer/answer/9469745).
 
 <h2>How to run a sample</h2>
 
