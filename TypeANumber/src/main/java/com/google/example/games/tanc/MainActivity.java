@@ -16,20 +16,27 @@
 
 package com.google.example.games.tanc;
 
-import android.app.AlertDialog;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.games.AchievementsClient;
 import com.google.android.gms.games.AnnotatedData;
 import com.google.android.gms.games.EventsClient;
@@ -39,35 +46,39 @@ import com.google.android.gms.games.Player;
 import com.google.android.gms.games.PlayersClient;
 import com.google.android.gms.games.event.Event;
 import com.google.android.gms.games.event.EventBuffer;
+import com.google.android.gms.games.leaderboard.LeaderboardScore;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import static com.google.android.gms.games.leaderboard.LeaderboardVariant.COLLECTION_FRIENDS;
+import static com.google.android.gms.games.leaderboard.LeaderboardVariant.COLLECTION_PUBLIC;
+
 /**
  * Our main activity for the game.
- * <p>
- * IMPORTANT: Before attempting to run this sample, please change
- * the package name to your own package name (not com.android.*) and
- * replace the IDs on res/values/ids.xml by your own IDs (you must
- * create a game in the developer console to get those IDs).
- * <p>
- * This is a very simple game where the user selects "easy mode" or
- * "hard mode" and then the "gameplay" consists of inputting the
- * desired score (0 to 9999). In easy mode, you get the score you
- * request; in hard mode, you get half.
+ *
+ * <p>IMPORTANT: Before attempting to run this sample, please change the package name to your own
+ * package name (not com.android.*) and replace the IDs on res/values/ids.xml by your own IDs (you
+ * must create a game in the developer console to get those IDs).
+ *
+ * <p>This is a very simple game where the user selects "easy mode" or "hard mode" and then the
+ * "gameplay" consists of inputting the desired score (0 to 9999). In easy mode, you get the score
+ * you request; in hard mode, you get half.
  *
  * @author Bruno Oliveira
  */
-public class MainActivity extends FragmentActivity implements
-    MainMenuFragment.Listener,
-    GameplayFragment.Callback,
-    WinFragment.Listener {
+public class MainActivity extends FragmentActivity
+        implements MainMenuFragment.Listener,
+        GameplayFragment.Callback,
+        WinFragment.Listener,
+        FriendsFragment.Listener {
 
   // Fragments
   private MainMenuFragment mMainMenuFragment;
   private GameplayFragment mGameplayFragment;
   private WinFragment mWinFragment;
+  public FriendsFragment mFriendsFragment;
 
   // Client used to sign in with Google APIs
   private GoogleSignInClient mGoogleSignInClient;
@@ -82,11 +93,17 @@ public class MainActivity extends FragmentActivity implements
   private static final int RC_UNUSED = 5001;
   private static final int RC_SIGN_IN = 9001;
 
+  static final int RC_FRIEND_PROFILE = 9002;
+  static final int RC_RESOLUTION = 9003;
+
   // tag for debug logging
   private static final String TAG = "TanC";
 
   // playing on hard mode?
   private boolean mHardMode = false;
+
+  // The diplay name of the signed in user.
+  private String mDisplayName = "";
 
   // achievements and scores we're pending to push to the cloud
   // (waiting for the user to sign in, for instance)
@@ -99,18 +116,22 @@ public class MainActivity extends FragmentActivity implements
     setContentView(R.layout.activity_main);
 
     // Create the client used to sign in to Google services.
-    mGoogleSignInClient = GoogleSignIn.getClient(this,
-        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN).build());
+    mGoogleSignInClient =
+            GoogleSignIn.getClient(
+                    this,
+                    new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN).build());
 
     // Create the fragments used by the UI.
     mMainMenuFragment = new MainMenuFragment();
     mGameplayFragment = new GameplayFragment();
     mWinFragment = new WinFragment();
+    mFriendsFragment = new FriendsFragment();
 
     // Set the listeners and callbacks of fragment events.
     mMainMenuFragment.setListener(this);
     mGameplayFragment.setCallback(this);
     mWinFragment.setListener(this);
+    mFriendsFragment.setListener(this);
 
     // Add initial Main Menu fragment.
     // IMPORTANT: if this Activity supported rotation, we'd have to be
@@ -118,8 +139,10 @@ public class MainActivity extends FragmentActivity implements
     // already be there after rotation and trying to add it again would
     // result in overlapping fragments. But since we don't support rotation,
     // we don't deal with that for code simplicity.
-    getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,
-        mMainMenuFragment).commit();
+    getSupportFragmentManager()
+            .beginTransaction()
+            .add(R.id.fragment_container, mMainMenuFragment)
+            .commit();
 
     checkPlaceholderIds();
   }
@@ -134,21 +157,22 @@ public class MainActivity extends FragmentActivity implements
       problems.append("- Package name start with com.google.*\n");
     }
 
-    for (Integer id : new Integer[]{
-        R.string.app_id,
-        R.string.achievement_prime,
-        R.string.achievement_really_bored,
-        R.string.achievement_bored,
-        R.string.achievement_humble,
-        R.string.achievement_arrogant,
-        R.string.achievement_leet,
-        R.string.leaderboard_easy,
-        R.string.leaderboard_hard,
-        R.string.event_start,
-        R.string.event_number_chosen,}) {
+    for (Integer id :
+            new Integer[] {
+                    R.string.app_id,
+                    R.string.achievement_prime,
+                    R.string.achievement_really_bored,
+                    R.string.achievement_bored,
+                    R.string.achievement_humble,
+                    R.string.achievement_arrogant,
+                    R.string.achievement_leet,
+                    R.string.leaderboard_easy,
+                    R.string.leaderboard_hard,
+                    R.string.event_start,
+                    R.string.event_number_chosen,
+            }) {
 
       String value = getString(id);
-
       if (value.startsWith("YOUR_")) {
         // needs replacing
         problems.append("- Placeholders(YOUR_*) in ids.xml need updating\n");
@@ -161,8 +185,11 @@ public class MainActivity extends FragmentActivity implements
 
       problems.append("\nThese problems may prevent the app from working properly.");
       problems.append("\n\nSee the TODO window in Android Studio for more information");
-      (new AlertDialog.Builder(this)).setMessage(problems.toString())
-          .setNeutralButton(android.R.string.ok, null).create().show();
+      (new AlertDialog.Builder(this))
+              .setMessage(problems.toString())
+              .setNeutralButton(android.R.string.ok, null)
+              .create()
+              .show();
     }
   }
 
@@ -170,40 +197,42 @@ public class MainActivity extends FragmentActivity implements
 
     final MainActivity mainActivity = this;
 
-    mEventsClient.load(true)
-        .addOnSuccessListener(new OnSuccessListener<AnnotatedData<EventBuffer>>() {
-          @Override
-          public void onSuccess(AnnotatedData<EventBuffer> eventBufferAnnotatedData) {
-            EventBuffer eventBuffer = eventBufferAnnotatedData.get();
+    mEventsClient
+            .load(true)
+            .addOnSuccessListener(
+                    new OnSuccessListener<AnnotatedData<EventBuffer>>() {
+                      @Override
+                      public void onSuccess(AnnotatedData<EventBuffer> eventBufferAnnotatedData) {
+                        EventBuffer eventBuffer = eventBufferAnnotatedData.get();
 
-            int count = 0;
-            if (eventBuffer != null) {
-              count = eventBuffer.getCount();
-            }
+                        int count = 0;
+                        if (eventBuffer != null) {
+                          count = eventBuffer.getCount();
+                        }
 
-            Log.i(TAG, "number of events: " + count);
+                        Log.i(TAG, "number of events: " + count);
 
-            for (int i = 0; i < count; i++) {
-              Event event = eventBuffer.get(i);
-              Log.i(TAG, "event: "
-                  + event.getName()
-                  + " -> "
-                  + event.getValue());
-            }
-          }
-        })
-        .addOnFailureListener(new OnFailureListener() {
-          @Override
-          public void onFailure(@NonNull Exception e) {
-            handleException(e, getString(R.string.achievements_exception));
-          }
-        });
+                        for (int i = 0; i < count; i++) {
+                          Event event = eventBuffer.get(i);
+                          Log.i(TAG, "event: " + event.getName() + " -> " + event.getValue());
+                        }
+                      }
+                    })
+            .addOnFailureListener(
+                    new OnFailureListener() {
+                      @Override
+                      public void onFailure(@NonNull Exception e) {
+                        handleException(e, getString(R.string.achievements_exception));
+                      }
+                    });
   }
 
   // Switch UI to the given fragment
   private void switchToFragment(Fragment newFrag) {
-    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, newFrag)
-        .commit();
+    getSupportFragmentManager()
+            .beginTransaction()
+            .replace(R.id.fragment_container, newFrag)
+            .commit();
   }
 
   private boolean isSignedIn() {
@@ -213,19 +242,22 @@ public class MainActivity extends FragmentActivity implements
   private void signInSilently() {
     Log.d(TAG, "signInSilently()");
 
-    mGoogleSignInClient.silentSignIn().addOnCompleteListener(this,
-        new OnCompleteListener<GoogleSignInAccount>() {
-          @Override
-          public void onComplete(@NonNull Task<GoogleSignInAccount> task) {
-            if (task.isSuccessful()) {
-              Log.d(TAG, "signInSilently(): success");
-              onConnected(task.getResult());
-            } else {
-              Log.d(TAG, "signInSilently(): failure", task.getException());
-              onDisconnected();
-            }
-          }
-        });
+    mGoogleSignInClient
+            .silentSignIn()
+            .addOnCompleteListener(
+                    this,
+                    new OnCompleteListener<GoogleSignInAccount>() {
+                      @Override
+                      public void onComplete(@NonNull Task<GoogleSignInAccount> task) {
+                        if (task.isSuccessful()) {
+                          Log.d(TAG, "signInSilently(): success");
+                          onConnected(task.getResult());
+                        } else {
+                          Log.d(TAG, "signInSilently(): failure", task.getException());
+                          onDisconnected();
+                        }
+                      }
+                    });
   }
 
   private void startSignInIntent() {
@@ -250,16 +282,19 @@ public class MainActivity extends FragmentActivity implements
       return;
     }
 
-    mGoogleSignInClient.signOut().addOnCompleteListener(this,
-        new OnCompleteListener<Void>() {
-          @Override
-          public void onComplete(@NonNull Task<Void> task) {
-            boolean successful = task.isSuccessful();
-            Log.d(TAG, "signOut(): " + (successful ? "success" : "failed"));
+    mGoogleSignInClient
+            .signOut()
+            .addOnCompleteListener(
+                    this,
+                    new OnCompleteListener<Void>() {
+                      @Override
+                      public void onComplete(@NonNull Task<Void> task) {
+                        boolean successful = task.isSuccessful();
+                        Log.d(TAG, "signOut(): " + (successful ? "success" : "failed"));
 
-            onDisconnected();
-          }
-        });
+                        onDisconnected();
+                      }
+                    });
   }
 
   @Override
@@ -269,36 +304,42 @@ public class MainActivity extends FragmentActivity implements
 
   @Override
   public void onShowAchievementsRequested() {
-    mAchievementsClient.getAchievementsIntent()
-        .addOnSuccessListener(new OnSuccessListener<Intent>() {
-          @Override
-          public void onSuccess(Intent intent) {
-            startActivityForResult(intent, RC_UNUSED);
-          }
-        })
-        .addOnFailureListener(new OnFailureListener() {
-          @Override
-          public void onFailure(@NonNull Exception e) {
-            handleException(e, getString(R.string.achievements_exception));
-          }
-        });
+    mAchievementsClient
+            .getAchievementsIntent()
+            .addOnSuccessListener(
+                    new OnSuccessListener<Intent>() {
+                      @Override
+                      public void onSuccess(Intent intent) {
+                        startActivityForResult(intent, RC_UNUSED);
+                      }
+                    })
+            .addOnFailureListener(
+                    new OnFailureListener() {
+                      @Override
+                      public void onFailure(@NonNull Exception e) {
+                        handleException(e, getString(R.string.achievements_exception));
+                      }
+                    });
   }
 
   @Override
   public void onShowLeaderboardsRequested() {
-    mLeaderboardsClient.getAllLeaderboardsIntent()
-        .addOnSuccessListener(new OnSuccessListener<Intent>() {
-          @Override
-          public void onSuccess(Intent intent) {
-            startActivityForResult(intent, RC_UNUSED);
-          }
-        })
-        .addOnFailureListener(new OnFailureListener() {
-          @Override
-          public void onFailure(@NonNull Exception e) {
-            handleException(e, getString(R.string.leaderboards_exception));
-          }
-        });
+    mLeaderboardsClient
+            .getAllLeaderboardsIntent()
+            .addOnSuccessListener(
+                    new OnSuccessListener<Intent>() {
+                      @Override
+                      public void onSuccess(Intent intent) {
+                        startActivityForResult(intent, RC_UNUSED);
+                      }
+                    })
+            .addOnFailureListener(
+                    new OnFailureListener() {
+                      @Override
+                      public void onFailure(@NonNull Exception e) {
+                        handleException(e, getString(R.string.leaderboards_exception));
+                      }
+                    });
   }
 
   private void handleException(Exception e, String details) {
@@ -312,9 +353,9 @@ public class MainActivity extends FragmentActivity implements
     String message = getString(R.string.status_exception_error, details, status, e);
 
     new AlertDialog.Builder(MainActivity.this)
-        .setMessage(message)
-        .setNeutralButton(android.R.string.ok, null)
-        .show();
+            .setMessage(message)
+            .setNeutralButton(android.R.string.ok, null)
+            .show();
   }
 
   /**
@@ -335,8 +376,10 @@ public class MainActivity extends FragmentActivity implements
     int finalScore = mHardMode ? requestedScore / 2 : requestedScore;
 
     mWinFragment.setScore(finalScore);
-    mWinFragment.setExplanation(mHardMode ? getString(R.string.hard_mode_explanation) :
-        getString(R.string.easy_mode_explanation));
+    mWinFragment.setExplanation(
+            mHardMode
+                    ? getString(R.string.hard_mode_explanation)
+                    : getString(R.string.easy_mode_explanation));
 
     // check for achievements
     checkForAchievements(requestedScore, finalScore);
@@ -400,8 +443,8 @@ public class MainActivity extends FragmentActivity implements
     // Only show toast if not signed in. If signed in, the standard Google Play
     // toasts will appear, so we don't need to show our own.
     if (!isSignedIn()) {
-      Toast.makeText(this, getString(R.string.achievement) + ": " + achievement,
-          Toast.LENGTH_LONG).show();
+      Toast.makeText(this, getString(R.string.achievement) + ": " + achievement, Toast.LENGTH_LONG)
+              .show();
     }
   }
 
@@ -427,10 +470,9 @@ public class MainActivity extends FragmentActivity implements
       mOutbox.mLeetAchievement = false;
     }
     if (mOutbox.mBoredSteps > 0) {
-      mAchievementsClient.increment(getString(R.string.achievement_really_bored),
-          mOutbox.mBoredSteps);
-      mAchievementsClient.increment(getString(R.string.achievement_bored),
-          mOutbox.mBoredSteps);
+      mAchievementsClient.increment(
+              getString(R.string.achievement_really_bored), mOutbox.mBoredSteps);
+      mAchievementsClient.increment(getString(R.string.achievement_bored), mOutbox.mBoredSteps);
       mOutbox.mBoredSteps = 0;
     }
     if (mOutbox.mEasyModeScore >= 0) {
@@ -439,10 +481,17 @@ public class MainActivity extends FragmentActivity implements
       mOutbox.mEasyModeScore = -1;
     }
     if (mOutbox.mHardModeScore >= 0) {
-      mLeaderboardsClient.submitScore(getString(R.string.leaderboard_hard),
-          mOutbox.mHardModeScore);
+      mLeaderboardsClient.submitScore(getString(R.string.leaderboard_hard), mOutbox.mHardModeScore);
       mOutbox.mHardModeScore = -1;
     }
+  }
+
+  public PlayersClient getPlayersClient() {
+    return mPlayersClient;
+  }
+
+  public String getDisplayName() {
+    return mDisplayName;
   }
 
   /**
@@ -467,8 +516,7 @@ public class MainActivity extends FragmentActivity implements
   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     super.onActivityResult(requestCode, resultCode, intent);
     if (requestCode == RC_SIGN_IN) {
-      Task<GoogleSignInAccount> task =
-          GoogleSignIn.getSignedInAccountFromIntent(intent);
+      Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(intent);
 
       try {
         GoogleSignInAccount account = task.getResult(ApiException.class);
@@ -482,9 +530,9 @@ public class MainActivity extends FragmentActivity implements
         onDisconnected();
 
         new AlertDialog.Builder(this)
-            .setMessage(message)
-            .setNeutralButton(android.R.string.ok, null)
-            .show();
+                .setMessage(message)
+                .setNeutralButton(android.R.string.ok, null)
+                .show();
       }
     }
   }
@@ -504,28 +552,30 @@ public class MainActivity extends FragmentActivity implements
     mWinFragment.setShowSignInButton(false);
 
     // Set the greeting appropriately on main menu
-    mPlayersClient.getCurrentPlayer()
-        .addOnCompleteListener(new OnCompleteListener<Player>() {
-          @Override
-          public void onComplete(@NonNull Task<Player> task) {
-            String displayName;
-            if (task.isSuccessful()) {
-              displayName = task.getResult().getDisplayName();
-            } else {
-              Exception e = task.getException();
-              handleException(e, getString(R.string.players_exception));
-              displayName = "???";
-            }
-            mMainMenuFragment.setGreeting("Hello, " + displayName);
-          }
-        });
-
+    mPlayersClient
+            .getCurrentPlayer()
+            .addOnCompleteListener(
+                    new OnCompleteListener<Player>() {
+                      @Override
+                      public void onComplete(@NonNull Task<Player> task) {
+                        String displayName;
+                        if (task.isSuccessful()) {
+                          displayName = task.getResult().getDisplayName();
+                        } else {
+                          Exception e = task.getException();
+                          handleException(e, getString(R.string.players_exception));
+                          displayName = "???";
+                        }
+                        mDisplayName = displayName;
+                        mMainMenuFragment.setGreeting("Hello, " + displayName);
+                      }
+                    });
 
     // if we have accomplishments to push, push them
     if (!mOutbox.isEmpty()) {
       pushAccomplishments();
-      Toast.makeText(this, getString(R.string.your_progress_will_be_uploaded),
-          Toast.LENGTH_LONG).show();
+      Toast.makeText(this, getString(R.string.your_progress_will_be_uploaded), Toast.LENGTH_LONG)
+              .show();
     }
 
     loadAndPrintEvents();
@@ -557,6 +607,16 @@ public class MainActivity extends FragmentActivity implements
     signOut();
   }
 
+  @Override
+  public void onShowFriendsButtonClicked() {
+    switchToFragment(mFriendsFragment);
+  }
+
+  @Override
+  public void onBackButtonClicked() {
+    switchToFragment(mMainMenuFragment);
+  }
+
   private class AccomplishmentsOutbox {
     boolean mPrimeAchievement = false;
     boolean mHumbleAchievement = false;
@@ -567,9 +627,13 @@ public class MainActivity extends FragmentActivity implements
     int mHardModeScore = -1;
 
     boolean isEmpty() {
-      return !mPrimeAchievement && !mHumbleAchievement && !mLeetAchievement &&
-          !mArrogantAchievement && mBoredSteps == 0 && mEasyModeScore < 0 &&
-          mHardModeScore < 0;
+      return !mPrimeAchievement
+              && !mHumbleAchievement
+              && !mLeetAchievement
+              && !mArrogantAchievement
+              && mBoredSteps == 0
+              && mEasyModeScore < 0
+              && mHardModeScore < 0;
     }
 
   }
