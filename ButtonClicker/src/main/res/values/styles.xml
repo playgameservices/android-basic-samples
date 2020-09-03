@@ -48,7 +48,7 @@
 
 
     <style name="InvPopup" parent="@style/LLScreen">
-        <item name="background">@color/PopupColor</item>
+        <item name="android:background">@color/PopupColor</item>
         <item name="android:padding">10dp</item>
         <item name="android:layout_gravity">top|right</item>
         <item name="android:layout_width">match_parent</item>
@@ -86,7 +86,7 @@
     <style name="GameButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="background">@color/AccentColor</item>
+        <item name="android:background">@color/AccentColor</item>
         <item name="android:textColor">@color/ButtonTextColor</item>
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingRight">10dp</item>
@@ -110,12 +110,12 @@
     </style>
 
     <style name="InvPopupButton" parent="@style/GameButton">
-        <item name="background">@color/ButtonTextColor</item>
+        <item name="android:background">@color/ButtonTextColor</item>
         <item name="android:textColor">@color/AccentColor</item>
     </style>
 
     <style name="SignOutButton" parent="@style/GameButton">
-        <item name="background">@color/SignOutButtonBackground</item>
+        <item name="android:background">@color/SignOutButtonBackground</item>
         <item name="android:textColor">@color/SignOutButtonTextColor</item>
     </style>
 
@@ -142,6 +142,7 @@
     <style name="ScoresBox">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">#f0f0f0</item>
         <item name="android:orientation">vertical</item>
         <item name="android:layout_marginTop">30dp</item>
         <item name="android:padding">20dp</item>
