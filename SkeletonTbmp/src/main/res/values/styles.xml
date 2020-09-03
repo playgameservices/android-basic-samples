@@ -20,7 +20,7 @@
     <style name="Theme.App" parent="@android:style/Theme.Light">
         <item
             name="android:windowBackground">@drawable/grey_background_pattern</item>
-        <item name="buttonStyle">@style/Button</item>
+        <item name="android:buttonStyle">@style/Button</item>
         <item name="android:textAppearance">@style/DefaultText</item>
         <item name="android:textAppearanceLarge">@style/Heading</item>
         <item name="android:textAppearanceMedium">@style/SubHeading</item>
@@ -59,7 +59,7 @@
     </style>
 
     <style name="Button" parent="@android:style/Widget.Button">
-        <item name="background">@drawable/button</item>
+        <item name="android:background">@drawable/button</item>
         <item name="android:gravity">center_vertical|center_horizontal</item>
         <item name="android:textColor">#FF000000</item>
         <item name="android:focusable">true</item>
