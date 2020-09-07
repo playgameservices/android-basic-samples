@@ -85,7 +85,6 @@ public class MainActivity extends FragmentActivity implements
   private static final int RC_SIGN_IN = 9001;
 
   static final int RC_FRIEND_PROFILE = 9002;
-  static final int RC_RESOLUTION = 9003;
 
   // tag for debug logging
   private static final String TAG = "TanC";
