@@ -16,17 +16,11 @@
 
 package com.google.example.games.tanc;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.IntentSenderRequest;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
@@ -36,7 +30,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.games.AchievementsClient;
 import com.google.android.gms.games.AnnotatedData;
 import com.google.android.gms.games.EventsClient;
@@ -46,33 +39,31 @@ import com.google.android.gms.games.Player;
 import com.google.android.gms.games.PlayersClient;
 import com.google.android.gms.games.event.Event;
 import com.google.android.gms.games.event.EventBuffer;
-import com.google.android.gms.games.leaderboard.LeaderboardScore;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-
-import static com.google.android.gms.games.leaderboard.LeaderboardVariant.COLLECTION_FRIENDS;
-import static com.google.android.gms.games.leaderboard.LeaderboardVariant.COLLECTION_PUBLIC;
+import com.google.android.gms.tasks.Task
 
 /**
  * Our main activity for the game.
  *
- * <p>IMPORTANT: Before attempting to run this sample, please change the package name to your own
- * package name (not com.android.*) and replace the IDs on res/values/ids.xml by your own IDs (you
- * must create a game in the developer console to get those IDs).
+ * <p>IMPORTANT: Before attempting to run this sample, please change
+ * the package name to your own package name (not com.android.*) and
+ * replace the IDs on res/values/ids.xml by your own IDs (you must
+ * create a game in the developer console to get those IDs).
  *
- * <p>This is a very simple game where the user selects "easy mode" or "hard mode" and then the
- * "gameplay" consists of inputting the desired score (0 to 9999). In easy mode, you get the score
+ * <p>This is a very simple game where the user selects "easy mode" or
+ * "hard mode" and then the "gameplay" consists of inputting the
+ * desired score (0 to 9999). In easy mode, you get the score
  * you request; in hard mode, you get half.
  *
  * @author Bruno Oliveira
  */
-public class MainActivity extends FragmentActivity
-        implements MainMenuFragment.Listener,
-        GameplayFragment.Callback,
-        WinFragment.Listener,
-        FriendsFragment.Listener {
+public class MainActivity extends FragmentActivity implements
+    MainMenuFragment.Listener,
+    GameplayFragment.Callback,
+    WinFragment.Listener,
+    FriendsFragment.Listener {
 
   // Fragments
   private MainMenuFragment mMainMenuFragment;
@@ -137,9 +128,8 @@ public class MainActivity extends FragmentActivity
     // already be there after rotation and trying to add it again would
     // result in overlapping fragments. But since we don't support rotation,
     // we don't deal with that for code simplicity.
-    getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, mMainMenuFragment)
-        .commit();
-
+    getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,
+        mMainMenuFragment).commit();
     checkPlaceholderIds();
   }
 
@@ -181,7 +171,7 @@ public class MainActivity extends FragmentActivity
       problems.append("\nThese problems may prevent the app from working properly.");
       problems.append("\n\nSee the TODO window in Android Studio for more information");
       (new AlertDialog.Builder(this)).setMessage(problems.toString())
-        .setNeutralButton(android.R.string.ok, null).create().show();
+          .setNeutralButton(android.R.string.ok, null).create().show();
     }
   }
 
@@ -204,7 +194,10 @@ public class MainActivity extends FragmentActivity
 
             for (int i = 0; i < count; i++) {
               Event event = eventBuffer.get(i);
-              Log.i(TAG, "event: " + event.getName() + " -> " + event.getValue());
+              Log.i(TAG, "event: "
+                  + event.getName()
+                  + " -> "
+                  + event.getValue());
             }
           }
         })
@@ -218,10 +211,8 @@ public class MainActivity extends FragmentActivity
 
   // Switch UI to the given fragment
   private void switchToFragment(Fragment newFrag) {
-    getSupportFragmentManager()
-            .beginTransaction()
-            .replace(R.id.fragment_container, newFrag)
-            .commit();
+    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, newFrag)
+        .commit();
   }
 
   private boolean isSignedIn() {
