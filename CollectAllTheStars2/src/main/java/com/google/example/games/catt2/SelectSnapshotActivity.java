@@ -14,6 +14,7 @@
  */
 package com.google.example.games.catt2;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,8 +27,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.common.images.ImageManager;
 import com.google.android.gms.games.snapshot.Snapshot;
@@ -45,7 +44,7 @@ import java.util.ArrayList;
  *
  * @author Clayton Wilkinson (Google)
  */
-public class SelectSnapshotActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class SelectSnapshotActivity extends Activity implements AdapterView.OnItemClickListener {
 
   private static final String TAG = "SelSnapshotActivity";
   // intent data which is a snapshot metadata
@@ -117,7 +116,7 @@ public class SelectSnapshotActivity extends AppCompatActivity implements Adapter
   static class SnapshotListAdapter<T> extends ArrayAdapter<T> {
 
 
-    public SnapshotListAdapter(AppCompatActivity activity, ArrayList<T> data) {
+    public SnapshotListAdapter(Activity activity, ArrayList<T> data) {
       super(activity, R.layout.snapshotlayout, data);
     }
 

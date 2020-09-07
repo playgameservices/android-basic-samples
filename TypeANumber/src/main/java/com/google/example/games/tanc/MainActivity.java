@@ -16,27 +16,20 @@
 
 package com.google.example.games.tanc;
 
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.IntentSenderRequest;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.games.AchievementsClient;
 import com.google.android.gms.games.AnnotatedData;
 import com.google.android.gms.games.EventsClient;
@@ -46,39 +39,35 @@ import com.google.android.gms.games.Player;
 import com.google.android.gms.games.PlayersClient;
 import com.google.android.gms.games.event.Event;
 import com.google.android.gms.games.event.EventBuffer;
-import com.google.android.gms.games.leaderboard.LeaderboardScore;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
-import static com.google.android.gms.games.leaderboard.LeaderboardVariant.COLLECTION_FRIENDS;
-import static com.google.android.gms.games.leaderboard.LeaderboardVariant.COLLECTION_PUBLIC;
-
 /**
  * Our main activity for the game.
- *
- * <p>IMPORTANT: Before attempting to run this sample, please change the package name to your own
- * package name (not com.android.*) and replace the IDs on res/values/ids.xml by your own IDs (you
- * must create a game in the developer console to get those IDs).
- *
- * <p>This is a very simple game where the user selects "easy mode" or "hard mode" and then the
- * "gameplay" consists of inputting the desired score (0 to 9999). In easy mode, you get the score
- * you request; in hard mode, you get half.
+ * <p>
+ * IMPORTANT: Before attempting to run this sample, please change
+ * the package name to your own package name (not com.android.*) and
+ * replace the IDs on res/values/ids.xml by your own IDs (you must
+ * create a game in the developer console to get those IDs).
+ * <p>
+ * This is a very simple game where the user selects "easy mode" or
+ * "hard mode" and then the "gameplay" consists of inputting the
+ * desired score (0 to 9999). In easy mode, you get the score you
+ * request; in hard mode, you get half.
  *
  * @author Bruno Oliveira
  */
-public class MainActivity extends FragmentActivity
-        implements MainMenuFragment.Listener,
-        GameplayFragment.Callback,
-        WinFragment.Listener,
-        FriendsFragment.Listener {
+public class MainActivity extends FragmentActivity implements
+    MainMenuFragment.Listener,
+    GameplayFragment.Callback,
+    WinFragment.Listener {
 
   // Fragments
   private MainMenuFragment mMainMenuFragment;
   private GameplayFragment mGameplayFragment;
   private WinFragment mWinFragment;
-  public FriendsFragment mFriendsFragment;
 
   // Client used to sign in with Google APIs
   private GoogleSignInClient mGoogleSignInClient;
@@ -93,17 +82,11 @@ public class MainActivity extends FragmentActivity
   private static final int RC_UNUSED = 5001;
   private static final int RC_SIGN_IN = 9001;
 
-  static final int RC_FRIEND_PROFILE = 9002;
-  static final int RC_RESOLUTION = 9003;
-
   // tag for debug logging
   private static final String TAG = "TanC";
 
   // playing on hard mode?
   private boolean mHardMode = false;
-
-  // The diplay name of the signed in user.
-  private String mDisplayName = "";
 
   // achievements and scores we're pending to push to the cloud
   // (waiting for the user to sign in, for instance)
@@ -123,13 +106,11 @@ public class MainActivity extends FragmentActivity
     mMainMenuFragment = new MainMenuFragment();
     mGameplayFragment = new GameplayFragment();
     mWinFragment = new WinFragment();
-    mFriendsFragment = new FriendsFragment();
 
     // Set the listeners and callbacks of fragment events.
     mMainMenuFragment.setListener(this);
     mGameplayFragment.setCallback(this);
     mWinFragment.setListener(this);
-    mFriendsFragment.setListener(this);
 
     // Add initial Main Menu fragment.
     // IMPORTANT: if this Activity supported rotation, we'd have to be
@@ -137,8 +118,8 @@ public class MainActivity extends FragmentActivity
     // already be there after rotation and trying to add it again would
     // result in overlapping fragments. But since we don't support rotation,
     // we don't deal with that for code simplicity.
-    getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, mMainMenuFragment)
-        .commit();
+    getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,
+        mMainMenuFragment).commit();
 
     checkPlaceholderIds();
   }
@@ -181,7 +162,7 @@ public class MainActivity extends FragmentActivity
       problems.append("\nThese problems may prevent the app from working properly.");
       problems.append("\n\nSee the TODO window in Android Studio for more information");
       (new AlertDialog.Builder(this)).setMessage(problems.toString())
-        .setNeutralButton(android.R.string.ok, null).create().show();
+          .setNeutralButton(android.R.string.ok, null).create().show();
     }
   }
 
@@ -204,7 +185,10 @@ public class MainActivity extends FragmentActivity
 
             for (int i = 0; i < count; i++) {
               Event event = eventBuffer.get(i);
-              Log.i(TAG, "event: " + event.getName() + " -> " + event.getValue());
+              Log.i(TAG, "event: "
+                  + event.getName()
+                  + " -> "
+                  + event.getValue());
             }
           }
         })
@@ -218,10 +202,8 @@ public class MainActivity extends FragmentActivity
 
   // Switch UI to the given fragment
   private void switchToFragment(Fragment newFrag) {
-    getSupportFragmentManager()
-            .beginTransaction()
-            .replace(R.id.fragment_container, newFrag)
-            .commit();
+    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, newFrag)
+        .commit();
   }
 
   private boolean isSignedIn() {
@@ -243,7 +225,7 @@ public class MainActivity extends FragmentActivity
               onDisconnected();
             }
           }
-    });
+        });
   }
 
   private void startSignInIntent() {
@@ -277,7 +259,7 @@ public class MainActivity extends FragmentActivity
 
             onDisconnected();
           }
-    });
+        });
   }
 
   @Override
@@ -295,10 +277,10 @@ public class MainActivity extends FragmentActivity
           }
         })
         .addOnFailureListener(new OnFailureListener() {
-           @Override
-           public void onFailure(@NonNull Exception e) {
-             handleException(e, getString(R.string.achievements_exception));
-           }
+          @Override
+          public void onFailure(@NonNull Exception e) {
+            handleException(e, getString(R.string.achievements_exception));
+          }
         });
   }
 
@@ -447,7 +429,6 @@ public class MainActivity extends FragmentActivity
     if (mOutbox.mBoredSteps > 0) {
       mAchievementsClient.increment(getString(R.string.achievement_really_bored),
           mOutbox.mBoredSteps);
-
       mAchievementsClient.increment(getString(R.string.achievement_bored),
           mOutbox.mBoredSteps);
       mOutbox.mBoredSteps = 0;
@@ -462,14 +443,6 @@ public class MainActivity extends FragmentActivity
           mOutbox.mHardModeScore);
       mOutbox.mHardModeScore = -1;
     }
-  }
-
-  public PlayersClient getPlayersClient() {
-    return mPlayersClient;
-  }
-
-  public String getDisplayName() {
-    return mDisplayName;
   }
 
   /**
@@ -494,7 +467,8 @@ public class MainActivity extends FragmentActivity
   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     super.onActivityResult(requestCode, resultCode, intent);
     if (requestCode == RC_SIGN_IN) {
-      Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(intent);
+      Task<GoogleSignInAccount> task =
+          GoogleSignIn.getSignedInAccountFromIntent(intent);
 
       try {
         GoogleSignInAccount account = task.getResult(ApiException.class);
@@ -542,16 +516,16 @@ public class MainActivity extends FragmentActivity
               handleException(e, getString(R.string.players_exception));
               displayName = "???";
             }
-            mDisplayName = displayName;
             mMainMenuFragment.setGreeting("Hello, " + displayName);
           }
         });
 
+
     // if we have accomplishments to push, push them
     if (!mOutbox.isEmpty()) {
       pushAccomplishments();
-      Toast.makeText(this,
-          getString(R.string.your_progress_will_be_uploaded), Toast.LENGTH_LONG).show();
+      Toast.makeText(this, getString(R.string.your_progress_will_be_uploaded),
+          Toast.LENGTH_LONG).show();
     }
 
     loadAndPrintEvents();
@@ -583,16 +557,6 @@ public class MainActivity extends FragmentActivity
     signOut();
   }
 
-  @Override
-  public void onShowFriendsButtonClicked() {
-    switchToFragment(mFriendsFragment);
-  }
-
-  @Override
-  public void onBackButtonClicked() {
-    switchToFragment(mMainMenuFragment);
-  }
-
   private class AccomplishmentsOutbox {
     boolean mPrimeAchievement = false;
     boolean mHumbleAchievement = false;
@@ -603,9 +567,9 @@ public class MainActivity extends FragmentActivity
     int mHardModeScore = -1;
 
     boolean isEmpty() {
-      return !mPrimeAchievement && !mHumbleAchievement && !mLeetAchievement
-          && !mArrogantAchievement && mBoredSteps == 0 && mEasyModeScore < 0
-          && mHardModeScore < 0;
+      return !mPrimeAchievement && !mHumbleAchievement && !mLeetAchievement &&
+          !mArrogantAchievement && mBoredSteps == 0 && mEasyModeScore < 0 &&
+          mHardModeScore < 0;
     }
 
   }
