@@ -86,13 +86,7 @@
         <Button android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/show_leaderboards"
-            android:layout_marginBottom="20dp"
             android:id="@+id/show_leaderboards_button" />
-
-        <Button android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/show_friends"
-            android:id="@+id/show_friends_button" />
     </LinearLayout>
 
     <LinearLayout android:id="@+id/sign_in_bar"

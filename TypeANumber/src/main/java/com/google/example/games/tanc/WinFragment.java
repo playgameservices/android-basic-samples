@@ -17,12 +17,12 @@
 package com.google.example.games.tanc;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import androidx.fragment.app.Fragment;
 
 /**
  * Fragment that shows the 'You won' message. Apart from congratulating the user

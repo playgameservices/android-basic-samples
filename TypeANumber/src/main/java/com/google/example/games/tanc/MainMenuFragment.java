@@ -16,12 +16,12 @@
 package com.google.example.games.tanc;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import androidx.fragment.app.Fragment;
 
 /**
  * Fragment with the main menu for the game. The main menu allows the player
@@ -37,7 +37,6 @@ public class MainMenuFragment extends Fragment implements OnClickListener {
   private View mSignOutBarView;
   private View mShowAchievementsButton;
   private View mShowLeaderboardsButton;
-  private View mShowFriendsButton;
 
   interface Listener {
     // called when the user presses the `Easy` or `Okay` button; will pass in which via `hardMode`
@@ -54,9 +53,6 @@ public class MainMenuFragment extends Fragment implements OnClickListener {
 
     // called when the user presses the `Sign Out` button
     void onSignOutButtonClicked();
-
-    // called when the user presses the `Friends` button
-    void onShowFriendsButtonClicked();
   }
 
   private Listener mListener = null;
@@ -75,8 +71,7 @@ public class MainMenuFragment extends Fragment implements OnClickListener {
         R.id.show_achievements_button,
         R.id.show_leaderboards_button,
         R.id.sign_in_button,
-        R.id.sign_out_button,
-        R.id.show_friends_button
+        R.id.sign_out_button
     };
 
     for (int clickableId : clickableIds) {
@@ -86,7 +81,6 @@ public class MainMenuFragment extends Fragment implements OnClickListener {
     // cache views
     mShowAchievementsButton = view.findViewById(R.id.show_achievements_button);
     mShowLeaderboardsButton = view.findViewById(R.id.show_leaderboards_button);
-    mShowFriendsButton = view.findViewById(R.id.show_friends_button);
 
     mGreetingTextView = view.findViewById(R.id.text_greeting);
     mSignInBarView = view.findViewById(R.id.sign_in_bar);
@@ -110,7 +104,6 @@ public class MainMenuFragment extends Fragment implements OnClickListener {
     mGreetingTextView.setText(mGreeting);
     mShowAchievementsButton.setEnabled(!mShowSignInButton);
     mShowLeaderboardsButton.setEnabled(!mShowSignInButton);
-    mShowFriendsButton.setEnabled(!mShowSignInButton);
     mSignInBarView.setVisibility(mShowSignInButton ? View.VISIBLE : View.GONE);
     mSignOutBarView.setVisibility(mShowSignInButton ? View.GONE : View.VISIBLE);
   }
@@ -129,9 +122,6 @@ public class MainMenuFragment extends Fragment implements OnClickListener {
         break;
       case R.id.show_leaderboards_button:
         mListener.onShowLeaderboardsRequested();
-        break;
-      case R.id.show_friends_button:
-        mListener.onShowFriendsButtonClicked();
         break;
       case R.id.sign_in_button:
         mListener.onSignInButtonClicked();
