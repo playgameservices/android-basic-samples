@@ -17,15 +17,17 @@
 package com.google.example.games.tbmpskeleton;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -71,7 +73,7 @@ import java.util.ArrayList;
  *
  * @author Wolff (wolff@google.com), 2013
  */
-public class SkeletonActivity extends Activity implements
+public class SkeletonActivity extends AppCompatActivity implements
     View.OnClickListener {
 
   public static final String TAG = "SkeletonActivity";
