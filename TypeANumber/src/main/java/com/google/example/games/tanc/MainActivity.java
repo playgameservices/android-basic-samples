@@ -116,10 +116,8 @@ public class MainActivity extends FragmentActivity
     setContentView(R.layout.activity_main);
 
     // Create the client used to sign in to Google services.
-    mGoogleSignInClient =
-            GoogleSignIn.getClient(
-                    this,
-                    new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN).build());
+    mGoogleSignInClient = GoogleSignIn.getClient(this,
+        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN).build());
 
     // Create the fragments used by the UI.
     mMainMenuFragment = new MainMenuFragment();
@@ -139,10 +137,8 @@ public class MainActivity extends FragmentActivity
     // already be there after rotation and trying to add it again would
     // result in overlapping fragments. But since we don't support rotation,
     // we don't deal with that for code simplicity.
-    getSupportFragmentManager()
-            .beginTransaction()
-            .add(R.id.fragment_container, mMainMenuFragment)
-            .commit();
+    getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, mMainMenuFragment)
+        .commit();
 
     checkPlaceholderIds();
   }
@@ -157,22 +153,21 @@ public class MainActivity extends FragmentActivity
       problems.append("- Package name start with com.google.*\n");
     }
 
-    for (Integer id :
-            new Integer[] {
-                    R.string.app_id,
-                    R.string.achievement_prime,
-                    R.string.achievement_really_bored,
-                    R.string.achievement_bored,
-                    R.string.achievement_humble,
-                    R.string.achievement_arrogant,
-                    R.string.achievement_leet,
-                    R.string.leaderboard_easy,
-                    R.string.leaderboard_hard,
-                    R.string.event_start,
-                    R.string.event_number_chosen,
-            }) {
+    for (Integer id : new Integer[]{
+        R.string.app_id,
+        R.string.achievement_prime,
+        R.string.achievement_really_bored,
+        R.string.achievement_bored,
+        R.string.achievement_humble,
+        R.string.achievement_arrogant,
+        R.string.achievement_leet,
+        R.string.leaderboard_easy,
+        R.string.leaderboard_hard,
+        R.string.event_start,
+        R.string.event_number_chosen,}) {
 
       String value = getString(id);
+
       if (value.startsWith("YOUR_")) {
         // needs replacing
         problems.append("- Placeholders(YOUR_*) in ids.xml need updating\n");
@@ -185,11 +180,8 @@ public class MainActivity extends FragmentActivity
 
       problems.append("\nThese problems may prevent the app from working properly.");
       problems.append("\n\nSee the TODO window in Android Studio for more information");
-      (new AlertDialog.Builder(this))
-              .setMessage(problems.toString())
-              .setNeutralButton(android.R.string.ok, null)
-              .create()
-              .show();
+      (new AlertDialog.Builder(this)).setMessage(problems.toString())
+        .setNeutralButton(android.R.string.ok, null).create().show();
     }
   }
 
@@ -197,34 +189,31 @@ public class MainActivity extends FragmentActivity
 
     final MainActivity mainActivity = this;
 
-    mEventsClient
-            .load(true)
-            .addOnSuccessListener(
-                    new OnSuccessListener<AnnotatedData<EventBuffer>>() {
-                      @Override
-                      public void onSuccess(AnnotatedData<EventBuffer> eventBufferAnnotatedData) {
-                        EventBuffer eventBuffer = eventBufferAnnotatedData.get();
+    mEventsClient.load(true)
+        .addOnSuccessListener(new OnSuccessListener<AnnotatedData<EventBuffer>>() {
+          @Override
+          public void onSuccess(AnnotatedData<EventBuffer> eventBufferAnnotatedData) {
+            EventBuffer eventBuffer = eventBufferAnnotatedData.get();
 
-                        int count = 0;
-                        if (eventBuffer != null) {
-                          count = eventBuffer.getCount();
-                        }
+            int count = 0;
+            if (eventBuffer != null) {
+              count = eventBuffer.getCount();
+            }
 
-                        Log.i(TAG, "number of events: " + count);
+            Log.i(TAG, "number of events: " + count);
 
-                        for (int i = 0; i < count; i++) {
-                          Event event = eventBuffer.get(i);
-                          Log.i(TAG, "event: " + event.getName() + " -> " + event.getValue());
-                        }
-                      }
-                    })
-            .addOnFailureListener(
-                    new OnFailureListener() {
-                      @Override
-                      public void onFailure(@NonNull Exception e) {
-                        handleException(e, getString(R.string.achievements_exception));
-                      }
-                    });
+            for (int i = 0; i < count; i++) {
+              Event event = eventBuffer.get(i);
+              Log.i(TAG, "event: " + event.getName() + " -> " + event.getValue());
+            }
+          }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+          @Override
+          public void onFailure(@NonNull Exception e) {
+            handleException(e, getString(R.string.achievements_exception));
+          }
+        });
   }
 
   // Switch UI to the given fragment
@@ -242,22 +231,19 @@ public class MainActivity extends FragmentActivity
   private void signInSilently() {
     Log.d(TAG, "signInSilently()");
 
-    mGoogleSignInClient
-            .silentSignIn()
-            .addOnCompleteListener(
-                    this,
-                    new OnCompleteListener<GoogleSignInAccount>() {
-                      @Override
-                      public void onComplete(@NonNull Task<GoogleSignInAccount> task) {
-                        if (task.isSuccessful()) {
-                          Log.d(TAG, "signInSilently(): success");
-                          onConnected(task.getResult());
-                        } else {
-                          Log.d(TAG, "signInSilently(): failure", task.getException());
-                          onDisconnected();
-                        }
-                      }
-                    });
+    mGoogleSignInClient.silentSignIn().addOnCompleteListener(this,
+        new OnCompleteListener<GoogleSignInAccount>() {
+          @Override
+          public void onComplete(@NonNull Task<GoogleSignInAccount> task) {
+            if (task.isSuccessful()) {
+              Log.d(TAG, "signInSilently(): success");
+              onConnected(task.getResult());
+            } else {
+              Log.d(TAG, "signInSilently(): failure", task.getException());
+              onDisconnected();
+            }
+          }
+    });
   }
 
   private void startSignInIntent() {
@@ -282,19 +268,16 @@ public class MainActivity extends FragmentActivity
       return;
     }
 
-    mGoogleSignInClient
-            .signOut()
-            .addOnCompleteListener(
-                    this,
-                    new OnCompleteListener<Void>() {
-                      @Override
-                      public void onComplete(@NonNull Task<Void> task) {
-                        boolean successful = task.isSuccessful();
-                        Log.d(TAG, "signOut(): " + (successful ? "success" : "failed"));
+    mGoogleSignInClient.signOut().addOnCompleteListener(this,
+        new OnCompleteListener<Void>() {
+          @Override
+          public void onComplete(@NonNull Task<Void> task) {
+            boolean successful = task.isSuccessful();
+            Log.d(TAG, "signOut(): " + (successful ? "success" : "failed"));
 
-                        onDisconnected();
-                      }
-                    });
+            onDisconnected();
+          }
+    });
   }
 
   @Override
@@ -304,42 +287,36 @@ public class MainActivity extends FragmentActivity
 
   @Override
   public void onShowAchievementsRequested() {
-    mAchievementsClient
-            .getAchievementsIntent()
-            .addOnSuccessListener(
-                    new OnSuccessListener<Intent>() {
-                      @Override
-                      public void onSuccess(Intent intent) {
-                        startActivityForResult(intent, RC_UNUSED);
-                      }
-                    })
-            .addOnFailureListener(
-                    new OnFailureListener() {
-                      @Override
-                      public void onFailure(@NonNull Exception e) {
-                        handleException(e, getString(R.string.achievements_exception));
-                      }
-                    });
+    mAchievementsClient.getAchievementsIntent()
+        .addOnSuccessListener(new OnSuccessListener<Intent>() {
+          @Override
+          public void onSuccess(Intent intent) {
+            startActivityForResult(intent, RC_UNUSED);
+          }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+           @Override
+           public void onFailure(@NonNull Exception e) {
+             handleException(e, getString(R.string.achievements_exception));
+           }
+        });
   }
 
   @Override
   public void onShowLeaderboardsRequested() {
-    mLeaderboardsClient
-            .getAllLeaderboardsIntent()
-            .addOnSuccessListener(
-                    new OnSuccessListener<Intent>() {
-                      @Override
-                      public void onSuccess(Intent intent) {
-                        startActivityForResult(intent, RC_UNUSED);
-                      }
-                    })
-            .addOnFailureListener(
-                    new OnFailureListener() {
-                      @Override
-                      public void onFailure(@NonNull Exception e) {
-                        handleException(e, getString(R.string.leaderboards_exception));
-                      }
-                    });
+    mLeaderboardsClient.getAllLeaderboardsIntent()
+        .addOnSuccessListener(new OnSuccessListener<Intent>() {
+          @Override
+          public void onSuccess(Intent intent) {
+            startActivityForResult(intent, RC_UNUSED);
+          }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+          @Override
+          public void onFailure(@NonNull Exception e) {
+            handleException(e, getString(R.string.leaderboards_exception));
+          }
+        });
   }
 
   private void handleException(Exception e, String details) {
@@ -353,9 +330,9 @@ public class MainActivity extends FragmentActivity
     String message = getString(R.string.status_exception_error, details, status, e);
 
     new AlertDialog.Builder(MainActivity.this)
-            .setMessage(message)
-            .setNeutralButton(android.R.string.ok, null)
-            .show();
+        .setMessage(message)
+        .setNeutralButton(android.R.string.ok, null)
+        .show();
   }
 
   /**
@@ -376,10 +353,8 @@ public class MainActivity extends FragmentActivity
     int finalScore = mHardMode ? requestedScore / 2 : requestedScore;
 
     mWinFragment.setScore(finalScore);
-    mWinFragment.setExplanation(
-            mHardMode
-                    ? getString(R.string.hard_mode_explanation)
-                    : getString(R.string.easy_mode_explanation));
+    mWinFragment.setExplanation(mHardMode ? getString(R.string.hard_mode_explanation) :
+        getString(R.string.easy_mode_explanation));
 
     // check for achievements
     checkForAchievements(requestedScore, finalScore);
@@ -443,8 +418,8 @@ public class MainActivity extends FragmentActivity
     // Only show toast if not signed in. If signed in, the standard Google Play
     // toasts will appear, so we don't need to show our own.
     if (!isSignedIn()) {
-      Toast.makeText(this, getString(R.string.achievement) + ": " + achievement, Toast.LENGTH_LONG)
-              .show();
+      Toast.makeText(this, getString(R.string.achievement) + ": " + achievement,
+          Toast.LENGTH_LONG).show();
     }
   }
 
@@ -470,9 +445,11 @@ public class MainActivity extends FragmentActivity
       mOutbox.mLeetAchievement = false;
     }
     if (mOutbox.mBoredSteps > 0) {
-      mAchievementsClient.increment(
-              getString(R.string.achievement_really_bored), mOutbox.mBoredSteps);
-      mAchievementsClient.increment(getString(R.string.achievement_bored), mOutbox.mBoredSteps);
+      mAchievementsClient.increment(getString(R.string.achievement_really_bored),
+          mOutbox.mBoredSteps);
+
+      mAchievementsClient.increment(getString(R.string.achievement_bored),
+          mOutbox.mBoredSteps);
       mOutbox.mBoredSteps = 0;
     }
     if (mOutbox.mEasyModeScore >= 0) {
@@ -481,7 +458,8 @@ public class MainActivity extends FragmentActivity
       mOutbox.mEasyModeScore = -1;
     }
     if (mOutbox.mHardModeScore >= 0) {
-      mLeaderboardsClient.submitScore(getString(R.string.leaderboard_hard), mOutbox.mHardModeScore);
+      mLeaderboardsClient.submitScore(getString(R.string.leaderboard_hard),
+          mOutbox.mHardModeScore);
       mOutbox.mHardModeScore = -1;
     }
   }
@@ -530,9 +508,9 @@ public class MainActivity extends FragmentActivity
         onDisconnected();
 
         new AlertDialog.Builder(this)
-                .setMessage(message)
-                .setNeutralButton(android.R.string.ok, null)
-                .show();
+            .setMessage(message)
+            .setNeutralButton(android.R.string.ok, null)
+            .show();
       }
     }
   }
@@ -552,30 +530,28 @@ public class MainActivity extends FragmentActivity
     mWinFragment.setShowSignInButton(false);
 
     // Set the greeting appropriately on main menu
-    mPlayersClient
-            .getCurrentPlayer()
-            .addOnCompleteListener(
-                    new OnCompleteListener<Player>() {
-                      @Override
-                      public void onComplete(@NonNull Task<Player> task) {
-                        String displayName;
-                        if (task.isSuccessful()) {
-                          displayName = task.getResult().getDisplayName();
-                        } else {
-                          Exception e = task.getException();
-                          handleException(e, getString(R.string.players_exception));
-                          displayName = "???";
-                        }
-                        mDisplayName = displayName;
-                        mMainMenuFragment.setGreeting("Hello, " + displayName);
-                      }
-                    });
+    mPlayersClient.getCurrentPlayer()
+        .addOnCompleteListener(new OnCompleteListener<Player>() {
+          @Override
+          public void onComplete(@NonNull Task<Player> task) {
+            String displayName;
+            if (task.isSuccessful()) {
+              displayName = task.getResult().getDisplayName();
+            } else {
+              Exception e = task.getException();
+              handleException(e, getString(R.string.players_exception));
+              displayName = "???";
+            }
+            mDisplayName = displayName;
+            mMainMenuFragment.setGreeting("Hello, " + displayName);
+          }
+        });
 
     // if we have accomplishments to push, push them
     if (!mOutbox.isEmpty()) {
       pushAccomplishments();
-      Toast.makeText(this, getString(R.string.your_progress_will_be_uploaded), Toast.LENGTH_LONG)
-              .show();
+      Toast.makeText(this,
+          getString(R.string.your_progress_will_be_uploaded), Toast.LENGTH_LONG).show();
     }
 
     loadAndPrintEvents();
@@ -627,13 +603,9 @@ public class MainActivity extends FragmentActivity
     int mHardModeScore = -1;
 
     boolean isEmpty() {
-      return !mPrimeAchievement
-              && !mHumbleAchievement
-              && !mLeetAchievement
-              && !mArrogantAchievement
-              && mBoredSteps == 0
-              && mEasyModeScore < 0
-              && mHardModeScore < 0;
+      return !mPrimeAchievement && !mHumbleAchievement && !mLeetAchievement
+          && !mArrogantAchievement && mBoredSteps == 0 && mEasyModeScore < 0
+          && mHardModeScore < 0;
     }
 
   }
