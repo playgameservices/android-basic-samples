@@ -15,13 +15,10 @@
 
 package com.google.example.games.catt2;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +28,10 @@ import android.widget.RatingBar;
 import android.widget.RatingBar.OnRatingBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -72,7 +73,7 @@ import java.util.Calendar;
  *
  * @author Bruno Oliveira (Google)
  */
-public class MainActivity extends Activity implements
+public class MainActivity extends AppCompatActivity implements
     View.OnClickListener,
     OnRatingBarChangeListener {
 
@@ -393,7 +394,7 @@ public class MainActivity extends Activity implements
     checkPlaceholderIds();
   }
 
-  public static boolean verifySampleSetup(Activity activity, int... resIds) {
+  public static boolean verifySampleSetup(AppCompatActivity activity, int... resIds) {
     StringBuilder problems = new StringBuilder();
     boolean problemFound = false;
     problems.append("The following set up problems were found:\n\n");
