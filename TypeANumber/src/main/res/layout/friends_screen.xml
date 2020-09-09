@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Copyright (C) 2013 Google Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/friends_game_section"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:id="@+id/friends_game_section2"
+        android:layout_width="wrap_content"
+        android:layout_weight="1"
+        android:layout_height="wrap_content">
+    <LinearLayout
+        android:id="@+id/friends_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/friends_title"
+            android:textSize="40dp"
+            android:layout_width="wrap_content" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/load_friends_game_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/friends_title"
+        android:paddingTop="10dp"
+        android:visibility="gone"/>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/friends_title"
+        android:paddingTop="40dp"/>
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/back_button"
+        android:layout_width="198dp"
+        android:layout_height="63dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="30dp"
+        android:text="@string/back"
+        android:textSize="12sp" />
+</LinearLayout>
+

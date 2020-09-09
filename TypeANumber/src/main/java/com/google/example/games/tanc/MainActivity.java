@@ -16,15 +16,15 @@
 
 package com.google.example.games.tanc;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -62,12 +62,14 @@ import com.google.android.gms.tasks.Task;
 public class MainActivity extends FragmentActivity implements
     MainMenuFragment.Listener,
     GameplayFragment.Callback,
-    WinFragment.Listener {
+    WinFragment.Listener,
+    FriendsFragment.Listener {
 
   // Fragments
   private MainMenuFragment mMainMenuFragment;
   private GameplayFragment mGameplayFragment;
   private WinFragment mWinFragment;
+  public FriendsFragment mFriendsFragment;
 
   // Client used to sign in with Google APIs
   private GoogleSignInClient mGoogleSignInClient;
@@ -88,6 +90,9 @@ public class MainActivity extends FragmentActivity implements
   // playing on hard mode?
   private boolean mHardMode = false;
 
+  // The diplay name of the signed in user.
+  private String mDisplayName = "";
+
   // achievements and scores we're pending to push to the cloud
   // (waiting for the user to sign in, for instance)
   private final AccomplishmentsOutbox mOutbox = new AccomplishmentsOutbox();
@@ -106,11 +111,13 @@ public class MainActivity extends FragmentActivity implements
     mMainMenuFragment = new MainMenuFragment();
     mGameplayFragment = new GameplayFragment();
     mWinFragment = new WinFragment();
+    mFriendsFragment = new FriendsFragment();
 
     // Set the listeners and callbacks of fragment events.
     mMainMenuFragment.setListener(this);
     mGameplayFragment.setCallback(this);
     mWinFragment.setListener(this);
+    mFriendsFragment.setListener(this);
 
     // Add initial Main Menu fragment.
     // IMPORTANT: if this Activity supported rotation, we'd have to be
@@ -445,6 +452,14 @@ public class MainActivity extends FragmentActivity implements
     }
   }
 
+  public PlayersClient getPlayersClient() {
+    return mPlayersClient;
+  }
+
+  public String getDisplayName() {
+    return mDisplayName;
+  }
+
   /**
    * Update leaderboards with the user's score.
    *
@@ -516,6 +531,7 @@ public class MainActivity extends FragmentActivity implements
               handleException(e, getString(R.string.players_exception));
               displayName = "???";
             }
+            mDisplayName = displayName;
             mMainMenuFragment.setGreeting("Hello, " + displayName);
           }
         });
@@ -555,6 +571,16 @@ public class MainActivity extends FragmentActivity implements
   @Override
   public void onSignOutButtonClicked() {
     signOut();
+  }
+
+  @Override
+  public void onShowFriendsButtonClicked() {
+    switchToFragment(mFriendsFragment);
+  }
+
+  @Override
+  public void onBackButtonClicked() {
+    switchToFragment(mMainMenuFragment);
   }
 
   private class AccomplishmentsOutbox {
