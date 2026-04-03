@@ -4,6 +4,8 @@ android {
 
     compileSdkVersion android_compile_version
 
+    namespace "com.google.example.games.tanc"
+
     defaultConfig {
         /*
             TODO: Replace this value with your application's package name
@@ -15,6 +17,11 @@ android {
         targetSdkVersion android_compile_version
         versionCode 1
         versionName "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     buildTypes {
@@ -32,8 +39,3 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:${gms_library_version}"
 }
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-}
