@@ -93,26 +93,23 @@ public class GameplayFragment extends Fragment implements OnClickListener {
 
   @Override
   public void onClick(View view) {
-    switch (view.getId()) {
-      case R.id.digit_button_clear:
+    final int id = view.getId();
+    if (id == R.id.digit_button_clear) {
         setScore(0);
-        break;
-      case R.id.digit_button_0:
-      case R.id.digit_button_1:
-      case R.id.digit_button_2:
-      case R.id.digit_button_3:
-      case R.id.digit_button_4:
-      case R.id.digit_button_5:
-      case R.id.digit_button_6:
-      case R.id.digit_button_7:
-      case R.id.digit_button_8:
-      case R.id.digit_button_9:
+    } else if (id == R.id.digit_button_0
+        || id == R.id.digit_button_1
+        || id == R.id.digit_button_2
+        || id == R.id.digit_button_3
+        || id == R.id.digit_button_4
+        || id == R.id.digit_button_5
+        || id == R.id.digit_button_6
+        || id == R.id.digit_button_7
+        || id == R.id.digit_button_8
+        || id == R.id.digit_button_9) {
         int x = Integer.parseInt(((Button) view).getText().toString().trim());
         setScore((mRequestedScore * 10 + x) % 10000);
-        break;
-      case R.id.ok_score_button:
+    } else if (id == R.id.ok_score_button) {
         mCallback.onEnteredScore(mRequestedScore);
-        break;
     }
   }
 }

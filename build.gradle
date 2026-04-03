@@ -5,11 +5,11 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.2'
+        classpath 'com.android.tools.build:gradle:8.13.2'
     }
 }
 
@@ -17,11 +17,11 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     ext {
-        android_compile_version = 28
+        android_compile_version = 30
 
         // Google Play Services minimum requirements is 14
         android_min_sdk_version = 14

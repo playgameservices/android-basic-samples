@@ -117,28 +117,22 @@ public class MainMenuFragment extends Fragment implements OnClickListener {
 
   @Override
   public void onClick(View view) {
-    switch (view.getId()) {
-      case R.id.easy_mode_button:
-        mListener.onStartGameRequested(false);
-        break;
-      case R.id.hard_mode_button:
-        mListener.onStartGameRequested(true);
-        break;
-      case R.id.show_achievements_button:
-        mListener.onShowAchievementsRequested();
-        break;
-      case R.id.show_leaderboards_button:
-        mListener.onShowLeaderboardsRequested();
-        break;
-      case R.id.show_friends_button:
-        mListener.onShowFriendsButtonClicked();
-        break;
-      case R.id.sign_in_button:
-        mListener.onSignInButtonClicked();
-        break;
-      case R.id.sign_out_button:
-        mListener.onSignOutButtonClicked();
-        break;
+    final int id = view.getId();
+
+    if (id == R.id.easy_mode_button) {
+      mListener.onStartGameRequested(false);
+    } else if (id == R.id.hard_mode_button) {
+      mListener.onStartGameRequested(true);
+    } else if (id == R.id.show_achievements_button) {
+      mListener.onShowAchievementsRequested();
+    } else if (id == R.id.show_leaderboards_button) {
+      mListener.onShowLeaderboardsRequested();
+    } else if (id == R.id.show_friends_button) {
+      mListener.onShowFriendsButtonClicked();
+    } else if (id == R.id.sign_in_button) {
+      mListener.onSignInButtonClicked();
+    } else if (id == R.id.sign_out_button) {
+      mListener.onSignOutButtonClicked();
     }
   }
 
